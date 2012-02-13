@@ -26,7 +26,7 @@ public class Runner extends Thread {
 	boolean usingSimulator = false;
 	private static ControlGUI thresholdsGUI;
 	Vision vision;
-//test
+//test // Test
 	// game flags
 	boolean teamYellow = true;
 	public static final int DEFAULT_SPEED = 35;		// used for move_forward method in Robot
