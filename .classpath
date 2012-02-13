@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
+	<classpathentry kind="lib" path="lib/bcel.jar"/>
+	<classpathentry kind="lib" path="lib/bluecove-gpl.jar"/>
+	<classpathentry kind="lib" path="lib/bluecove.jar"/>
+	<classpathentry kind="lib" path="lib/classes.jar"/>
+	<classpathentry kind="lib" path="lib/commons-cli.jar"/>
+	<classpathentry kind="lib" path="lib/jtools.jar"/>
+	<classpathentry kind="lib" path="lib/libv4l4j.so"/>
+	<classpathentry kind="lib" path="lib/libvideo.so"/>
+	<classpathentry kind="lib" path="lib/libvideo.so.0"/>
+	<classpathentry kind="lib" path="lib/pccomm.jar"/>
+	<classpathentry kind="lib" path="lib/pctools.jar"/>
+	<classpathentry kind="lib" path="lib/v4l4j.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
