@@ -77,15 +77,15 @@ public class Move {
 		System.out.println("POS " + ballPos);
 		switch(ballPos) {
 		case 0: {
-			double a = ((double)ball.getCoors().getY())/((double)dist);	
+			double a = ((double)ball.getCoors().getX())/((double)dist);	
 			a = (a > 0) ? a : -a;		
 			System.out.println("Bx : " + ball.getCoors().getX());
 			System.out.println("Dist : " + dist);
 			System.out.println("A is : " + a);
-			angle = (float) Math.asin(a);
+			angle = (float) -Math.asin(a);
 			System.out.println("Aangle in radians : " + angle);
 			System.out.println("Aangle in degrees : " + Math.toDegrees(angle));
-			break;			// turn 'angle' radians left
+			break;			// turn 'angle' radians right
 		}
 		case 1: {
 			double a = ((double)ball.getCoors().getY())/((double)dist);	
@@ -93,23 +93,23 @@ public class Move {
 			System.out.println("Bx : " + ball.getCoors().getX());
 			System.out.println("Dist : " + dist);
 			System.out.println("A is : " + a);
-			angle = (float) -Math.asin(a);
+			angle = (float) -(Math.asin(a) + Math.PI/2);
 			System.out.println("Aangle in radians : " + angle);
 			System.out.println("Aangle in degrees : " + Math.toDegrees(angle));
 			break;
 			// turn 'angle' radians right
 		}
 		case 2: {
-			double a = ((double)ball.getCoors().getX())/((double)dist);
+			double a = ((double)ball.getCoors().getY())/((double)dist);
 			a = (a > 0) ? a : -a;
 			System.out.println("Bx : " + ball.getCoors().getX());
 			System.out.println("Dist : " + dist);
 			System.out.println("A is : " + a);
-			angle = (float) -(Math.asin(a) + Math.PI/2); 
+			angle = (float) (Math.asin(a) + Math.PI/2); 
 			System.out.println("Aangle in radians : " + angle);
 			System.out.println("Aangle in degrees : " + Math.toDegrees(angle));
 			break;
-			// turn 'angle' radians right
+			// turn 'angle' radians left
 		}	
 		case 3: {
 			double a = ((double)ball.getCoors().getX())/((double)dist);
@@ -117,7 +117,7 @@ public class Move {
 			System.out.println("Bx : " + ball.getCoors().getX());
 			System.out.println("Dist : " + dist);
 			System.out.println("A is : " + a);
-			angle = (float) (Math.asin(a) + Math.PI/2); 
+			angle = (float) Math.asin(a); 
 			System.out.println("Aangle in radians : " + angle);
 			System.out.println("Aangle in degrees : " + Math.toDegrees(angle));
 			break;			// turn 'angle' radians left
