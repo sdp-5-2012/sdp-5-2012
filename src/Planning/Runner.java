@@ -10,7 +10,7 @@ import Planning.Move;
 import JavaVision.*;
 
 public class Runner extends Thread {
-    // f
+ 
 	// Objects
 	public static Ball ball;
 	public static Robot nxt;
