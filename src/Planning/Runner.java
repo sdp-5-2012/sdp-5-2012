@@ -2,10 +2,6 @@ package Planning;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Hashtable;
-import java.util.Timer;
-import java.util.TimerTask;
-
 import lejos.nxt.Motor;
 
 import au.edu.jcu.v4l4j.V4L4JConstants;
@@ -28,11 +24,12 @@ public class Runner extends Thread {
 	Vision vision;
 
 	// game flags
-	boolean teamYellow = true;
+	boolean teamYellow = false;
 	public static final int DEFAULT_SPEED = 35;		// used for move_forward method in Robot
 	public static final int EACH_WHEEL_SPEED = 900; // used for each_wheel_speed method in Robot
 
 	public static void main(String args[]) {
+		
 		instance = new Runner();
 
 	}
@@ -41,6 +38,7 @@ public class Runner extends Thread {
 	 * Instantiate objects and start the planning thread
 	 */
 	public Runner() {
+		
 		blueRobot = new Robot();
 		yellowRobot = new Robot();
 		ball = new Ball();
@@ -62,9 +60,10 @@ public class Runner extends Thread {
 		startVision();
 
 		// start communications with our robot
-	//	nxt.startCommunications();
-	//	mainLoop();
 
+		nxt.startCommunications();
+		//nxt.rotateRobot(90);
+		mainLoop();
 	}
 
 	/**
@@ -113,22 +112,24 @@ public class Runner extends Thread {
 		int[] prevResults = new int[10];
 		ArrayList<Integer> mode = new ArrayList<Integer>();
 
-		for(int i = 1; i <= 10; i++) {
+		for(int i = 1; i <= 20; i++) {
 			getPitchInfo();
-
+			
 			try {
 				Thread.sleep(50);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
+			
 			int m = move.getAngleToBall(nxt, ball);
-			//			System.out.println("m: " + m);
+			System.out.println("m: " + m);
+			
 			if (i < 11) {
 				prevResults[i-1] = m;
-				//				System.out.println("VALUE IN PREVRESULT: " + prevResults[i-1]);
+				System.out.println("VALUE IN PREVRESULT: " + prevResults[i-1]);
 			}
 		}
-
+		
 		mode = findMode(prevResults);
 
 		for (int j = 0; j < mode.size(); j++) {
@@ -136,36 +137,62 @@ public class Runner extends Thread {
 		}
 
 		angle /= mode.size();
-
-		int dist = move.getDist(nxt, ball);
+		
 		System.out.println("First angle(avg) calculated: " + (angle));
-
+		
+		int dist = move.getDist(nxt, ball);
+	
 		nxt.rotateRobot(angle);
-		nxt.moveForward(25);
-
-		while(dist > 100) { // dist in pixels
-			Date d = new Date();
-			long time = d.getTime();
-
-
-			//			try {
+		try {
+			Thread.sleep(3000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		nxt.moveForward(20);
+		int counter = 0;
+		
+		while(dist > 30) { // dist in pixels
+			
+		//	System.out.println("COUNTER IS: " + counter);
+//			try {
 			//				Thread.sleep(1000);
 			//			} catch (InterruptedException e) {
 			//				// TODO Auto-generated catch block
 			//				e.printStackTrace();
 			//			}
-			if  ( d.getTime() - time > 500) {
+			if  (counter==15) {
+				
+				counter=0;
+				
 				getPitchInfo();
 				dist = move.getDist(nxt, ball);
 				int n = move.getAngleToBall(nxt, ball);
-				if((n > 10) || (n<-10)) {
-					System.out.println("MAINLOOP: WITHIN IF STATEMENT: ANGLE TO BALL: " + n);
+				
+				System.out.println("THIS IS THE DISTANCE: " +dist);
+				System.out.println("THIS IS THE ANGLE: " + n);
+				
+				if((Math.abs(n) > 20)) {
+					System.out.println("MAINLOOP: WITHIN IF STATEMENT: ANGLE TO BALL: " + n + " " + dist);
 					nxt.rotateRobot(n);
-					nxt.moveForward(25);
+					getPitchInfo();
+					dist = move.getDist(nxt, ball);
+					int n2 = move.getAngleToBall(nxt, ball);
+					try {
+						Thread.sleep(3000);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					
+					System.out.println("END OF IF ANGLE: " + n2);
+					nxt.moveForward(20);
+					
 				}
 			}
+			counter++;
 		}
-
+		
 		nxt.stop();	
 	}
 
@@ -179,13 +206,14 @@ public class Runner extends Thread {
 		array1.add(nums[0]);
 
 		for (int i = 1; i < nums.length; i++) {
-			if (array1.get(0) - nums[i] <= 40) {
-				array1.add(nums[i]);
-
-				//			System.out.println("array1: " + nums[i]);
-			} else {
-				array2.add(nums[i]);
-				//				System.out.println("array2: " + nums[i]);
+			if (nums[i] !=0){
+				if (Math.abs(array1.get(0) - nums[i]) <= 20) {
+					array1.add(nums[i]);
+					System.out.println("array1: " + nums[i]);
+				} else {
+					array2.add(nums[i]);
+					System.out.println("array2: " + nums[i]);
+				}
 			}
 		}
 
@@ -208,15 +236,7 @@ public class Runner extends Thread {
 		System.out.println("______________new pitch info_______________________");
 
 		ball.setCoors(new Position(state.getBallX(), state.getBallY()));	
-		//		System.out.println(ball.coors.getX()+ " " + ball.coors.getY());
-
-		//		blueRobot.setAngle(state.getBlueOrientation());
-		//		blueRobot.setCoors(new Position(state.getBlueX(), state.getBlueY()));
-
-		//
-		//		yellowRobot.setAngle(state.getYellowOrientation());
-		//		yellowRobot.setCoors(new Position(state.getYellowX(), state.getYellowY()));
-
+		
 		if(teamYellow) {
 			nxt.setAngle(state.getYellowOrientation());
 			nxt.setCoors(new Position(state.getYellowX(), state.getYellowY()));

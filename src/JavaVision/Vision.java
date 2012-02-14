@@ -1,4 +1,5 @@
 package JavaVision;
+
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.event.WindowAdapter;
@@ -848,8 +849,8 @@ public class Vision extends WindowAdapter {
 		int yvector = interY - centroid.getY();
 		float angle = (float) Math.atan2 (xvector, yvector);
 		
-		angle = (float) (angle * 180.0 / Math.PI);
-		angle = angle + 180;
+		angle = (float) Math.toDegrees(angle);
+		angle = 180 - angle;
 		
 		angle = (float) Math.toRadians(angle);
 		//if (Math.abs(finalPoint.getY() - centroid.getY()) > 10
@@ -1262,10 +1263,11 @@ public class Vision extends WindowAdapter {
 
 		return angle;
 	}
-
+	
 	public WorldState getWorldState(){
 		return worldState;
 	}
+
 	/* Doesn't work */
 	/*
 	 * private void calculateDistortion() { this.xDistortion = new int[640];
