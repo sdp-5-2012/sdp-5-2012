@@ -2,6 +2,11 @@ package Planning;
 import JavaVision.*;
 
 public class Move {
+	
+	// Suppress default constructor for noninstantiability
+	private Move() {
+		throw new AssertionError();
+	}
 
 	// returns the distance between the robot and the ball
 	public static int getDist(Robot robot, Ball ball){
@@ -12,7 +17,6 @@ public class Move {
 		
 		int x = (int) Math.abs(robotX - ballX);
 		int y = (int) Math.abs(robotY - ballY);
-
 
 		//int x = (int) Math.abs(robot.getCoors().getX() - ball.getCoors().getX());
 		//int y = (int) Math.abs(robot.getCoors().getY() - ball.getCoors().getY());
