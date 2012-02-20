@@ -1,8 +1,6 @@
 package Planning;
 
 import java.util.ArrayList;
-import java.util.Date;
-import lejos.nxt.Motor;
 
 import au.edu.jcu.v4l4j.V4L4JConstants;
 import au.edu.jcu.v4l4j.exceptions.V4L4JException;
@@ -16,7 +14,6 @@ public class Runner extends Thread {
 	public static Robot nxt;
 	static WorldState state;
 	static Runner instance = null;
-	static Move move;
 	static Robot blueRobot;
 	static Robot yellowRobot;
 	boolean usingSimulator = false;
@@ -42,7 +39,6 @@ public class Runner extends Thread {
 		blueRobot = new Robot();
 		yellowRobot = new Robot();
 		ball = new Ball();
-		move = new Move();
 
 		start();
 	}
@@ -60,9 +56,8 @@ public class Runner extends Thread {
 		startVision();
 
 		// start communications with our robot
-
 		nxt.startCommunications();
-		//nxt.rotateRobot(90);
+		
 		mainLoop();
 	}
 
@@ -110,9 +105,10 @@ public class Runner extends Thread {
 	private void mainLoop() {
 		int angle = 0;
 		int[] prevResults = new int[10];
-		ArrayList<Integer> mode = new ArrayList<Integer>();
+		ArrayList<Integer> goodAngles = new ArrayList<Integer>();
 
-		for(int i = 1; i <= 20; i++) {
+		// Get 10 angles from vision
+		for(int i = 1; i <= 10; i++) {
 			getPitchInfo();
 
 			try {
@@ -121,78 +117,66 @@ public class Runner extends Thread {
 				e.printStackTrace();
 			}
 
-			int m = move.getAngleToBall(nxt, ball);
-			System.out.println("m: " + m);
+			int m = Move.getAngleToBall(nxt, ball);
 
 			if (i < 11) {
 				prevResults[i-1] = m;
-				System.out.println("VALUE IN PREVRESULT: " + prevResults[i-1]);
 			}
 		}
+		
+		// Remove outliers
+		goodAngles = removeVal(prevResults);
 
-		mode = removeVal(prevResults);
-
-		for (int j = 0; j < mode.size(); j++) {
-			angle += mode.get(j);
+		// Sum angles
+		for (int j = 0; j < goodAngles.size(); j++) {
+			angle += goodAngles.get(j);
 		}
-
-		angle /= mode.size();
+		// Get average angle
+		angle /= goodAngles.size();
 
 		System.out.println("First angle(avg) calculated: " + (angle));
 
-		int dist = move.getDist(nxt, ball);
-
+		int dist = Move.getDist(nxt, ball);
+		
 		nxt.rotateRobot(angle);
+		
+		// Wait for robot to complete rotation
 		try {
-			Thread.sleep(3000);
+			Thread.sleep(1500);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
 		nxt.moveForward(20);
 		int counter = 0;
 
 		while(dist > 30) { // dist in pixels
 
-			//	System.out.println("COUNTER IS: " + counter);
-			//			try {
-			//				Thread.sleep(1000);
-			//			} catch (InterruptedException e) {
-			//				// TODO Auto-generated catch block
-			//				e.printStackTrace();
-			//			}
 			if  (counter==15) {
 
 				counter=0;
 
 				getPitchInfo();
-				dist = move.getDist(nxt, ball);
-				int n = move.getAngleToBall(nxt, ball);
-
-				System.out.println("THIS IS THE DISTANCE: " +dist);
-				System.out.println("THIS IS THE ANGLE: " + n);
+				dist = Move.getDist(nxt, ball);
+				int n = Move.getAngleToBall(nxt, ball);
 
 				if((Math.abs(n) > 20)) {
-					System.out.println("MAINLOOP: WITHIN IF STATEMENT: ANGLE TO BALL: " + n + " " + dist);
 					nxt.rotateRobot(n);
 					getPitchInfo();
-					dist = move.getDist(nxt, ball);
-					int n2 = move.getAngleToBall(nxt, ball);
+					dist = Move.getDist(nxt, ball);
+//					int n2 = Move.getAngleToBall(nxt, ball);
+					// Wait for robot to complete rotation
 					try {
-						Thread.sleep(3000);
+						Thread.sleep(1500);
 					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
-
-					System.out.println("END OF IF ANGLE: " + n2);
 					nxt.moveForward(20);
 
 				}
 			}
 			counter++;
 		}
-
 		nxt.stop();	
 	}
 
@@ -266,14 +250,14 @@ public class Runner extends Thread {
 
 		// Get pitch information from vision
 		state = vision.getWorldState();
-		System.out.println("______________new pitch info_______________________");
+//		System.out.println("______________new pitch info_______________________");
 
 		ball.setCoors(new Position(state.getBallX(), state.getBallY()));	
 
 		if(teamYellow) {
 			nxt.setAngle(state.getYellowOrientation());
 			nxt.setCoors(new Position(state.getYellowX(), state.getYellowY()));
-			System.out.println("Y: " + Math.toDegrees(yellowRobot.angle));
+//			System.out.println("Y: " + Math.toDegrees(yellowRobot.angle));
 
 			blueRobot.setAngle(state.getBlueOrientation());
 			blueRobot.setCoors(new Position(state.getBlueX(), state.getBlueY()));
