@@ -69,55 +69,55 @@ public class Move {
 		int dist = getDist(robot, b);
 		Ball ball = new Ball();
 		ball = modifyBallCoors(robot, b); // ball with the new coordinates
-		System.out.println("Ball coors" + ball.getCoors().getX() + " " + ball.getCoors().getY());
+//		System.out.println("Ball coors" + ball.getCoors().getX() + " " + ball.getCoors().getY());
 		float angle = 0;
 		int ballPos = getBallPosition(ball);
-		System.out.println("POS " + ballPos);
+//		System.out.println("POS " + ballPos);
 		switch(ballPos) {
 		case 0: {
 			double a = ((double)ball.getCoors().getX())/((double)dist);	
 			a = (a > 0) ? a : -a;		
-			System.out.println("Bx : " + ball.getCoors().getX());
-			System.out.println("Dist : " + dist);
-			System.out.println("A is : " + a);
+//			System.out.println("Bx : " + ball.getCoors().getX());
+//			System.out.println("Dist : " + dist);
+//			System.out.println("A is : " + a);
 			angle = (float) -Math.asin(a);
-			System.out.println("Aangle in radians : " + angle);
-			System.out.println("Aangle in degrees : " + Math.toDegrees(angle));
+//			System.out.println("Aangle in radians : " + angle);
+//			System.out.println("Aangle in degrees : " + Math.toDegrees(angle));
 			break;			// turn 'angle' radians right
 		}
 		case 1: {
 			double a = ((double)ball.getCoors().getY())/((double)dist);	
 			a = (a > 0) ? a : -a;
-			System.out.println("Bx : " + ball.getCoors().getX());
-			System.out.println("Dist : " + dist);
-			System.out.println("A is : " + a);
+//			System.out.println("Bx : " + ball.getCoors().getX());
+//			System.out.println("Dist : " + dist);
+//			System.out.println("A is : " + a);
 			angle = (float) -(Math.asin(a) + Math.PI/2);
-			System.out.println("Aangle in radians : " + angle);
-			System.out.println("Aangle in degrees : " + Math.toDegrees(angle));
+//			System.out.println("Aangle in radians : " + angle);
+//			System.out.println("Aangle in degrees : " + Math.toDegrees(angle));
 			break;
 			// turn 'angle' radians right
 		}
 		case 2: {
 			double a = ((double)ball.getCoors().getY())/((double)dist);
 			a = (a > 0) ? a : -a;
-			System.out.println("Bx : " + ball.getCoors().getX());
-			System.out.println("Dist : " + dist);
-			System.out.println("A is : " + a);
+//			System.out.println("Bx : " + ball.getCoors().getX());
+//			System.out.println("Dist : " + dist);
+//			System.out.println("A is : " + a);
 			angle = (float) (Math.asin(a) + Math.PI/2); 
-			System.out.println("Aangle in radians : " + angle);
-			System.out.println("Aangle in degrees : " + Math.toDegrees(angle));
+//			System.out.println("Aangle in radians : " + angle);
+//			System.out.println("Aangle in degrees : " + Math.toDegrees(angle));
 			break;
 			// turn 'angle' radians left
 		}	
 		case 3: {
 			double a = ((double)ball.getCoors().getX())/((double)dist);
 			a = (a > 0) ? a : -a;
-			System.out.println("Bx : " + ball.getCoors().getX());
-			System.out.println("Dist : " + dist);
-			System.out.println("A is : " + a);
+//			System.out.println("Bx : " + ball.getCoors().getX());
+//			System.out.println("Dist : " + dist);
+//			System.out.println("A is : " + a);
 			angle = (float) Math.asin(a); 
-			System.out.println("Aangle in radians : " + angle);
-			System.out.println("Aangle in degrees : " + Math.toDegrees(angle));
+//			System.out.println("Aangle in radians : " + angle);
+//			System.out.println("Aangle in degrees : " + Math.toDegrees(angle));
 			break;			// turn 'angle' radians left
 		}
 		}
