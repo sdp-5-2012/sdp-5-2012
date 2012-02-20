@@ -3,10 +3,8 @@ import JavaVision.*;
 
 public class Move {
 
-	private int POS;
-
 	// returns the distance between the robot and the ball
-	public int getDist(Robot robot, Ball ball){
+	public static int getDist(Robot robot, Ball ball){
 		int robotX = robot.getCoors().getX();
 		int robotY = robot.getCoors().getY();
 		int ballX = ball.getCoors().getX();
@@ -24,7 +22,7 @@ public class Move {
 
 	//rotate coordinate system to get the position of the ball with
 	//respect to the robot
-	public Ball modifyBallCoors(Robot robot, Ball ball) {
+	public static Ball modifyBallCoors(Robot robot, Ball ball) {
 
 		Position p;
 		p = translatePoint(robot, ball); // ball relative to robot
@@ -38,7 +36,7 @@ public class Move {
 		return ball;
 	}
 
-	public Position translatePoint(Robot robot, ObjectDetails o) {
+	public static Position translatePoint(Robot robot, ObjectDetails o) {
 
 		int x = o.getCoors().getX() - robot.getCoors().getX();
 		int y = -(o.getCoors().getY()) - (-(robot.getCoors().getY())); // negative y to convert into normal cordinate system
@@ -46,8 +44,8 @@ public class Move {
 		return o.coors;
 	}
 
-	public int getBallPosition(Ball ball){ 		
-
+	public static int getBallPosition(Ball ball){ 		
+		int POS;
 		//find the position of the ball with respect to the robot
 		if(ball.getCoors().getX() > 0) {// ball is on the right side of the robot
 			if(ball.getCoors().getY() > 0) { // ball is in top right square
@@ -66,7 +64,7 @@ public class Move {
 	}
 
 	// returns the angle from the robot to the ball
-	public int getAngleToBall(Robot robot, Ball b){
+	public static int getAngleToBall(Robot robot, Ball b){
 
 		int dist = getDist(robot, b);
 		Ball ball = new Ball();
