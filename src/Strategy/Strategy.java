@@ -8,7 +8,7 @@ public class Strategy {
 // NB CONSTANTS SUCH AS PITCH CENTRE/GOALS WILL HAVE TO BE AVAILABLE TO THIS CLASS
 	
 	Move move;
-	
+	//test
 	/*
 	 * Modes:
 	 * 0 - default "go to ball, aim, kick"
