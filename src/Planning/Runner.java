@@ -1,6 +1,9 @@
 package Planning;
 
+import java.awt.Point;
 import java.util.ArrayList;
+import java.util.Date;
+import lejos.nxt.Motor;
 
 import au.edu.jcu.v4l4j.V4L4JConstants;
 import au.edu.jcu.v4l4j.exceptions.V4L4JException;
@@ -19,6 +22,11 @@ public class Runner extends Thread {
 	boolean usingSimulator = false;
 	private static ControlGUI thresholdsGUI;
 	Vision vision;
+	PathPlanner planner = new PathPlanner();
+
+	Point ourNXT = new Point();
+	Point otherNXT = new Point();
+	Point ballPoint = new Point();
 
 	// game flags
 	boolean teamYellow = false;
@@ -56,9 +64,10 @@ public class Runner extends Thread {
 		startVision();
 
 		// start communications with our robot
+
 		nxt.startCommunications();
-		
-		mainLoop();
+
+		mainLoop();	
 	}
 
 	/**
@@ -103,11 +112,19 @@ public class Runner extends Thread {
 
 
 	private void mainLoop() {
+
+		Point goal = new Point();
+		getPitchInfo();
+		goal = planner.getOptimalPath(ourNXT, ballPoint, otherNXT, 0);
+
+		Ball goalBall = new Ball();
+		goalBall.setCoors(new Position(goal.x,goal.y));
+
 		int angle = 0;
 		int[] prevResults = new int[10];
 		ArrayList<Integer> goodAngles = new ArrayList<Integer>();
 
-		// Get 10 angles from vision
+		// Sum 10 angles from Vision
 		for(int i = 1; i <= 10; i++) {
 			getPitchInfo();
 
@@ -117,67 +134,124 @@ public class Runner extends Thread {
 				e.printStackTrace();
 			}
 
-			int m = Move.getAngleToBall(nxt, ball);
+			int m = Move.getAngleToBall(nxt, goalBall);
 
 			if (i < 11) {
 				prevResults[i-1] = m;
 			}
 		}
-		
 		// Remove outliers
 		goodAngles = removeVal(prevResults);
 
-		// Sum angles
 		for (int j = 0; j < goodAngles.size(); j++) {
 			angle += goodAngles.get(j);
 		}
-		// Get average angle
+
+		// Get the average angle
 		angle /= goodAngles.size();
 
 		System.out.println("First angle(avg) calculated: " + (angle));
 
-		int dist = Move.getDist(nxt, ball);
-		
+		// Initial robot rotation
 		nxt.rotateRobot(angle);
-		
-		// Wait for robot to complete rotation
-		try {
-			Thread.sleep(1500);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		
-		nxt.moveForward(20);
-		int counter = 0;
+		nxt.moveForward(25);
 
-		while(dist > 30) { // dist in pixels
+		int dist = Move.getDist(nxt, goalBall);
 
-			if  (counter==15) {
+		while(dist > 35) { // dist in pixels
+			System.out.println("Distance: " + dist);
+			getPitchInfo();
+			dist = Move.getDist(nxt, goalBall);
+			int n = Move.getAngleToBall(nxt, goalBall);
 
-				counter=0;
+			if((Math.abs(n) > 20)) {
+				nxt.stop();
+				nxt.rotateRobot(n);
 
 				getPitchInfo();
-				dist = Move.getDist(nxt, ball);
-				int n = Move.getAngleToBall(nxt, ball);
+				dist = Move.getDist(nxt, goalBall);
 
-				if((Math.abs(n) > 20)) {
-					nxt.rotateRobot(n);
-					getPitchInfo();
-					dist = Move.getDist(nxt, ball);
-//					int n2 = Move.getAngleToBall(nxt, ball);
-					// Wait for robot to complete rotation
-					try {
-						Thread.sleep(1500);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-					nxt.moveForward(20);
+				nxt.moveForward(20);
 
-				}
+			} else {
+				getPitchInfo();
+				dist = Move.getDist(nxt, goalBall);
+
 			}
-			counter++;
 		}
-		nxt.stop();	
+		
+		nxt.stop();
+
+
+		//		int angle = 0;
+		//		int[] prevResults = new int[10];
+		//		ArrayList<Integer> goodAngles = new ArrayList<Integer>();
+		//
+		//		// Sum 10 angles from Vision
+		//		for(int i = 1; i <= 10; i++) {
+		//			getPitchInfo();
+		//
+		//			try {
+		//				Thread.sleep(50);
+		//			} catch (InterruptedException e) {
+		//				e.printStackTrace();
+		//			}
+		//
+		//			int m = Move.getAngleToBall(nxt, ball);
+		//
+		//			if (i < 11) {
+		//				prevResults[i-1] = m;
+		//			}
+		//		}
+		//		// Remove outliers
+		//		goodAngles = removeVal(prevResults);
+		//
+		//		for (int j = 0; j < goodAngles.size(); j++) {
+		//			angle += goodAngles.get(j);
+		//		}
+		//
+		//		// Get the average angle
+		//		angle /= goodAngles.size();
+		//
+		//		System.out.println("First angle(avg) calculated: " + (angle));
+		//
+		//		int dist = Move.getDist(nxt, ball);
+		//
+		//		// Initial robot rotation
+		//		nxt.rotateRobot(angle);
+		//
+		//		System.out.println("finished first rotation");
+		//
+		//		nxt.moveForward(20);
+		//
+		//		while(dist > 35) { // dist in pixels
+		//			System.out.println("Distance: " + dist);
+		//				getPitchInfo();
+		//				dist = Move.getDist(nxt, ball);
+		//				int n = Move.getAngleToBall(nxt, ball);
+		//
+		//				if((Math.abs(n) > 20)) {
+		//					nxt.stop();
+		//					nxt.rotateRobot(n);
+		//
+		//					getPitchInfo();
+		//					dist = Move.getDist(nxt, ball);
+		//
+		//					nxt.moveForward(20);
+		//
+		//				} else {
+		//					getPitchInfo();
+		//					dist = Move.getDist(nxt, ball);
+		//					
+		//				}
+		//		}
+		//		
+		//		getPitchInfo();
+		//		nxt.stop();	
+		//		nxt.rotateRobot(Move.getAngleToBall(nxt, ball));
+		//		nxt.kick();
+
+
 	}
 
 
@@ -189,13 +263,12 @@ public class Runner extends Thread {
 	 * to make sure that the array only contains similar elements
 	 */
 
-	private ArrayList<Integer> removeVal(int[] nums) {
+	static ArrayList<Integer> removeVal(int[] nums) {
 
 		ArrayList<Integer> array1 = new ArrayList<Integer>();
 		ArrayList<Integer> array2 = new ArrayList<Integer>();
-		ArrayList<Integer> array3 = new ArrayList<Integer>(); 
+		ArrayList<Integer> array3 = new ArrayList<Integer>(); array1.add(nums[0]);
 
-		array1.add(nums[0]);
 		/*
 		 * if i-th element in the array differs by more than 40 from the first
 		 * element, add to 2nd array instead of 1st array
@@ -216,14 +289,12 @@ public class Runner extends Thread {
 		if (array2.size() > array1.size()) {
 			array1 = (ArrayList<Integer>) array2.clone();
 		}
-
 		array2.clear();
 		array2.add(array1.get(0));
 
 		/*
 		 * same as previous for loop, but compare elements in the newly made array
 		 */
-
 		for (int i = 1; i < array1.size(); i++) {
 			if ((array1.get(i)-array1.get(0) >= -20) && (array1.get(i)-array1.get(0) <= 20)) {
 				array2.add(array1.get(i));
@@ -235,7 +306,6 @@ public class Runner extends Thread {
 		/*
 		 * return larger array
 		 */
-
 		if (array3.size() > array2.size()) {
 			return array3;
 		} else {
@@ -248,28 +318,41 @@ public class Runner extends Thread {
 	 */
 	public void getPitchInfo() {
 
+
 		// Get pitch information from vision
 		state = vision.getWorldState();
-//		System.out.println("______________new pitch info_______________________");
+		//		System.out.println("______________new pitch info_______________________");
 
 		ball.setCoors(new Position(state.getBallX(), state.getBallY()));	
+		ballPoint.x = ball.getCoors().getX();
+		ballPoint.y = ball.getCoors().getY();
+
+
 
 		if(teamYellow) {
 			nxt.setAngle(state.getYellowOrientation());
 			nxt.setCoors(new Position(state.getYellowX(), state.getYellowY()));
-//			System.out.println("Y: " + Math.toDegrees(yellowRobot.angle));
+			ourNXT.x  = state.getYellowX();
+			ourNXT.y = state.getYellowY();
+			//			System.out.println("Y: " + Math.toDegrees(yellowRobot.angle));
 
 			blueRobot.setAngle(state.getBlueOrientation());
 			blueRobot.setCoors(new Position(state.getBlueX(), state.getBlueY()));
+			otherNXT.x = state.getBlueX();
+			otherNXT.y = state.getBlueY();
 			//			System.out.println(blueRobot.coors.getX() + " " + blueRobot.coors.getY() +" "+ blueRobot.angle);
 		} else {
 			nxt.setAngle(state.getBlueOrientation());
 			nxt.setCoors(new Position(state.getBlueX(), state.getBlueY()));
+			ourNXT.x  = state.getBlueX();
+			ourNXT.y = state.getBlueY();
 			//			System.out.println("B: " + yellowRobot.coors.getX() + " " + yellowRobot.coors.getY() +" "+ yellowRobot.angle);
 
 			//			System.out.println(blueRobot.coors.getX() + " " + blueRobot.coors.getY() +" "+ blueRobot.angle);
 			yellowRobot.setAngle(state.getYellowOrientation());
 			yellowRobot.setCoors(new Position(state.getYellowX(), state.getYellowY()));
+			otherNXT.x = state.getYellowX();
+			otherNXT.y = state.getYellowY();
 		}
 
 	}

@@ -24,7 +24,7 @@ public class NXT_class implements Runnable{
 	private static volatile boolean kicking = false;
 
 	// constants for the pilot class
-	private static final float TRACK_WIDTH = (float) 13.0; // Secondary table
+	private static final float TRACK_WIDTH = (float) 12.0; // Secondary table
 	private static final float WHEEL_DIAMETER = (float) 8.0;
 
 	// NXT Opcodes
@@ -38,18 +38,18 @@ public class NXT_class implements Runnable{
 	private final static int TRAVEL_BACKWARDS_SLIGHRLY=0X07;
 	private final static int TRAVEL_ARC=0X08;
 	private final static int ACCELERATE=0X09;
-	
-	
+
+
 	private final static int ROTATE = 0X0A;
 	private final static int EACH_WHEEL_SPEED=0X0B;
 	private final static int STEER =0X0C;
-	
-	
+
+
 	public static void main(String[] args) throws Exception {
 
 		DifferentialPilot pilot = new DifferentialPilot(WHEEL_DIAMETER,
 				TRACK_WIDTH, Motor.B, Motor.C, false);
-		
+
 		// start the sensor thread
 		new Thread(new NXT_class(pilot)).start();
 
@@ -102,7 +102,7 @@ public class NXT_class implements Runnable{
 						pilot.setTravelSpeed(speedForward);
 						pilot.forward();
 						break;
-					
+
 					case FORWARDS_TRAVEL:
 						int speedForwards = n>>8;
 						int travelDistance= n >>8;
@@ -113,7 +113,7 @@ public class NXT_class implements Runnable{
 						pilot.setTravelSpeed(speedForwards);
 						pilot.travel(travelDistance);
 						break;
-					
+
 					case TRAVEL_BACKWARDS_SLIGHRLY:	
 						LCD.clear();
 						LCD.drawString("travel back a little bit", 0, 2);
@@ -121,7 +121,7 @@ public class NXT_class implements Runnable{
 						LCD.refresh();
 						pilot.travel(-10);
 						break;
-						
+
 					case BACKWARDS:
 						int speedBackward = n>>8 ;
 						LCD.clear();
@@ -131,21 +131,29 @@ public class NXT_class implements Runnable{
 						pilot.backward();
 						pilot.setTravelSpeed(speedBackward);
 						break;
-					
-						
-						
+
+
+
 					case ROTATE:	
 						int rotateAngle = n >> 8;
-						
+
 						LCD.clear();
 						LCD.drawString("start rotate", 0, 2);
-						
-//						blocking = true;
+
+						//						blocking = true;
 						pilot.setRotateSpeed(pilot.getRotateMaxSpeed()/5);
-						pilot.rotate(rotateAngle, false);
-//						blocking = false;
+						//						pilot.rotate(rotateAngle, false);
+						pilot.rotate(rotateAngle);
+						while(true) {
+							if(pilot.isMoving() == false) {
+								os.write('f');
+								os.flush();
+								break;
+							}
+						}
+						//						blocking = false;
 						break;
-					
+
 					case EACH_WHEEL_SPEED:	
 						boolean left_wheel_backward = false;
 						boolean right_wheel_backward= false;
@@ -170,7 +178,7 @@ public class NXT_class implements Runnable{
 						}else if(!left_wheel_backward){
 							Motor.B.forward();
 						}
-						
+
 						//Assume that Motor C connects to left wheel 
 						if(right_wheel_backward){
 							Motor.C.backward();
@@ -178,7 +186,7 @@ public class NXT_class implements Runnable{
 							Motor.C.forward();
 						}
 						break;
-						
+
 					case STEER:
 						int turnRate = n >> 8;
 						int angle = n >> 8;
@@ -187,19 +195,19 @@ public class NXT_class implements Runnable{
 						}
 						pilot.steer(turnRate, angle);
 						break;
-					
+
 					case TRAVEL_ARC:
 						int radius = n >> 8;
 						int distance = n >> 8;
 						pilot.travelArc(radius, distance);
 						break;
-						
+
 					case ACCELERATE:
 						int accel = n >>16;
 						pilot.setAcceleration(accel);
 						pilot.forward();
 						break;
-						
+
 					case STOP:
 						LCD.clear();
 						LCD.drawString("stop", 0, 2);
@@ -236,9 +244,9 @@ public class NXT_class implements Runnable{
 					case QUIT: // close connection
 						// Sound.twoBeeps();
 						break;
-						
-					
-						
+
+
+
 
 					}
 
@@ -266,8 +274,8 @@ public class NXT_class implements Runnable{
 
 	}
 
-	
-	
+
+
 	/**
 	 * Returns an integer from a byte array
 	 */

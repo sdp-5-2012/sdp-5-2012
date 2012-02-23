@@ -16,16 +16,16 @@ public class PathPlanner {
 	
 	int correction = 10;
 	public static ArrayList<GraphPoint> path;
-	public static ArrayList<GraphPoint> occupied;
+	public static ArrayList<GraphPoint> occupied = new ArrayList<GraphPoint>();
 	public static ArrayList<GraphPoint> checked;
 	
 	public static Point ourPositionCoor;
 	public static Point goalPositionCoor;
 	
 		
-	public static GraphPoint oppPositionGrid;
-	public static GraphPoint goalPositionGrid;
-	public static GraphPoint ourPositionGrid;
+	public static GraphPoint oppPositionGrid = new GraphPoint(0, 0);
+	public static GraphPoint goalPositionGrid = new GraphPoint(0, 0);
+	public static GraphPoint ourPositionGrid = new GraphPoint(0, 0);
 	
 	
 	private static GraphPointComparator comparator = new GraphPointComparator();
@@ -38,13 +38,17 @@ public class PathPlanner {
 		GraphPoint oppPositionGrid = coordinatesToGrid(oppPosition) ;//Get opponent's coordinates to grid X
 	
 		//Gets occupied grids on the map
-		ArrayList<GraphPoint> occupied = new ArrayList<GraphPoint>();
+//		ArrayList<GraphPoint> occupied = new ArrayList<GraphPoint>();
 		path = new ArrayList<GraphPoint>();
 		checked = new ArrayList<GraphPoint>();
 		
-
-		ourPositionGrid = coordinatesToGrid(ourPositionCoor);
-		goalPositionGrid = coordinatesToGrid(goalPositionCoor);
+		ourPositionCoor = ourPosition;
+		goalPositionCoor = goalPosition;
+		
+		ourPositionGrid = coordinatesToGrid(ourPosition);
+		goalPositionGrid = coordinatesToGrid(goalPosition);
+		oppPositionGrid = coordinatesToGrid(oppPosition);
+		//System.out.println(occupied);
 		occupied.add(ourPositionGrid);
 		occupied.add(goalPositionGrid);
 		
@@ -69,23 +73,26 @@ public class PathPlanner {
 		
 		}
 		
-		path = new ArrayList<GraphPoint>();
-		checked = new ArrayList<GraphPoint>();
-		occupied = new ArrayList<GraphPoint>();
+//		path = new ArrayList<GraphPoint>();
+//		checked = new ArrayList<GraphPoint>();
+//		occupied = new ArrayList<GraphPoint>();
 
 		
 
 		checked.add(ourPositionGrid);
-		search(ourPositionGrid, goalPositionGrid);
+		path = search(ourPositionGrid, goalPositionGrid);
 
 		path = optimisePath(path);
+		System.out.println(path.get(0));
 
 		ArrayList<Point> waypoints=new ArrayList<Point>();;
 		
 		for(int x = 0; x<path.size();x++){
 			waypoints.add(x,gridToCoor(path.get(x)));
 		}
-
+		
+		System.out.println(waypoints.get(0));
+		System.out.println(waypoints.size());
 		return waypoints.get(0);
 			
 	}
@@ -99,7 +106,9 @@ public class PathPlanner {
 		
 		int x = (int) Math.ceil(a.x/gridSize);
 		int y = (int) Math.ceil(a.y/gridSize);
-		GraphPoint b = new GraphPoint(x, y);
+
+		GraphPoint b = new GraphPoint(x,y);
+		
 		
 		return b;
 	}
@@ -181,6 +190,7 @@ public class PathPlanner {
 			for (int y = currentPoint.y - 1; y < currentPoint.y + 2; y++) {
 				GraphPoint pt = new GraphPoint(x, y);
 				// check whether grid is on the "blacklist"
+//				System.out.println(occupied);
 				if (!occupied.contains(pt)) {
 					// check in range of grids
 					if (x > 0 && y > 0 && x <= gridX && y <= gridY) {
