@@ -16,6 +16,7 @@ public class Strategy {
 	 * 2 - dribble towards enemy half
 	 * 3 - retreat to own goal, defend
 	 * 4 - attack hard
+	 * 5 - default "go to ball, aim, kick" but go to the ball in an arc because the other robot's in the way!
 	 * 
 	 * 50 - penalty mode (shooting)			- triggered on planning GUI
 	 * 60 - penalty mode (defending)		- triggered on planning GUI
@@ -59,6 +60,10 @@ public class Strategy {
 			}
 		}
 		
+		if (ballObstructed(ourRobot, theirRobot, ball)) {
+				mode = 5;
+		}
+		
 		return mode;
 		
 	}
@@ -100,7 +105,7 @@ public class Strategy {
 		double slopeUsGoal = 0;
 		
 		// if they're behind us then nothing will happen - make sure they are at least closer to the goal we're shooting towards
-		if (Position.sqrdEuclidDist(ourRobot.getCoors().getX(), ourRobot.getCoors().getY(), theirGoal.getX(), theirGoal.getY()) < 
+		if (Position.sqrdEuclidDist(ourRobot.getCoors().getX(), ourRobot.getCoors().getY(), theirGoal.getX(), theirGoal.getY()) > 
 				Position.sqrdEuclidDist(theirRobot.getCoors().getX(), theirRobot.getCoors().getY(), theirGoal.getX(), theirGoal.getY())) {
 		
 			slopeThemGoal = (double) ((theirGoal.getY() - theirRobot.getCoors().getY()) / (theirGoal.getX() - theirRobot.getCoors().getX()));
@@ -118,6 +123,30 @@ public class Strategy {
 		}
 	
 		return obstruction;
+	}
+	
+	public boolean ballObstructed(Robot ourRobot, Robot theirRobot, Ball ball) {
+		boolean obstruction = false;
+		double slopeThemBall = 0;
+		double slopeUsBall = 0;
+		
+		// if they're behind us then nothing will happen - make sure they are at least closer to the ball than we are
+		if (Position.sqrdEuclidDist(ourRobot.getCoors().getX(), ourRobot.getCoors().getY(), ball.getCoors().getX(), ball.getCoors().getY()) > 
+				Position.sqrdEuclidDist(theirRobot.getCoors().getX(), theirRobot.getCoors().getY(), ball.getCoors().getX(), ball.getCoors().getY())) {
+				
+			
+			slopeThemBall = (double) ((ball.getCoors().getY() - theirRobot.getCoors().getY()) / (ball.getCoors().getX() - theirRobot.getCoors().getX()));
+			slopeUsBall = (double) ((ball.getCoors().getY() - ourRobot.getCoors().getY()) / (ball.getCoors().getX() - ourRobot.getCoors().getX()));
+		
+			double theirAngle = Math.atan(slopeThemBall);
+			double ourAngle = Math.atan(slopeUsBall);
+			
+			double difference = Math.abs(theirAngle - ourAngle);
+			
+			if (difference > 0.27) {
+				obstruction = true;
+		}
+		
 	}
 
 }
