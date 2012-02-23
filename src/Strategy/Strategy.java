@@ -8,7 +8,7 @@ public class Strategy {
 // NB CONSTANTS SUCH AS PITCH CENTRE/GOALS WILL HAVE TO BE AVAILABLE TO THIS CLASS
 	
 	Move move;
-	//test
+	
 	/*
 	 * Modes:
 	 * 0 - default "go to ball, aim, kick"
@@ -26,9 +26,9 @@ public class Strategy {
 		
 		int mode = 0;
 		
-		if (doWeHaveTheBall(ARGUMENTS NEED TO GO HERE!!!)) {
-			if (areWeInOurHalf(ARGUMENTS NEED TO GO HERE!!!)) {
-				if (areTheyInOurHalf(ARGUMENTS NEED TO GO HERE!!!)) {
+		if (doWeHaveTheBall(ourRobot, ball)) {
+			if (areWeInOurHalf(ourRobot, ourGoal, theirGoal)) {
+				if (areTheyInOurHalf(theirRobot, ourGoal, theirGoal)) {
 				
 					// mode 1 - kick wildly! (planning should work out an optimal angle)
 					mode = 1;
@@ -49,14 +49,15 @@ public class Strategy {
 				}
 			}
 				
-		} else if (doTheyHaveTheBall(ARGUMENTS NEED TO GO HERE!!!)) {
-			if (areTheyInOurHalf) {
+		} else if (doTheyHaveTheBall(theirRobot, ball)) {
+			if (areTheyInOurHalf(theirRobot, ourGoal, theirGoal)) {
 				mode = 3;
 			} else {
-				if (!areWeInOurHalf(ARGUMENTS NEED TO GO HERE!!!)) {
+				if (!areWeInOurHalf(ourRobot, ourGoal, theirGoal)) {
 					mode = 4;
 				}
 			}
+		}
 		
 		return mode;
 		
@@ -78,14 +79,16 @@ public class Strategy {
 	
 	// Returns true if we are closer to our own goal than the opposition's
 	public boolean areWeInOurHalf(Robot ourRobot, Position ourGoal, Position theirGoal) {
-		boolean usCloserToOurGoal = move.getPtDist(ourRobot.getCoors(), ourGoal) < move.getPtDist(ourRobot.getCoors(), theirGoal);
+		boolean usCloserToOurGoal = Position.sqrdEuclidDist(ourRobot.getCoors().getX(), ourRobot.getCoors().getY(), ourGoal.getX(), ourGoal.getY()) < 
+									Position.sqrdEuclidDist(ourRobot.getCoors().getX(), ourRobot.getCoors().getY(), theirGoal.getX(), theirGoal.getY());
 		
 		return usCloserToOurGoal;	
 	}
 	
 	// Returns true if they are closer to our goal than theirs
 	public boolean areTheyInOurHalf(Robot theirRobot, Position ourGoal, Position theirGoal) {
-		boolean themCloserToOurGoal = move.getPtDist(theirRobot.getCoors(), ourGoal) < move.getPtDist(theirRobot.getCoors(), theirGoal);
+		boolean themCloserToOurGoal = Position.sqrdEuclidDist(theirRobot.getCoors().getX(), theirRobot.getCoors().getY(), ourGoal.getX(), ourGoal.getY()) < 
+									Position.sqrdEuclidDist(theirRobot.getCoors().getX(), theirRobot.getCoors().getY(), theirGoal.getX(), theirGoal.getY());
 	
 		return themCloserToOurGoal;	
 	}
@@ -97,7 +100,8 @@ public class Strategy {
 		double slopeUsGoal = 0;
 		
 		// if they're behind us then nothing will happen - make sure they are at least closer to the goal we're shooting towards
-		if (getPtDist(ourRobot.getCoors(), theirGoal) < getPtDist(theirRobot.getCoors(), theirGoal)) {
+		if (Position.sqrdEuclidDist(ourRobot.getCoors().getX(), ourRobot.getCoors().getY(), theirGoal.getX(), theirGoal.getY()) < 
+				Position.sqrdEuclidDist(theirRobot.getCoors().getX(), theirRobot.getCoors().getY(), theirGoal.getX(), theirGoal.getY())) {
 		
 			slopeThemGoal = (double) ((theirGoal.getY() - theirRobot.getCoors().getY()) / (theirGoal.getX() - theirRobot.getCoors().getX()));
 			slopeUsGoal = (double) ((theirGoal.getY() - ourRobot.getCoors().getY()) / (theirGoal.getX() - ourRobot.getCoors().getX()));
