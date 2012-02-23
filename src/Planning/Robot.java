@@ -142,6 +142,10 @@ public class Robot extends ObjectDetails {
 			askingToReset = true;
 //			 clearAllCommands();
 //			 System.out.println("STACK CLEARED");
+		} else if (response == 'f') {
+			// Robot has finished moving
+			moving = false;
+			
 		}
 
 		return response;
@@ -256,6 +260,10 @@ public class Robot extends ObjectDetails {
 
 	public boolean isConnected() {
 		return isConnected;
+	}
+	
+	public boolean isMoving() {
+		return moving;
 	}
 	
 }
