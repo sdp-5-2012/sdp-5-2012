@@ -6,21 +6,20 @@
 
 #include <webots/differential_wheels.h>
 #include <webots/robot.h>
+#include <webots/servo.h>
 
 
 /* Our variables */
 
 bool moving = false; // Whether robot is moving forwards. False when rotating.
+bool kicked = false; // Whether the kicker is up
+static WbDeviceTag servo;
 
 /* Misc Stuff */
-#define MAX_SPEED 40
+#define MAX_SPEED 20
 #define NULL_SPEED 0
-#define HALF_SPEED 20
-#define MIN_SPEED -40
-
-#define WHEEL_RADIUS 0.031
-#define AXLE_LENGTH 0.271756
-#define ENCODER_RESOLUTION 507.919
+#define HALF_SPEED 10
+#define MIN_SPEED -10
 
 /* helper functions */
 static int get_time_step() {
@@ -62,34 +61,50 @@ static void turn_left() {
   moving = true;
   }
 
+static void kick(){
+  wb_servo_set_position(servo, INFINITY);
+  kicked = true;
+  }
+static void unkick(){
+  wb_servo_set_position(servo, 0);
+  kicked = false;
+  }
+
 static void check_keyboard() {
 
   int key = wb_robot_keyboard_get_key();
   if (key) {
+    printf("%d",key);
     switch (key) {
       case WB_ROBOT_KEYBOARD_UP:
         if (moving)
-			stop();
-		else
-			go_forward();
+          stop();
+        else
+          go_forward();
         break;
       case WB_ROBOT_KEYBOARD_DOWN:
         if (moving)
-			stop();
-		else
-			go_backward();
+          stop();
+        else
+          go_backward();
         break;
       case WB_ROBOT_KEYBOARD_RIGHT:
         if (moving)
-			stop();
-		else
-			turn_right();
+          stop();
+        else
+          turn_right();
         break;
       case WB_ROBOT_KEYBOARD_LEFT:
         if (moving)
-			stop();
-		else
-			turn_left();
+          stop();
+        else
+          turn_left();
+        break;
+      case WB_ROBOT_KEYBOARD_NUMPAD_UP:
+        if (kicked)
+          unkick();
+        else
+          kick();
         break;
     }
   }
@@ -103,7 +118,8 @@ int main(){
   int TIME_STEP = get_time_step();
   // enable keyboard
   wb_robot_keyboard_enable(TIME_STEP);
-  
+  servo = wb_robot_get_device("servo");
+  wb_servo_set_velocity(servo, 20.0);
   // main loop
   do {
     check_keyboard();
