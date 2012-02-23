@@ -3,7 +3,7 @@ package Strategy;
 import JavaVision.*;
 import Planning.*;
 
-public class Strategy
+public class StrategyX
 {
 	
 	Move move;
