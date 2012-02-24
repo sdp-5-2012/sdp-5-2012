@@ -143,7 +143,12 @@ public class Strategy {
 			if (difference > 0.27) {
 				obstruction = true;
 		}
-		
-	}
+			
 
+	}
+		
+		return obstruction;
+
+	}
+	
 }
