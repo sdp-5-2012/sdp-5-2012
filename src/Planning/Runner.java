@@ -24,13 +24,16 @@ public class Runner extends Thread {
 	private static ControlGUI thresholdsGUI;
 	Vision vision;
 	PathPlanner planner = new PathPlanner();
+	MainGui gui;
 
 	Point ourNXT = new Point();
 	Point otherNXT = new Point();
 	Point ballPoint = new Point();
 
 	// game flags
-	boolean teamYellow = false;
+	boolean teamYellow = true;
+	boolean applyClicked;
+	
 	public static final int DEFAULT_SPEED = 35;		// used for move_forward method in Robot
 	public static final int EACH_WHEEL_SPEED = 900; // used for each_wheel_speed method in Robot
 
@@ -48,7 +51,8 @@ public class Runner extends Thread {
 		blueRobot = new Robot();
 		yellowRobot = new Robot();
 		ball = new Ball();
-
+		gui = new MainGui();
+		
 		start();
 	}
 
@@ -56,36 +60,48 @@ public class Runner extends Thread {
 	 * Planning thread which begins planning loop
 	 */
 	public void run() {		
+		
+		javax.swing.SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				createAndShowGui();
+			}			
+		});
+		// Wait until apply button clicked and set team
+//		boolean counter = true;
+		
+		while(true) {
+
+			applyClicked = gui.getApplyClicked();
+			if (applyClicked == true) {
+				teamYellow = gui.getTeam();
+				break;
+			}	
+		}
+
 		if (teamYellow) {
 			nxt = yellowRobot;
 		} else {
 			nxt = blueRobot;
 		}
 
-		javax.swing.SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                createAndShowGui();
-            }
-        });
-
-	//	startVision();
+		//	startVision();
 
 		// start communications with our robot
 
-	//	nxt.startCommunications();
+		//	nxt.startCommunications();
 
-	//	mainLoop();	
+		//	mainLoop();	
 	}
 
 	private void createAndShowGui() {
 		// Set the the control gui
-		MainGui gui = new MainGui();
+		
 		gui.setSize(600,400);
 		gui.setLocation(250, 250);
 		gui.setTitle("N.U.K.E Control Panel");
 		gui.setResizable(true);
 		gui.setVisible(true);
-		
+
 	}
 
 	/**
@@ -134,7 +150,7 @@ public class Runner extends Thread {
 		Point goal = new Point();
 		getPitchInfo();
 		goal = planner.getOptimalPath(ourNXT, ballPoint, otherNXT, 0);
-		
+
 		Ball goalBall = new Ball();
 		goalBall.setCoors(new Position(goal.x,goal.y));
 
@@ -197,7 +213,7 @@ public class Runner extends Thread {
 
 			}
 		}
-		
+
 		nxt.stop();
 
 

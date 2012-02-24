@@ -29,12 +29,10 @@ public class MainGui extends JFrame {
 	String fileDir = new String("");
 	JFileChooser chooser;
 	File constantsFile;
-
-
-
+	boolean applyClicked = false;
+	boolean isYellow = true;
+	
 	public MainGui() {
-
-
 		getContentPane().setLayout(new BorderLayout());
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		addMenu();
@@ -93,7 +91,7 @@ public class MainGui extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				System.out.println("Start Vision");				
+				System.out.println(applyClicked);				
 			}
 		});
 
@@ -105,8 +103,10 @@ public class MainGui extends JFrame {
 				// Case for colour options
 				if(options.yellowRobotButton.isSelected()) {
 					log.setCurrentColour("Yellow");
+					isYellow = true;
 				} else if(options.blueRobotButton.isSelected()) {
 					log.setCurrentColour("Blue");
+					isYellow = false;
 				} 
 
 				// Case for attack options
@@ -124,7 +124,17 @@ public class MainGui extends JFrame {
 				} else if (options.normal.isSelected()) {
 					log.setCurrentMode("Normal");
 				}
+				
+				applyClicked = true;
 			}
 		});
+	}
+	
+	public boolean getApplyClicked() {
+		return applyClicked;
+	}
+	
+	public boolean getTeam() {
+		return isYellow;
 	}
 }

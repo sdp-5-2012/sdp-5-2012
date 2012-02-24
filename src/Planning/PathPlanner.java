@@ -80,7 +80,7 @@ public class PathPlanner {
 		
 
 		checked.add(ourPositionGrid);
-		path = search(ourPositionGrid, goalPositionGrid);
+		path.add(search(ourPositionGrid, goalPositionGrid));
 
 		path = optimisePath(path);
 		System.out.println(path.get(0));
