@@ -5,8 +5,6 @@ import Planning.*;
 
 public class Strategy {
 
-// NB CONSTANTS SUCH AS PITCH CENTRE/GOALS WILL HAVE TO BE AVAILABLE TO THIS CLASS
-	
 	Move move;
 	
 	/*
@@ -16,10 +14,7 @@ public class Strategy {
 	 * 2 - dribble towards enemy half
 	 * 3 - retreat to own goal, defend
 	 * 4 - attack hard
-	 * 5 - default "go to ball, aim, kick" but go to the ball in an arc because the other robot's in the way!
-	 * 
-	 * 50 - penalty mode (shooting)			- triggered on planning GUI
-	 * 60 - penalty mode (defending)		- triggered on planning GUI
+	 * OBSOLETE 5 - default "go to ball, aim, kick" but go to the ball in an arc because the other robot's in the way!
 	 *
 	 */
 	
@@ -60,9 +55,11 @@ public class Strategy {
 			}
 		}
 		
+		/* POSSIBLY OBSOLETE DUE TO PATHFINDING ALGORITHM AVOIDING OTHER ROBOT ANYWAY
 		if (ballObstructed(ourRobot, theirRobot, ball)) {
 				mode = 5;
 		}
+		*/
 		
 		return mode;
 		
