@@ -21,18 +21,30 @@ import javax.swing.JSplitPane;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
+import Planning.Runner;
+
 
 public class MainGui extends JFrame {
-	GuiLog log;
+	public GuiLog log;
 	JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-	OptionsPanel options;
+	public OptionsPanel options;
 	String fileDir = new String("");
 	JFileChooser chooser;
 	File constantsFile;
-	boolean applyClicked = false;
-	boolean isYellow = true;
+//	volatile boolean applyClicked = false;
+//	volatile boolean isYellow = true;
+	Runner runner;
 	
-	public MainGui() {
+	// values Runner needs
+	boolean attackLeft = true;
+	boolean isYellow = true;
+	int currentMode = 0;	// 0: Normal, 1: Penalty Defend, 2: Penalty Attack
+	String constantsLocation;
+	
+	
+	public MainGui(Runner runner) {
+		this.runner = runner;
+
 		getContentPane().setLayout(new BorderLayout());
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		addMenu();
@@ -47,6 +59,10 @@ public class MainGui extends JFrame {
 		splitPane.setDividerLocation(200);
 
 		addListeners();
+		
+		// default constants is pitch0
+		constantsLocation = getClass().getClassLoader().getResource(".").getPath()+ "src/JavaVision/constants/pitch0";
+		log.setCurrentPitchConstants("pitch0");
 	}
 
 	private void addMenu() {
@@ -70,8 +86,8 @@ public class MainGui extends JFrame {
 				JFrame frame = new JFrame();
 
 				// Create a file chooser and default to constants folder
-				String filename = getClass().getClassLoader().getResource(".").getPath();
-				String src = filename.substring(0, filename.length()-4);
+				constantsLocation = getClass().getClassLoader().getResource(".").getPath();
+				String src = constantsLocation.substring(0, constantsLocation.length()-4);
 				src = src + "src/JavaVision/constants";
 
 				JFileChooser fc = new JFileChooser(new File(src));
@@ -87,54 +103,74 @@ public class MainGui extends JFrame {
 
 	public void addListeners() {
 		// Start Vision Listener
-		log.startVision.addActionListener(new ActionListener() {
-
+		log.start.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				System.out.println(applyClicked);				
+				log.start.setEnabled(false);
+				log.apply.setEnabled(true);
+				updateButtons();
+				// Wake runner
+				synchronized (runner) {
+					runner.notify();
+				}		
 			}
 		});
-
+		
 		log.apply.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-
-				// Case for colour options
-				if(options.yellowRobotButton.isSelected()) {
-					log.setCurrentColour("Yellow");
-					isYellow = true;
-				} else if(options.blueRobotButton.isSelected()) {
-					log.setCurrentColour("Blue");
-					isYellow = false;
-				} 
-
-				// Case for attack options
-				if(options.attackLeft.isSelected()) {
-					log.setCurrentAttackGoal("Left");
-				} else if(options.attackRight.isSelected()) {
-					log.setCurrentAttackGoal("Right");
-				} 
-
-				// Case for mode options
-				if(options.penaltyAttack.isSelected()) {
-					log.setCurrentMode("Penalty Attack");
-				} else if(options.penaltyDefend.isSelected()) {
-					log.setCurrentMode("Penalty Defend");
-				} else if (options.normal.isSelected()) {
-					log.setCurrentMode("Normal");
-				}
-				
-				applyClicked = true;
+				updateButtons();
 			}
 		});
 	}
 	
-	public boolean getApplyClicked() {
-		return applyClicked;
+	void updateButtons() {
+		// Case for colour options
+		if(options.yellowRobotButton.isSelected()) {
+			log.setCurrentColour("Yellow");
+			isYellow = true;
+		} else if(options.blueRobotButton.isSelected()) {
+			log.setCurrentColour("Blue");
+			isYellow = false;
+		} 
+
+		// Case for attack options
+		if(options.attackLeft.isSelected()) {
+			log.setCurrentAttackGoal("Left");
+			attackLeft = true;
+		} else if(options.attackRight.isSelected()) {
+			log.setCurrentAttackGoal("Right");
+			attackLeft = false;
+		} 
+
+		// Case for mode options
+		if(options.penaltyAttack.isSelected()) {
+			log.setCurrentMode("Penalty Attack");
+			currentMode = 2;
+		} else if(options.penaltyDefend.isSelected()) {
+			log.setCurrentMode("Penalty Defend");
+			currentMode = 1;
+		} else if (options.normal.isSelected()) {
+			log.setCurrentMode("Normal");
+			currentMode = 0;
+		}
 	}
+	
+	// Getters
+//	public boolean getApplyClicked() {
+//		return applyClicked;
+//	}
 	
 	public boolean getTeam() {
 		return isYellow;
+	}
+	
+	public boolean getAttackLeft() {
+		return attackLeft;
+	}
+	
+	public int getMode() {
+		return currentMode;
 	}
 }

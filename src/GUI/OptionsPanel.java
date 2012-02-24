@@ -10,7 +10,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
-class OptionsPanel extends JPanel {
+public class OptionsPanel extends JPanel {
 
 	// Components to be added to the control panel
 	// Option labels
@@ -19,32 +19,24 @@ class OptionsPanel extends JPanel {
 	JLabel mode = new JLabel("Mode:");
 	
 	// Radio buttons
-	JRadioButton yellowRobotButton;
-	JRadioButton blueRobotButton;
-	JRadioButton attackLeft;
-	JRadioButton attackRight;
-	JRadioButton penaltyAttack;
-	JRadioButton penaltyDefend ;
-	JRadioButton normal;
+	public JRadioButton yellowRobotButton;
+	public JRadioButton blueRobotButton;
+	public JRadioButton attackLeft;
+	public JRadioButton attackRight;
+	public JRadioButton penaltyAttack;
+	public JRadioButton penaltyDefend ;
+	public JRadioButton normal;
 	
 	// Button Groups
 	ButtonGroup colourGroup;
 	ButtonGroup attackGroup;
 	ButtonGroup modeGroup;
-	
-	//	JPanel robotColourPanel = new JPanel();
-	//	JPanel attackGoalPanel = new JPanel();
-	//	JPanel modePanel = new JPanel(new FlowLayout(0, 5, 0));
 
 	/** Constructor */
 	public OptionsPanel() {
 
 		setLayout(new GridLayout(3,4));
-		//		robotColourPanel.add(robotColour);
-		//		attackGoalPanel.add(attackGoal);
-		//		modePanel.add(mode);
 
-		// robotColourPanel radio buttons
 		// robot colour
 		yellowRobotButton = new JRadioButton("Yellow");
 		blueRobotButton = new JRadioButton("Blue");
@@ -55,27 +47,16 @@ class OptionsPanel extends JPanel {
 		// add to panel
 		add(yellowRobotButton);
 		add(blueRobotButton);
-		//		robotColourPanel.add(yellowRobotButton);
-		//		robotColourPanel.add(blueRobotButton);
 
-		// attackGoalPanel radio buttons
-		// robot colour
+		// attack direction
 		attackLeft = new JRadioButton("Left");
 		attackRight = new JRadioButton("Right");
-
 		// group together
 		attackGroup = new ButtonGroup();
 		attackGroup.add(attackLeft);
 		attackGroup.add(attackRight);
-		// add to panel
-		//		attackGoalPanel.add(attackLeft);
-		//		attackGoalPanel.add(attackRight);
 
-		//		robotColourPanel.setAlignmentX(Component.RIGHT_ALIGNMENT);
-		//		attackGoalPanel.setAlignmentX(Component.RIGHT_ALIGNMENT);
-
-		// modePanel radio buttons
-		// robot colour
+		// Robot mode
 		penaltyAttack = new JRadioButton("Penalty Attack");
 		penaltyDefend = new JRadioButton("Penalty Defend");
 		normal = new JRadioButton("Normal");
@@ -85,10 +66,7 @@ class OptionsPanel extends JPanel {
 		modeGroup.add(penaltyDefend);
 		modeGroup.add(normal);
 
-		// add to panel
-		//		modePanel.add(penaltyAttack);
-		//modePanel.add(penaltyDefend);
-		//modePanel.add(normal);
+		// Set the default selection
 		yellowRobotButton.setSelected(true);
 		attackRight.setSelected(true);
 		normal.setSelected(true);
@@ -97,20 +75,15 @@ class OptionsPanel extends JPanel {
 		add(robotColour);
 		add(yellowRobotButton);
 		add(blueRobotButton);
-		add(new JLabel(""));
+		add(new JLabel("")); // Blank space 
 		add(attackGoal);
 		add(attackLeft);
 		add(attackRight);
-		add(new JLabel(""));
+		add(new JLabel("")); // Blank space
 		add(mode);
-		add(penaltyAttack);
-		add(penaltyDefend);
 		add(normal);
-
-		// add components to control panel
-		//		add(robotColourPanel);
-		//		add(attackGoalPanel);
-		//		add(modePanel);
+		add(penaltyDefend);
+		add(penaltyAttack);
 	}
 }
 

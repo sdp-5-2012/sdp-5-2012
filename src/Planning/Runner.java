@@ -1,25 +1,24 @@
 package Planning;
 
 import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.util.Date;
-import lejos.nxt.Motor;
-
 import au.edu.jcu.v4l4j.V4L4JConstants;
 import au.edu.jcu.v4l4j.exceptions.V4L4JException;
 import Planning.Move;
 import GUI.MainGui;
 import JavaVision.*;
 
-public class Runner extends Thread {
+public class Runner extends Thread { //implements ActionListener {
 
 	// Objects
 	public static Ball ball;
 	public static Robot nxt;
+	static Robot blueRobot;
+	static Robot yellowRobot;	
 	static WorldState state;
 	static Runner instance = null;
-	static Robot blueRobot;
-	static Robot yellowRobot;
 	boolean usingSimulator = false;
 	private static ControlGUI thresholdsGUI;
 	Vision vision;
@@ -32,7 +31,9 @@ public class Runner extends Thread {
 
 	// game flags
 	boolean teamYellow = true;
-	boolean applyClicked;
+	boolean attackLeft = false;
+	int mode = 0;
+	boolean applyClicked = false;
 	
 	public static final int DEFAULT_SPEED = 35;		// used for move_forward method in Robot
 	public static final int EACH_WHEEL_SPEED = 900; // used for each_wheel_speed method in Robot
@@ -50,8 +51,7 @@ public class Runner extends Thread {
 
 		blueRobot = new Robot();
 		yellowRobot = new Robot();
-		ball = new Ball();
-		gui = new MainGui();
+		ball = new Ball();	
 		
 		start();
 	}
@@ -66,18 +66,19 @@ public class Runner extends Thread {
 				createAndShowGui();
 			}			
 		});
-		// Wait until apply button clicked and set team
-//		boolean counter = true;
 		
-		while(true) {
-
-			applyClicked = gui.getApplyClicked();
-			if (applyClicked == true) {
-				teamYellow = gui.getTeam();
-				break;
-			}	
+		// Planning sleeps until Gui notifies
+		synchronized (instance) {
+			try {
+				instance.wait();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
-
+		
+		getUserOptions();
+	
 		if (teamYellow) {
 			nxt = yellowRobot;
 		} else {
@@ -93,9 +94,15 @@ public class Runner extends Thread {
 		//	mainLoop();	
 	}
 
+	private void getUserOptions() {
+		teamYellow = gui.getTeam();
+		attackLeft = gui.getAttackLeft();
+		mode = gui.getMode();		
+	}
+
 	private void createAndShowGui() {
 		// Set the the control gui
-		
+		gui = new MainGui(instance);
 		gui.setSize(600,400);
 		gui.setLocation(250, 250);
 		gui.setTitle("N.U.K.E Control Panel");
@@ -390,4 +397,36 @@ public class Runner extends Thread {
 		}
 
 	}
+
+//	@Override
+//	public void actionPerformed(ActionEvent arg0) {
+//		// Case for colour options
+//		if(gui.options.yellowRobotButton.isSelected()) {
+//			gui.log.setCurrentColour("Yellow");
+//			System.out.println("Yellow");
+//			teamYellow = true;
+//		} else if(gui.options.blueRobotButton.isSelected()) {
+//			gui.log.setCurrentColour("Blue");
+//			teamYellow = false;
+//		} 
+//
+//		// Case for attack options
+//		if(gui.options.attackLeft.isSelected()) {
+//			gui.log.setCurrentAttackGoal("Left");
+//		} else if(gui.options.attackRight.isSelected()) {
+//			gui.log.setCurrentAttackGoal("Right");
+//		} 
+//
+//		// Case for mode options
+//		if(gui.options.penaltyAttack.isSelected()) {
+//			gui.log.setCurrentMode("Penalty Attack");
+//		} else if(gui.options.penaltyDefend.isSelected()) {
+//			gui.log.setCurrentMode("Penalty Defend");
+//		} else if (gui.options.normal.isSelected()) {
+//			gui.log.setCurrentMode("Normal");
+//		}
+//		System.out.println("Apply Clicked");
+//		applyClicked = true;
+//		
+//	}
 }
