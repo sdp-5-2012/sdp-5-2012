@@ -8,6 +8,7 @@ import lejos.nxt.Motor;
 import au.edu.jcu.v4l4j.V4L4JConstants;
 import au.edu.jcu.v4l4j.exceptions.V4L4JException;
 import Planning.Move;
+import GUI.MainGui;
 import JavaVision.*;
 
 public class Runner extends Thread {
@@ -61,13 +62,30 @@ public class Runner extends Thread {
 			nxt = blueRobot;
 		}
 
-		startVision();
+		javax.swing.SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                createAndShowGui();
+            }
+        });
+
+	//	startVision();
 
 		// start communications with our robot
 
-		nxt.startCommunications();
+	//	nxt.startCommunications();
 
-		mainLoop();	
+	//	mainLoop();	
+	}
+
+	private void createAndShowGui() {
+		// Set the the control gui
+		MainGui gui = new MainGui();
+		gui.setSize(600,400);
+		gui.setLocation(250, 250);
+		gui.setTitle("N.U.K.E Control Panel");
+		gui.setResizable(true);
+		gui.setVisible(true);
+		
 	}
 
 	/**
@@ -116,7 +134,7 @@ public class Runner extends Thread {
 		Point goal = new Point();
 		getPitchInfo();
 		goal = planner.getOptimalPath(ourNXT, ballPoint, otherNXT, 0);
-
+		
 		Ball goalBall = new Ball();
 		goalBall.setCoors(new Position(goal.x,goal.y));
 
