@@ -140,22 +140,12 @@ public class Robot extends ObjectDetails {
 
 		if (response == 'r') {
 			askingToReset = true;
-<<<<<<< HEAD
 			//			 clearAllCommands();
 			//			 System.out.println("STACK CLEARED");
 		} else if (response == 'f') {
 			// Robot has finished moving
 			System.out.println("RESPONSE: FINISHED ROTATION!");
 			moving = false;
-
-=======
-//			 clearAllCommands();
-//			 System.out.println("STACK CLEARED");
-		} else if (response == 'f') {
-			// Robot has finished moving
-			moving = false;
-			
->>>>>>> refs/heads/Strategy
 		}
 
 		return response;
@@ -283,17 +273,9 @@ public class Robot extends ObjectDetails {
 	public boolean isConnected() {
 		return isConnected;
 	}
-<<<<<<< HEAD
 
 	public boolean isMoving() {
 		return moving;
 	}
 
-=======
-	
-	public boolean isMoving() {
-		return moving;
-	}
-	
->>>>>>> refs/heads/Strategy
 }
