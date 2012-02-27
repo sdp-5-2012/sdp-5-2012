@@ -10,7 +10,11 @@ import Planning.Move;
 import GUI.MainGui;
 import JavaVision.*;
 
+<<<<<<< HEAD
 public class Runner extends Thread { //implements ActionListener {
+=======
+public class Runner extends Thread {
+>>>>>>> refs/heads/Strategy
 
 	// Objects
 	public static Ball ball;
@@ -19,6 +23,11 @@ public class Runner extends Thread { //implements ActionListener {
 	static Robot yellowRobot;	
 	static WorldState state;
 	static Runner instance = null;
+<<<<<<< HEAD
+=======
+	static Robot blueRobot;
+	static Robot yellowRobot;
+>>>>>>> refs/heads/Strategy
 	boolean usingSimulator = false;
 	private static ControlGUI thresholdsGUI;
 	Vision vision;
@@ -31,10 +40,13 @@ public class Runner extends Thread { //implements ActionListener {
 
 	// game flags
 	boolean teamYellow = true;
+<<<<<<< HEAD
 	boolean attackLeft = false;
 	int mode = 0;
 	boolean applyClicked = false;
 	
+=======
+>>>>>>> refs/heads/Strategy
 	public static final int DEFAULT_SPEED = 35;		// used for move_forward method in Robot
 	public static final int EACH_WHEEL_SPEED = 900; // used for each_wheel_speed method in Robot
 
@@ -51,8 +63,13 @@ public class Runner extends Thread { //implements ActionListener {
 
 		blueRobot = new Robot();
 		yellowRobot = new Robot();
+<<<<<<< HEAD
 		ball = new Ball();	
 		
+=======
+		ball = new Ball();
+
+>>>>>>> refs/heads/Strategy
 		start();
 	}
 
@@ -89,6 +106,7 @@ public class Runner extends Thread { //implements ActionListener {
 
 		// start communications with our robot
 
+<<<<<<< HEAD
 		//	nxt.startCommunications();
 
 		//	mainLoop();	
@@ -109,6 +127,19 @@ public class Runner extends Thread { //implements ActionListener {
 		gui.setResizable(true);
 		gui.setVisible(true);
 
+=======
+		nxt.startCommunications();
+		//	mainLoop();	
+		nxt.rotateRobot(720);
+		while(true) {
+			System.out.println("STALL");
+			if (nxt.isMoving() == false) {
+				break;
+			}
+		}
+		System.out.println("FINISHED ROTATING");
+		nxt.moveForward(25);
+>>>>>>> refs/heads/Strategy
 	}
 
 	/**
@@ -175,7 +206,11 @@ public class Runner extends Thread { //implements ActionListener {
 				e.printStackTrace();
 			}
 
+<<<<<<< HEAD
 			int m = Move.getAngleToBall(nxt, goalBall);
+=======
+			int m = Move.getAngleToBall(nxt, ball);
+>>>>>>> refs/heads/Strategy
 
 			if (i < 11) {
 				prevResults[i-1] = m;
@@ -193,8 +228,14 @@ public class Runner extends Thread { //implements ActionListener {
 
 		System.out.println("First angle(avg) calculated: " + (angle));
 
+<<<<<<< HEAD
+=======
+		int dist = Move.getDist(nxt, ball);
+
+>>>>>>> refs/heads/Strategy
 		// Initial robot rotation
 		nxt.rotateRobot(angle);
+<<<<<<< HEAD
 		nxt.moveForward(25);
 
 		int dist = Move.getDist(nxt, goalBall);
@@ -208,8 +249,25 @@ public class Runner extends Thread { //implements ActionListener {
 			if((Math.abs(n) > 20)) {
 				nxt.stop();
 				nxt.rotateRobot(n);
+=======
+
+		try {
+			Thread.sleep(1500);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+
+		int counter = 0;
+
+		while(dist > 30) { // dist in pixels
+			nxt.moveForward(20);
+			if  (counter == 15) {
+
+				counter = 0;
+>>>>>>> refs/heads/Strategy
 
 				getPitchInfo();
+<<<<<<< HEAD
 				dist = Move.getDist(nxt, goalBall);
 
 				nxt.moveForward(20);
@@ -218,9 +276,34 @@ public class Runner extends Thread { //implements ActionListener {
 				getPitchInfo();
 				dist = Move.getDist(nxt, goalBall);
 
+=======
+				dist = Move.getDist(nxt, ball);
+				int n = Move.getAngleToBall(nxt, ball);
+
+				if((Math.abs(n) > 20)) {
+					nxt.rotateRobot(n);
+					try {
+						Thread.sleep(1500);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+					getPitchInfo();
+					dist = Move.getDist(nxt, ball);
+					int n2 = Move.getAngleToBall(nxt, ball);
+					try {
+						Thread.sleep(1500);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+
+					nxt.moveForward(20);
+
+				}
+>>>>>>> refs/heads/Strategy
 			}
 		}
 
+<<<<<<< HEAD
 		nxt.stop();
 
 
@@ -293,6 +376,9 @@ public class Runner extends Thread { //implements ActionListener {
 		//		nxt.kick();
 
 
+=======
+		nxt.stop();	
+>>>>>>> refs/heads/Strategy
 	}
 
 
@@ -365,16 +451,22 @@ public class Runner extends Thread { //implements ActionListener {
 		//		System.out.println("______________new pitch info_______________________");
 
 		ball.setCoors(new Position(state.getBallX(), state.getBallY()));	
+<<<<<<< HEAD
 		ballPoint.x = ball.getCoors().getX();
 		ballPoint.y = ball.getCoors().getY();
 
 
+=======
+>>>>>>> refs/heads/Strategy
 
 		if(teamYellow) {
 			nxt.setAngle(state.getYellowOrientation());
 			nxt.setCoors(new Position(state.getYellowX(), state.getYellowY()));
+<<<<<<< HEAD
 			ourNXT.x  = state.getYellowX();
 			ourNXT.y = state.getYellowY();
+=======
+>>>>>>> refs/heads/Strategy
 			//			System.out.println("Y: " + Math.toDegrees(yellowRobot.angle));
 
 			blueRobot.setAngle(state.getBlueOrientation());

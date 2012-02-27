@@ -80,7 +80,7 @@ public class PathPlanner {
 		
 
 		checked.add(ourPositionGrid);
-		path.add(search(ourPositionGrid, goalPositionGrid));
+		search(ourPositionGrid, goalPositionGrid);
 
 		path = optimisePath(path);
 		System.out.println(path.get(0));
@@ -237,7 +237,7 @@ public class PathPlanner {
 	
 	
 	private static void tracePath(GraphPoint startPoint, GraphPoint endPoint) {
-		path.add(0, endPoint);
+		path.add(endPoint);
 		if (endPoint.getParent() != null) {
 			tracePath(startPoint, endPoint.getParent());
 		}

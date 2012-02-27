@@ -24,7 +24,11 @@ public class NXT_class implements Runnable{
 	private static volatile boolean kicking = false;
 
 	// constants for the pilot class
+<<<<<<< HEAD
 	private static final float TRACK_WIDTH = (float) 12.0; // Secondary table
+=======
+	private static final float TRACK_WIDTH = (float) 12.7; // Secondary table
+>>>>>>> refs/heads/Strategy
 	private static final float WHEEL_DIAMETER = (float) 8.0;
 
 	// NXT Opcodes

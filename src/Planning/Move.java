@@ -2,11 +2,14 @@ package Planning;
 import JavaVision.*;
 
 public class Move {
+<<<<<<< HEAD
 	
 	// Suppress default constructor for noninstantiability
 	private Move() {
 		throw new AssertionError();
 	}
+=======
+>>>>>>> refs/heads/Strategy
 
 	// returns the distance between the robot and the ball
 	public static int getDist(Robot robot, Ball ball){
@@ -50,6 +53,10 @@ public class Move {
 
 	public static int getBallPosition(Ball ball){ 		
 		int POS;
+<<<<<<< HEAD
+=======
+		
+>>>>>>> refs/heads/Strategy
 		//find the position of the ball with respect to the robot
 		if(ball.getCoors().getX() > 0) {// ball is on the right side of the robot
 			if(ball.getCoors().getY() > 0) { // ball is in top right square
