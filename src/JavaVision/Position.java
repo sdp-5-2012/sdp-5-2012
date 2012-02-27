@@ -1,4 +1,6 @@
 package JavaVision;
+import java.awt.Point;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 /**
@@ -137,6 +139,38 @@ public class Position {
 	    	
 	    	this.fixValues(oldX, oldY);
     	}
+    }
+    
+    
+    public static ArrayList<Point> removeOutliers(ArrayList<Integer> xs, ArrayList<Integer> ys, Point centroid){
+    	ArrayList<Point> goodPoints = new ArrayList<Point>();
+	if (xs.size() > 0) {
+    		
+	    	int stdev = 0;
+	    	
+	    	/* Standard deviation */
+	    	for (int i = 0; i < xs.size(); i++) {
+	    		int x = xs.get(i);
+	    		int y = ys.get(i);
+	    		
+	    		stdev += Math.pow(Math.sqrt(sqrdEuclidDist(x, y, (int) centroid.getX(), (int)centroid.getY())), 2);
+	    	}
+	    	stdev  = (int) Math.sqrt(stdev / xs.size());
+	    		    	
+	    	/* Remove points further than standard deviation */
+	    	for (int i = 0; i < xs.size(); i++) {
+	    		int x = xs.get(i);
+	    		int y = ys.get(i);
+	    		if (Math.abs(x - centroid.getX()) < stdev*1.17 && Math.abs(y - centroid.getY()) < stdev*1.17) {
+	    			Point p = new Point(x, y);
+	    			goodPoints.add(p);
+	    		}
+	    	}
+	    	
+    	}
+    	
+		return goodPoints;
+    	
     }
     
     /**
