@@ -113,7 +113,7 @@ public class Strategy {
 			
 			double difference = Math.abs(theirAngle - ourAngle);
 			
-			if (difference > 0.27) {
+			if (difference < 0.27) {
 				obstruction = true;
 			}
 		
@@ -140,7 +140,7 @@ public class Strategy {
 			
 			double difference = Math.abs(theirAngle - ourAngle);
 			
-			if (difference > 0.27) {
+			if (difference < 0.27) {
 				obstruction = true;
 		}
 			
