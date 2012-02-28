@@ -17,6 +17,7 @@ public class OptionsPanel extends JPanel {
 	JLabel robotColour = new JLabel("Robot Colour:");
 	JLabel attackGoal = new JLabel("Goal to attack:");
 	JLabel mode = new JLabel("Mode:");
+	JLabel pitchChoice = new JLabel("Pitch Choice:");
 	
 	// Radio buttons
 	public JRadioButton yellowRobotButton;
@@ -26,16 +27,19 @@ public class OptionsPanel extends JPanel {
 	public JRadioButton penaltyAttack;
 	public JRadioButton penaltyDefend ;
 	public JRadioButton normal;
+	public JRadioButton pitchMain;
+	public JRadioButton pitchSide;
 	
 	// Button Groups
 	ButtonGroup colourGroup;
 	ButtonGroup attackGroup;
 	ButtonGroup modeGroup;
+	ButtonGroup pitchChoiceGroup;
 
 	/** Constructor */
 	public OptionsPanel() {
 
-		setLayout(new GridLayout(3,4));
+		setLayout(new GridLayout(4,4));
 
 		// robot colour
 		yellowRobotButton = new JRadioButton("Yellow");
@@ -71,6 +75,17 @@ public class OptionsPanel extends JPanel {
 		attackRight.setSelected(true);
 		normal.setSelected(true);
 		
+		//Pitch choice
+		pitchMain = new JRadioButton("Main");
+		pitchSide = new JRadioButton("Side");
+		//Group together
+		pitchChoiceGroup = new ButtonGroup();
+		pitchChoiceGroup.add(pitchMain);
+		pitchChoiceGroup.add(pitchSide);
+		
+		pitchMain.setSelected(true);
+		
+		
 		// Add all components
 		add(robotColour);
 		add(yellowRobotButton);
@@ -84,6 +99,9 @@ public class OptionsPanel extends JPanel {
 		add(normal);
 		add(penaltyDefend);
 		add(penaltyAttack);
+		add(pitchChoice);
+		add(pitchMain);
+		add(pitchSide);
 	}
 }
 

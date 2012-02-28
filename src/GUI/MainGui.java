@@ -38,8 +38,11 @@ public class MainGui extends JFrame {
 	// values Runner needs
 	boolean attackLeft = true;
 	boolean isYellow = true;
-	int currentMode = 0;	// 0: Normal, 1: Penalty Defend, 2: Penalty Attack
+	//int currentMode = 0;	// 0: Normal, 1: Penalty Defend, 2: Penalty Attack
+	boolean isPenaltyAttack = false;
+	boolean isPenaltyDefend = false;
 	String constantsLocation;
+	boolean isMainPitch = false;
 	
 	
 	public MainGui(Runner runner) {
@@ -61,7 +64,10 @@ public class MainGui extends JFrame {
 		addListeners();
 		
 		// default constants is pitch0
-		constantsLocation = getClass().getClassLoader().getResource(".").getPath()+ "src/JavaVision/constants/pitch0";
+		constantsLocation = getClass().getClassLoader().getResource(".").getPath();
+		String src = constantsLocation.substring(0, constantsLocation.length()-4);
+		src = src + "src/JavaVision/constants/pitch0";
+		constantsLocation = src;
 		log.setCurrentPitchConstants("pitch0");
 	}
 
@@ -88,7 +94,9 @@ public class MainGui extends JFrame {
 				// Create a file chooser and default to constants folder
 				constantsLocation = getClass().getClassLoader().getResource(".").getPath();
 				String src = constantsLocation.substring(0, constantsLocation.length()-4);
+				System.out.println(src);
 				src = src + "src/JavaVision/constants";
+				constantsLocation = src;
 
 				JFileChooser fc = new JFileChooser(new File(src));
 				// Create the actions				
@@ -147,13 +155,21 @@ public class MainGui extends JFrame {
 		// Case for mode options
 		if(options.penaltyAttack.isSelected()) {
 			log.setCurrentMode("Penalty Attack");
-			currentMode = 2;
+			isPenaltyAttack = true;
 		} else if(options.penaltyDefend.isSelected()) {
 			log.setCurrentMode("Penalty Defend");
-			currentMode = 1;
+			isPenaltyDefend = true;
 		} else if (options.normal.isSelected()) {
 			log.setCurrentMode("Normal");
-			currentMode = 0;
+			isPenaltyAttack = false;
+			isPenaltyDefend = false;
+		}
+		
+		// Case for pitch
+		if(options.pitchMain.isSelected()) {
+			isMainPitch = true;
+		} else {
+			isMainPitch = false;
 		}
 	}
 	
@@ -170,7 +186,19 @@ public class MainGui extends JFrame {
 		return attackLeft;
 	}
 	
-	public int getMode() {
-		return currentMode;
+	public boolean getIsPenaltyAttack() {
+		return isPenaltyAttack;
+	}
+	
+	public boolean getIsPenaltyDefend() {
+		return isPenaltyDefend;
+	}
+	
+	public boolean getIsMainPitch() {
+		return isMainPitch;
+	}
+	
+	public String getConstantsFile() {
+		return constantsLocation;
 	}
 }

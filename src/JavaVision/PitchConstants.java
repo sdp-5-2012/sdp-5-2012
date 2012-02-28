@@ -98,10 +98,11 @@ public class PitchConstants {
 	 * 
 	 * @param pitchNum		The pitch that we are on.
 	 */
-	public PitchConstants(int pitchNum) {
+	public PitchConstants(String fileLocation) {
 		
 		/* Just call the setPitchNum method to load in the constants. */
-		setPitchNum(pitchNum);
+		// setPitchNum(pitchNum);
+		loadConstants(fileLocation);
 		
 	}
 	

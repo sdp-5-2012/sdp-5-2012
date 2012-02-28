@@ -9,6 +9,7 @@ import au.edu.jcu.v4l4j.exceptions.V4L4JException;
 import Planning.Move;
 import GUI.MainGui;
 import JavaVision.*;
+import Strategy.*;
 
 
 public class Runner extends Thread { //implements ActionListener {
@@ -16,6 +17,7 @@ public class Runner extends Thread { //implements ActionListener {
 	// Objects
 	public static Ball ball;
 	public static Robot nxt;
+	public static Robot enemy;
 	static Robot blueRobot;
 	static Robot yellowRobot;	
 	static WorldState state;
@@ -25,6 +27,7 @@ public class Runner extends Thread { //implements ActionListener {
 	Vision vision;
 	PathPlanner planner = new PathPlanner();
 	MainGui gui;
+	Strategy s;
 
 	Point ourNXT = new Point();
 	Point otherNXT = new Point();
@@ -33,8 +36,27 @@ public class Runner extends Thread { //implements ActionListener {
 	// game flags
 	boolean teamYellow = true;
 	boolean attackLeft = false;
-	int mode = 0;
+	//	int mode = 0;
+	boolean isPenaltyAttack = false;
+	boolean isPenaltyDefend = false;
 	boolean applyClicked = false;
+	boolean isMainPitch = false;
+	String constantsLocation;
+
+	//Positions
+	Position pitchCentre = null;
+	Position ourGoal = null;
+	Position theirGoal = null;
+	Position leftGoalMain = new Position(40,250);
+	Position leftGoalSide = new Position(62,233);
+	Position rightGoalMain = new Position(608,242);
+	Position rightGoalSide = new Position(567,238);
+	Position centreMain = new Position(284,246);
+	Position centreSide = new Position(253,236);
+
+	Position dest = new Position(0,0);
+
+
 
 	public static final int DEFAULT_SPEED = 35;		// used for move_forward method in Robot
 	public static final int EACH_WHEEL_SPEED = 900; // used for each_wheel_speed method in Robot
@@ -62,13 +84,13 @@ public class Runner extends Thread { //implements ActionListener {
 	 * Planning thread which begins planning loop
 	 */
 	public void run() {		
-		
+
 		javax.swing.SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				createAndShowGui();
 			}			
 		});
-		
+
 		// Planning sleeps until Gui notifies
 		synchronized (instance) {
 			try {
@@ -78,27 +100,62 @@ public class Runner extends Thread { //implements ActionListener {
 				e.printStackTrace();
 			}
 		}
-		
+
 		getUserOptions();
-	
-		if (teamYellow) {
-			nxt = yellowRobot;
+
+		// Set centres and goals based on pitch choice and shooting direction
+		if (isMainPitch) {
+			pitchCentre = centreMain;
 		} else {
-			nxt = blueRobot;
+			pitchCentre = centreSide;
 		}
 
-		//	startVision();
+		if (attackLeft) {
+			if (isMainPitch) {
+				ourGoal = rightGoalMain;
+				theirGoal = leftGoalMain;
+			} else {
+				ourGoal = rightGoalSide;
+				theirGoal = leftGoalSide;
+			}
+		} else {
+			if(isMainPitch) {
+				ourGoal = leftGoalMain;
+				theirGoal = rightGoalMain;
+			} else {
+				ourGoal = leftGoalSide;
+				theirGoal = rightGoalSide;
+			}
+		}
+
+		if (teamYellow) {
+			nxt = yellowRobot;
+			enemy = blueRobot;
+
+		} else {
+			nxt = blueRobot;
+			enemy = yellowRobot;
+		}
+
+		startVision();
 
 		// start communications with our robot
-		//	nxt.startCommunications();
+		nxt.startCommunications();
 
-		//	mainLoop();	
+		try {
+			mainLoop();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}	
 	}
 
 	private void getUserOptions() {
 		teamYellow = gui.getTeam();
 		attackLeft = gui.getAttackLeft();
-		mode = gui.getMode();		
+		isPenaltyAttack = gui.getIsPenaltyAttack();
+		isPenaltyDefend = gui.getIsPenaltyDefend();
+		isMainPitch = gui.getIsMainPitch();
+		constantsLocation = gui.getConstantsFile();
 	}
 
 	private void createAndShowGui() {
@@ -125,7 +182,7 @@ public class Runner extends Thread { //implements ActionListener {
 		ThresholdsState thresholdsState = new ThresholdsState();
 
 		/* Default to main pitch. */
-		PitchConstants pitchConstants = new PitchConstants(0);
+		PitchConstants pitchConstants = new PitchConstants(constantsLocation);
 
 		/* Default values for the main vision window. */
 		String videoDevice = "/dev/video0";
@@ -152,148 +209,301 @@ public class Runner extends Thread { //implements ActionListener {
 	}
 
 
-	private void mainLoop() {
-
-		Point goal = new Point();
+	private void mainLoop() throws InterruptedException {
 		getPitchInfo();
-		goal = planner.getOptimalPath(ourNXT, ballPoint, otherNXT, 0);
+		s = new Strategy(instance);
+		Thread strategy = new Thread(s);
 
-		Ball goalBall = new Ball();
-		goalBall.setCoors(new Position(goal.x,goal.y));
+		strategy.start();
 
-		int angle = 0;
-		int[] prevResults = new int[10];
-		ArrayList<Integer> goodAngles = new ArrayList<Integer>();
-
-		// Sum 10 angles from Vision
-		for(int i = 1; i <= 10; i++) {
-			getPitchInfo();
-
-			try {
-				Thread.sleep(50);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
+		//		int mode = Strategy.whatToDo(nxt, enemy, ball, ourGoal, theirGoal, pitchCentre);		
+		while (true) {
+			if (isPenaltyAttack) {
+				penaltyAttack();
+			} else if (isPenaltyDefend) {
+				penaltyDefend();
 			}
-
-			int m = Move.getAngleToBall(nxt, goalBall);
-
-			if (i < 11) {
-				prevResults[i-1] = m;
+			switch(s.getCurrentMode()) {
+			case(0):
+				modeZero();	
+			break;
+			case(1): 
+				modeOne();
+			break;
+			case(2):
+				modeTwo();
+			break;
+			case(3):
+				try {
+					modeThree();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				break;
+			case(4):
+				modeFour();
+			break;
+			case(5):
+				modeFive();
+			break;
+			default:
+				modeZero();
+				break;
 			}
 		}
-		// Remove outliers
-		goodAngles = removeVal(prevResults);
+	}
 
-		for (int j = 0; j < goodAngles.size(); j++) {
-			angle += goodAngles.get(j);
-		}
 
-		// Get the average angle
-		angle /= goodAngles.size();
 
-		System.out.println("First angle(avg) calculated: " + (angle));
 
-		// Initial robot rotation
+	private void penaltyDefend() throws InterruptedException {
+		getPitchInfo();
+		Position ballInitial = new Position(ball.getCoors().getX(), ball.getCoors().getY());
+		int dist = 0;
+		int difference;
+		long time = System.currentTimeMillis();
+		penaltyLoop:
+			while(true) {
+				while(System.currentTimeMillis() - time < 30000) {
+					getPitchInfo();
+					dist = (int) Position.sqrdEuclidDist(ball.getCoors().getX(), ball.getCoors().getY(), ballInitial.getX(), ballInitial.getY());
+					if (dist > 10) {
+						difference = ballInitial.getY() - ball.getCoors().getY();
+						if (Math.abs(difference) > 5 ) {
+							if (difference > 0) { 
+								nxt.moveForward(35);
+								Thread.sleep(1000);
+								nxt.stop();
+							} else if(difference < 0) { 
+								nxt.moveBackward(35);
+								Thread.sleep(1000);
+								nxt.stop();
+							} else {
+								Thread.sleep(1000);
+								break penaltyLoop;
+							}
+
+						}
+					}
+				}
+				break;
+			}
+	}
+
+
+	private void penaltyAttack() {
+		int angle = -35 + (int)(Math.random()*35);
 		nxt.rotateRobot(angle);
-		nxt.moveForward(25);
+		nxt.kick();
+	}
 
-		int dist = Move.getDist(nxt, goalBall);
+	private void modeZero() throws InterruptedException {
+		System.out.println("Change to mode 0");
+		ModeZeroLoop:
+			while(s.getCurrentMode() ==0) {
+				getPitchInfo();
 
-		while(dist > 35) { // dist in pixels
-			System.out.println("Distance: " + dist);
-			getPitchInfo();
-			dist = Move.getDist(nxt, goalBall);
-			int n = Move.getAngleToBall(nxt, goalBall);
+				int angle = 0;
+				int[] prevResults = new int[10];
+				ArrayList<Integer> goodAngles = new ArrayList<Integer>();
 
-			if((Math.abs(n) > 20)) {
+				// Sum 10 angles from Vision
+				for(int i = 1; i <= 10; i++) {	
+
+					getPitchInfo();
+
+					try {
+						Thread.sleep(50);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+
+					if (attackLeft) {
+						ball.setCoors(new Position(ball.getCoors().getX() + 50, ball.getCoors().getY()));
+					} else {
+						ball.setCoors(new Position(ball.getCoors().getX() - 50, ball.getCoors().getY()));
+					}
+					int m = Move.getAngleToBall(nxt, ball);
+
+					if (i < 11) {
+						prevResults[i-1] = m;
+					}
+				}
+				// Remove outliers
+				goodAngles = removeVal(prevResults);
+
+				for (int j = 0; j < goodAngles.size(); j++) {
+					angle += goodAngles.get(j);
+				}
+
+				// Get the average angle
+				angle /= goodAngles.size();
+
+				// Initial robot rotation
+				nxt.rotateRobot(angle);
+				nxt.moveForward(25);
+
+				int dist = Move.getDist(nxt, ball);
+
+				while(dist > 35) { // dist in pixels
+					if (s.getCurrentMode() != 0) {
+						break ModeZeroLoop;
+					}
+					System.out.println("Distance: " + dist);
+					getPitchInfo();
+					dist = Move.getDist(nxt, ball);
+					int n = Move.getAngleToBall(nxt, ball);
+
+					if((Math.abs(n) > 20)) {
+						nxt.stop();
+						nxt.rotateRobot(n);
+
+
+						getPitchInfo();
+
+						nxt.moveForward(20);
+
+					} else {
+						getPitchInfo();
+
+					}
+				}	
+
+				getPitchInfo();
+				Ball goal = new Ball();
+				goal.setCoors(new Position(theirGoal.getX(), theirGoal.getY()));
+				angle = Move.getAngleToBall(nxt, goal);
+				// rotate to goal
+				nxt.rotateRobot(angle);
+				nxt.moveForward(35);
+				Thread.sleep(1000);
+				nxt.kick();
+
 				nxt.stop();
-				nxt.rotateRobot(n);
-
-
-				getPitchInfo();
-
-				dist = Move.getDist(nxt, goalBall);
-
-				nxt.moveForward(20);
-
-			} else {
-				getPitchInfo();
-				dist = Move.getDist(nxt, goalBall);
-
 			}
+
+	}
+
+	private void modeOne() {
+		System.out.println("Change to mode 1");
+		while(s.getCurrentMode() == 1) {
+			int dist = (int) Position.sqrdEuclidDist(nxt.getCoors().getX(), nxt.getCoors().getY(), theirGoal.getX(), theirGoal.getY());
+			int angle;
+			Position wallPoint = new Position(dist/2, 80);
+
+			Ball wallPointBall = new Ball();
+			wallPointBall.setCoors(wallPoint);
+
+			angle = Move.getAngleToBall(nxt, wallPointBall);
+
+			nxt.rotateRobot(angle);
+			nxt.kick();
 		}
 
-		nxt.stop();
+	}
 
+	private void modeTwo() {
+		System.out.println("Change to mode 2");
+		while(s.getCurrentMode() == 2) {
 
-		//		int angle = 0;
-		//		int[] prevResults = new int[10];
-		//		ArrayList<Integer> goodAngles = new ArrayList<Integer>();
-		//
-		//		// Sum 10 angles from Vision
-		//		for(int i = 1; i <= 10; i++) {
-		//			getPitchInfo();
-		//
-		//			try {
-		//				Thread.sleep(50);
-		//			} catch (InterruptedException e) {
-		//				e.printStackTrace();
-		//			}
-		//
-		//			int m = Move.getAngleToBall(nxt, ball);
-		//
-		//			if (i < 11) {
-		//				prevResults[i-1] = m;
-		//			}
-		//		}
-		//		// Remove outliers
-		//		goodAngles = removeVal(prevResults);
-		//
-		//		for (int j = 0; j < goodAngles.size(); j++) {
-		//			angle += goodAngles.get(j);
-		//		}
-		//
-		//		// Get the average angle
-		//		angle /= goodAngles.size();
-		//
-		//		System.out.println("First angle(avg) calculated: " + (angle));
-		//
-		//		int dist = Move.getDist(nxt, ball);
-		//
-		//		// Initial robot rotation
-		//		nxt.rotateRobot(angle);
-		//
-		//		System.out.println("finished first rotation");
-		//
-		//		nxt.moveForward(20);
-		//
-		//		while(dist > 35) { // dist in pixels
-		//			System.out.println("Distance: " + dist);
-		//				getPitchInfo();
-		//				dist = Move.getDist(nxt, ball);
-		//				int n = Move.getAngleToBall(nxt, ball);
-		//
-		//				if((Math.abs(n) > 20)) {
-		//					nxt.stop();
-		//					nxt.rotateRobot(n);
-		//
-		//					getPitchInfo();
-		//					dist = Move.getDist(nxt, ball);
-		//
-		//					nxt.moveForward(20);
-		//
-		//				} else {
-		//					getPitchInfo();
-		//					dist = Move.getDist(nxt, ball);
-		//					
-		//				}
-		//		}
-		//		
-		//		getPitchInfo();
-		//		nxt.stop();	
-		//		nxt.rotateRobot(Move.getAngleToBall(nxt, ball));
-		//		nxt.kick();
+			getPitchInfo();
+			Ball goal = new Ball();
+			goal.setCoors(theirGoal);
 
+			int angle = Move.getAngleToBall(nxt, goal);
+			nxt.rotateRobot(angle);
+
+			while((nxt.getCoors().getX() < pitchCentre.getX()) && s.getCurrentMode() == 2) {
+				nxt.moveForward(50);
+			}
+			nxt.kick();
+		}
+
+	}
+
+	private void modeThree() throws InterruptedException {
+		System.out.println("Change to mode 3");
+		ModeThreeLoop:
+			while(s.getCurrentMode() == 3) {
+
+				Ball inFrontOfGoal = new Ball();
+				Ball rotatePoint = new Ball();
+				if (attackLeft) {
+					inFrontOfGoal.setCoors(new Position(ourGoal.getX() - 60, ourGoal.getY()));
+				} else {
+					inFrontOfGoal.setCoors(new Position(ourGoal.getX() + 60, ourGoal.getY()));
+				}
+
+				int angle = Move.getAngleToBall(nxt, inFrontOfGoal);
+				nxt.rotateRobot(angle);
+				while((Move.getDist(nxt, inFrontOfGoal) > 5)) {
+					if (s.getCurrentMode() != 3) {
+						break ModeThreeLoop;
+					}
+					nxt.moveForward(50);
+				}
+				nxt.stop();
+
+				rotatePoint.setCoors(new Position(nxt.getCoors().getX(), nxt.getCoors().getY()-50));
+				angle = Move.getAngleToBall(nxt, rotatePoint);
+				nxt.rotateRobot(angle);
+
+				nxt.moveForward(30);
+				Thread.sleep(1000);
+				nxt.stop();
+				nxt.moveBackward(30);
+				Thread.sleep(2000);
+				nxt.stop();
+				nxt.moveForward(30);
+				Thread.sleep(1000);
+			}
+	}
+
+	private void modeFour() {
+
+		ModeFourLoop:
+			while(s.getCurrentMode() == 4) {
+
+				// determine point ahead of enemy in direction of ball
+				int pointAheadX = ball.getCoors().getX() + (ball.getCoors().getX() - enemy.getCoors().getX());
+				int pointAheadY = ball.getCoors().getY() + (ball.getCoors().getY() - enemy.getCoors().getY());
+				Position pointAheadOfEnemy = new Position(pointAheadX, pointAheadY);
+				Ball ballPointAheadOfEnemy = new Ball();
+				ballPointAheadOfEnemy.setCoors(pointAheadOfEnemy);
+
+				getPitchInfo();
+
+				int angle = Move.getAngleToBall(nxt, ballPointAheadOfEnemy);
+
+				nxt.rotateRobot(angle);
+				while((Move.getDist(nxt, ballPointAheadOfEnemy) > 5)) {
+					if (s.getCurrentMode() != 4) {
+						break ModeFourLoop;
+					}
+					nxt.moveForward(50);
+				}
+				nxt.stop();
+
+			}
+	nxt.stop();
+
+	}
+
+	private void modeFive() {
+		while(s.getCurrentMode() == 5) {
+			getPitchInfo();
+		}
+	}
+
+	private boolean isRightOfBall() {
+		return (nxt.getCoors().getX() > ball.getCoors().getX());
+	}
+
+	private void behindBallLoop() {
+
+	}
+
+	private void frontOfBallLoop() {
 
 	}
 
@@ -400,35 +610,27 @@ public class Runner extends Thread { //implements ActionListener {
 
 	}
 
-//	@Override
-//	public void actionPerformed(ActionEvent arg0) {
-//		// Case for colour options
-//		if(gui.options.yellowRobotButton.isSelected()) {
-//			gui.log.setCurrentColour("Yellow");
-//			System.out.println("Yellow");
-//			teamYellow = true;
-//		} else if(gui.options.blueRobotButton.isSelected()) {
-//			gui.log.setCurrentColour("Blue");
-//			teamYellow = false;
-//		} 
-//
-//		// Case for attack options
-//		if(gui.options.attackLeft.isSelected()) {
-//			gui.log.setCurrentAttackGoal("Left");
-//		} else if(gui.options.attackRight.isSelected()) {
-//			gui.log.setCurrentAttackGoal("Right");
-//		} 
-//
-//		// Case for mode options
-//		if(gui.options.penaltyAttack.isSelected()) {
-//			gui.log.setCurrentMode("Penalty Attack");
-//		} else if(gui.options.penaltyDefend.isSelected()) {
-//			gui.log.setCurrentMode("Penalty Defend");
-//		} else if (gui.options.normal.isSelected()) {
-//			gui.log.setCurrentMode("Normal");
-//		}
-//		System.out.println("Apply Clicked");
-//		applyClicked = true;
-//		
-//	}
+	public Robot getOurRobot() {
+		return nxt;
+	}
+
+	public Robot getTheirRobot() {
+		return enemy;
+	}
+	public Ball getBall() {
+		return ball;
+	}
+
+	public Position getOurGoal() {
+		return ourGoal;
+	}
+
+	public Position getTheirGoal() {
+		return theirGoal;
+	}
+
+	public Position getPitchCentre() {
+		return pitchCentre;
+	}
+
 }
