@@ -53,6 +53,21 @@ public class Runner extends Thread { //implements ActionListener {
 	Position rightGoalSide = new Position(567,238);
 	Position centreMain = new Position(284,246);
 	Position centreSide = new Position(253,236);
+	
+	int topY = 0;
+	int lowY = 0;
+	int leftX = 0;
+	int rightX = 0;
+	
+	int mainTopY = 80;
+	int mainLowY = 392;
+	int mainLeftX = 40;
+	int mainRightX = 608;
+	
+	int sideTopY = 92;
+	int sideLowY = 369;
+	int sideLeftX = 62;
+	int sideRightX = 567;
 
 	Position dest = new Position(0,0);
 
@@ -106,8 +121,16 @@ public class Runner extends Thread { //implements ActionListener {
 		// Set centres and goals based on pitch choice and shooting direction
 		if (isMainPitch) {
 			pitchCentre = centreMain;
+			topY = mainTopY;
+			lowY = mainLowY;
+			leftX = mainLeftX;
+			rightX = mainRightX;
 		} else {
 			pitchCentre = centreSide;
+			topY = sideTopY;
+			lowY = sideLowY;
+			leftX = sideLeftX;
+			rightX = sideRightX;
 		}
 
 		if (attackLeft) {
@@ -249,11 +272,11 @@ public class Runner extends Thread { //implements ActionListener {
 			default:
 				modeZero();
 				break;
+				
 			}
+			Thread.sleep(1000);
 		}
 	}
-
-
 
 
 	private void penaltyDefend() throws InterruptedException {
@@ -300,7 +323,7 @@ public class Runner extends Thread { //implements ActionListener {
 	private void modeZero() throws InterruptedException {
 		System.out.println("Change to mode 0");
 		ModeZeroLoop:
-			while(s.getCurrentMode() ==0) {
+			while(s.getCurrentMode() == 0) {
 				getPitchInfo();
 
 				int angle = 0;
@@ -358,7 +381,6 @@ public class Runner extends Thread { //implements ActionListener {
 						nxt.stop();
 						nxt.rotateRobot(n);
 
-
 						getPitchInfo();
 
 						nxt.moveForward(20);
@@ -370,6 +392,13 @@ public class Runner extends Thread { //implements ActionListener {
 				}	
 
 				getPitchInfo();
+				
+				// Check if the ball is close to any of the walls - if it is, just kick it
+				if ((ball.getCoors().getX() < (leftX + 50)) || (ball.getCoors().getX() < (rightX - 50))
+						|| (ball.getCoors().getY() > (topY + 50)) || (ball.getCoors().getY() < (lowY - 50))) {
+					nxt.kick();
+				} else {
+				
 				Ball goal = new Ball();
 				goal.setCoors(new Position(theirGoal.getX(), theirGoal.getY()));
 				angle = Move.getAngleToBall(nxt, goal);
@@ -380,6 +409,8 @@ public class Runner extends Thread { //implements ActionListener {
 				nxt.kick();
 
 				nxt.stop();
+				
+				}
 			}
 
 	}
@@ -485,7 +516,7 @@ public class Runner extends Thread { //implements ActionListener {
 				nxt.stop();
 
 			}
-	nxt.stop();
+		nxt.stop();
 
 	}
 
