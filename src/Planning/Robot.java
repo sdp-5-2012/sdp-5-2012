@@ -110,7 +110,6 @@ public class Robot extends ObjectDetails {
 
 		while (commandList.size() > 3) {
 			commandList.remove();
-			System.out.println("<");
 		}
 		commandList.offer(command);
 		sendToRobot(command);
@@ -144,7 +143,6 @@ public class Robot extends ObjectDetails {
 			//			 System.out.println("STACK CLEARED");
 		} else if (response == 'f') {
 			// Robot has finished moving
-			System.out.println("RESPONSE: FINISHED ROTATION!");
 			moving = false;
 		}
 

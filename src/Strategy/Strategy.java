@@ -13,6 +13,7 @@ public class Strategy extends Thread {
 	 * 3 - retreat to own goal, defend
 	 * 4 - attack hard
 	 * OBSOLETE 5 - default "go to ball, aim, kick" but go to the ball in an arc because the other robot's in the way!
+	 * 6 - kicker up and move back (we may be hiding the ball)
 	 *
 	 */
 	Runner instance;
@@ -25,10 +26,17 @@ public class Strategy extends Thread {
 	public void run() {		
 
 		while(true) {
+			
 			instance.getPitchInfo();
 			currentMode = whatToDo(instance.getOurRobot(), instance.getTheirRobot(), instance.getBall(),
 					instance.getOurGoal(), instance.getTheirGoal(), instance.getPitchCentre());
+			//System.out.println("Current mode :" + currentMode);
 		}
+
+	}
+
+	private boolean ballInGoal(Ball ball) {
+		return ((ball.getCoors().getX() < 62) || (ball.getCoors().getX() > 567));
 
 	}
 
@@ -43,46 +51,51 @@ public class Strategy extends Thread {
 		int mode = 0;
 
 		if(!(ball.getCoors().getX()==0) && !(ball.getCoors().getY()==0)){
+			if(ballInGoal(ball)){
+				System.out.println("BALL IN GOOOAL");
+				Runner.nxt.stop();
+			} else {
 
-			if (doWeHaveTheBall(ourRobot, ball)) {
-				if (areWeInOurHalf(ourRobot, ourGoal, theirGoal)) {
-					if (areTheyInOurHalf(theirRobot, ourGoal, theirGoal)) {
+				if (doWeHaveTheBall(ourRobot, ball)) {
+					if (areWeInOurHalf(ourRobot, ourGoal, theirGoal)) {
+						if (areTheyInOurHalf(theirRobot, ourGoal, theirGoal)) {
 
-						// mode 1 - kick wildly! (planning should work out an optimal angle)
-						mode = 1;
+							// mode 1 - kick wildly! (planning should work out an optimal angle)
+							mode = 1;
 
-						// else they're in their half
+							// else they're in their half
+						} else {
+
+							// mode 2 - dribble the ball towards (and into) their half
+							mode = 2;
+						}
+
+						// else we're in their half
 					} else {
-
-						// mode 2 - dribble the ball towards (and into) their half
-						mode = 2;
+						if (goalObstructed(ourRobot, theirRobot, theirGoal)) {
+							// planning will work out an angle to bounce the ball off the wall
+							mode = 1;
+							// else it's UNOBSTRUCTED - Runner's main loop will just aim/shoot as normal
+						}
 					}
 
-					// else we're in their half
-				} else {
-					if (goalObstructed(ourRobot, theirRobot, theirGoal)) {
-						// planning will work out an angle to bounce the ball off the wall
-						mode = 1;
-						// else it's UNOBSTRUCTED - Runner's main loop will just aim/shoot as normal
-					}
-				}
-
-			} else if (doTheyHaveTheBall(theirRobot, ball)) {
-				if (areTheyInOurHalf(theirRobot, ourGoal, theirGoal)) {
-					mode = 3;
-				} else {
-					if (!areWeInOurHalf(ourRobot, ourGoal, theirGoal)) {
-						mode = 4;
+				} else if (doTheyHaveTheBall(theirRobot, ball)) {
+					if (areTheyInOurHalf(theirRobot, ourGoal, theirGoal)) {
+						mode = 3;
+					} else {
+						if (!areWeInOurHalf(ourRobot, ourGoal, theirGoal)) {
+							mode = 4;
+						}
 					}
 				}
+
+				// POSSIBLY OBSOLETE DUE TO PATHFINDING ALGORITHM AVOIDING OTHER ROBOT ANYWAY
+				if (ballObstructed(ourRobot, theirRobot, ball)) {
+					// mode = 5;
+					mode = 0;
+				}
+
 			}
-
-			// POSSIBLY OBSOLETE DUE TO PATHFINDING ALGORITHM AVOIDING OTHER ROBOT ANYWAY
-			if (ballObstructed(ourRobot, theirRobot, ball)) {
-				mode = 5;
-			}
-
-
 		} else {
 			mode = 6;
 		}
@@ -93,14 +106,14 @@ public class Strategy extends Thread {
 
 	// Returns true if our robot has possession of the ball
 	public static boolean doWeHaveTheBall(Robot ourRobot, Ball ball) {
-		boolean ourBall = Move.getDist(ourRobot, ball) < 50;
+		boolean ourBall = Move.getDist(ourRobot, ball) < 75;
 
 		return ourBall;
 	}
 
 	// Returns true if their robot has possession of the ball
 	public static boolean doTheyHaveTheBall(Robot theirRobot, Ball ball) {
-		boolean theirBall = Move.getDist(theirRobot, ball) < 50;
+		boolean theirBall = Move.getDist(theirRobot, ball) < 75;
 
 		return theirBall;
 	}

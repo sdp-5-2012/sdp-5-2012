@@ -42,6 +42,7 @@ public class Runner extends Thread { //implements ActionListener {
 	boolean applyClicked = false;
 	boolean isMainPitch = false;
 	String constantsLocation;
+	boolean initialVision = false;
 
 	//Positions
 	Position pitchCentre = null;
@@ -53,17 +54,17 @@ public class Runner extends Thread { //implements ActionListener {
 	Position rightGoalSide = new Position(567,238);
 	Position centreMain = new Position(284,246);
 	Position centreSide = new Position(253,236);
-	
+
 	int topY = 0;
 	int lowY = 0;
 	int leftX = 0;
 	int rightX = 0;
-	
+
 	int mainTopY = 80;
 	int mainLowY = 392;
 	int mainLeftX = 40;
 	int mainRightX = 608;
-	
+
 	int sideTopY = 92;
 	int sideLowY = 369;
 	int sideLeftX = 62;
@@ -239,7 +240,6 @@ public class Runner extends Thread { //implements ActionListener {
 
 		strategy.start();
 
-		//		int mode = Strategy.whatToDo(nxt, enemy, ball, ourGoal, theirGoal, pitchCentre);		
 		while (true) {
 			if (isPenaltyAttack) {
 				penaltyAttack();
@@ -272,7 +272,7 @@ public class Runner extends Thread { //implements ActionListener {
 			default:
 				modeZero();
 				break;
-				
+
 			}
 			Thread.sleep(1000);
 		}
@@ -315,11 +315,16 @@ public class Runner extends Thread { //implements ActionListener {
 
 
 	private void penaltyAttack() {
-		int angle = -35 + (int)(Math.random()*35);
+		int angle = -20 + (int)(Math.random()*20);
+		System.out.println("Angle for penalty: " + angle);
 		nxt.rotateRobot(angle);
 		nxt.kick();
 	}
 
+	/**
+	 * Mode 0: Default "go to ball, aim, kick"
+	 * @throws InterruptedException
+	 */
 	private void modeZero() throws InterruptedException {
 		System.out.println("Change to mode 0");
 		ModeZeroLoop:
@@ -327,52 +332,55 @@ public class Runner extends Thread { //implements ActionListener {
 				getPitchInfo();
 
 				int angle = 0;
-				int[] prevResults = new int[10];
-				ArrayList<Integer> goodAngles = new ArrayList<Integer>();
+				if (!initialVision) {
+					int[] prevResults = new int[10];
+					ArrayList<Integer> goodAngles = new ArrayList<Integer>();
 
-				// Sum 10 angles from Vision
-				for(int i = 1; i <= 10; i++) {	
+					// Sum 10 angles from Vision
+					for(int i = 1; i <= 10; i++) {	
 
-					getPitchInfo();
+						getPitchInfo();
 
-					try {
-						Thread.sleep(50);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
+						try {
+							Thread.sleep(50);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+
+						if (attackLeft) {
+							ball.setCoors(new Position(ball.getCoors().getX() + 50, ball.getCoors().getY()));
+						} else {
+							ball.setCoors(new Position(ball.getCoors().getX() - 50, ball.getCoors().getY()));
+						}
+						int m = Move.getAngleToBall(nxt, ball);
+
+						if (i < 11) {
+							prevResults[i-1] = m;
+						}
+					}
+					// Remove outliers
+					goodAngles = removeVal(prevResults);
+
+					for (int j = 0; j < goodAngles.size(); j++) {
+						angle += goodAngles.get(j);
 					}
 
-					if (attackLeft) {
-						ball.setCoors(new Position(ball.getCoors().getX() + 50, ball.getCoors().getY()));
-					} else {
-						ball.setCoors(new Position(ball.getCoors().getX() - 50, ball.getCoors().getY()));
-					}
-					int m = Move.getAngleToBall(nxt, ball);
-
-					if (i < 11) {
-						prevResults[i-1] = m;
-					}
+					// Get the average angle
+					angle /= goodAngles.size();
+				} else {
+					angle = Move.getAngleToBall(nxt, ball);
 				}
-				// Remove outliers
-				goodAngles = removeVal(prevResults);
-
-				for (int j = 0; j < goodAngles.size(); j++) {
-					angle += goodAngles.get(j);
-				}
-
-				// Get the average angle
-				angle /= goodAngles.size();
 
 				// Initial robot rotation
 				nxt.rotateRobot(angle);
-				nxt.moveForward(25);
+				nxt.moveForward(40);
 
 				int dist = Move.getDist(nxt, ball);
 
-				while(dist > 35) { // dist in pixels
+				while(dist > 50) { // dist in pixels
 					if (s.getCurrentMode() != 0) {
 						break ModeZeroLoop;
 					}
-					System.out.println("Distance: " + dist);
 					getPitchInfo();
 					dist = Move.getDist(nxt, ball);
 					int n = Move.getAngleToBall(nxt, ball);
@@ -383,22 +391,26 @@ public class Runner extends Thread { //implements ActionListener {
 
 						getPitchInfo();
 
-						nxt.moveForward(20);
+						nxt.moveForward(35);
 
 					} else {
 						getPitchInfo();
 
 					}
-				}	
+				}
+
+				System.out.println("KICK NOW!!!!");
+				nxt.kick();
 
 				getPitchInfo();
-				
+
 				// Check if the ball is close to any of the walls - if it is, just kick it
 				if ((ball.getCoors().getX() < (leftX + 50)) || (ball.getCoors().getX() < (rightX - 50))
 						|| (ball.getCoors().getY() > (topY + 50)) || (ball.getCoors().getY() < (lowY - 50))) {
 					nxt.kick();
 				} else {
-				
+
+					/*
 				Ball goal = new Ball();
 				goal.setCoors(new Position(theirGoal.getX(), theirGoal.getY()));
 				angle = Move.getAngleToBall(nxt, goal);
@@ -407,14 +419,19 @@ public class Runner extends Thread { //implements ActionListener {
 				nxt.moveForward(35);
 				Thread.sleep(1000);
 				nxt.kick();
+					 */
 
-				nxt.stop();
-				
+					nxt.stop();
+
 				}
 			}
 
 	}
 
+	/**
+	 * Mode 1: kick wildly (at an angle - off the wall?)
+	 * @throws InterruptedException
+	 */
 	private void modeOne() {
 		System.out.println("Change to mode 1");
 		while(s.getCurrentMode() == 1) {
@@ -433,6 +450,9 @@ public class Runner extends Thread { //implements ActionListener {
 
 	}
 
+	/**
+	 * Mode 2: dribble towards enemy half
+	 */
 	private void modeTwo() {
 		System.out.println("Change to mode 2");
 		while(s.getCurrentMode() == 2) {
@@ -452,6 +472,10 @@ public class Runner extends Thread { //implements ActionListener {
 
 	}
 
+	/**
+	 * Mode 3: retreat to own goal, defend
+	 * @throws InterruptedException
+	 */
 	private void modeThree() throws InterruptedException {
 		System.out.println("Change to mode 3");
 		ModeThreeLoop:
@@ -490,6 +514,9 @@ public class Runner extends Thread { //implements ActionListener {
 			}
 	}
 
+	/**
+	 * Method 4: attack hard
+	 */
 	private void modeFour() {
 
 		ModeFourLoop:
@@ -516,12 +543,22 @@ public class Runner extends Thread { //implements ActionListener {
 				nxt.stop();
 
 			}
-		nxt.stop();
+	nxt.stop();
 
 	}
 
+
 	private void modeFive() {
 		while(s.getCurrentMode() == 5) {
+			getPitchInfo();
+		}
+	}
+	
+	private void modeSix() {
+		while(s.getCurrentMode() == 6) {
+			nxt.moveForward(20);
+			nxt.kick();
+			nxt.stop();
 			getPitchInfo();
 		}
 	}
