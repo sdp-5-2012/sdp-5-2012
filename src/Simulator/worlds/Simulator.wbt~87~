@@ -423,7 +423,6 @@ DEF NXT DifferentialWheels {
   wheelRadius 0.04
   maxSpeed 20
   maxAcceleration 5
-  encoderNoise 0
   encoderResolution 100
   maxForce 1
 }

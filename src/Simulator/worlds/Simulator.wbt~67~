@@ -12,8 +12,8 @@ WorldInfo {
   ]
 }
 Viewpoint {
-  orientation 0.548825 -0.602679 -0.579284 4.29479
-  position 0.436645 3.61786 0.215666
+  orientation 0.323669 -0.858697 -0.397338 4.53632
+  position 0.594248 0.572465 0.0841824
 }
 Background {
   skyColor [
@@ -50,7 +50,7 @@ DEF SOCCER_FIELD Solid {
   locked TRUE
 }
 DEF BALL Solid {
-  translation -0.82556 0.05 -0.00332248
+  translation -0.000232454 0.05 -0.00276169
   rotation 0.707107 0 0.707107 2.62318
   children [
     Shape {
@@ -66,6 +66,92 @@ DEF BALL Solid {
     density -1
     mass 0.05
   }
+}
+DEF B1 DifferentialWheels {
+  translation 0.969876 0.116177 -0.012131
+  rotation 0 1 0 7.82208
+  children [
+    Solid {
+      translation 0.097 -0.0786 -0.025
+      rotation 1 0 0 0.526885
+      children [
+        Transform {
+          rotation 0 0 1 1.57
+          children [
+            DEF WHEEL_SHAPE Shape {
+              geometry Cylinder {
+                height 0.01
+                radius 0.02
+              }
+            }
+          ]
+        }
+      ]
+      name "right wheel"
+      boundingObject Transform {
+        rotation 0 0 1 1.57
+        children [
+          USE WHEEL_SHAPE
+        ]
+      }
+      physics DEF WHEEL_PHYSICS Physics {
+        density -1
+        mass 0.005
+      }
+    }
+    Solid {
+      translation -0.097 -0.0786 -0.025
+      rotation 1 0 0 0.526054
+      children [
+        Transform {
+          rotation 0 0 1 1.57
+          children [
+            Shape {
+              geometry Cylinder {
+                height 0.01
+                radius 0.02
+              }
+            }
+          ]
+        }
+      ]
+      name "left wheel"
+      boundingObject Transform {
+        rotation 0 0 1 1.57
+        children [
+          Shape {
+            geometry Cylinder {
+              height 0.01
+              radius 0.02
+            }
+          }
+        ]
+      }
+      physics USE WHEEL_PHYSICS
+    }
+    DEF BLUE_ROBOT_SHAPE Shape {
+      appearance Appearance {
+        texture ImageTexture {
+          url [
+            "soccer/blue.png"
+          ]
+        }
+      }
+      geometry Box {
+        size 0.18 0.18 0.2
+      }
+    }
+  ]
+  name "b1"
+  boundingObject USE BLUE_ROBOT_SHAPE
+  physics DEF ROBOT_PHYSICS Physics {
+    density -1
+    mass 0.2
+  }
+  axleLength 0.2
+  wheelRadius 0.04
+  maxSpeed 30
+  maxForce 1
 }
 DEF WALL_LEFT Solid {
   translation 0 0.158 0.609
@@ -148,8 +234,8 @@ DEF WALL_UPPERLEFT Solid {
   }
 }
 DEF Y1 DifferentialWheels {
-  translation -1.00032 0.14444 -0.00843952
-  rotation 0 -1 0 1.60867
+  translation -0.14775 0.14444 -0.162598
+  rotation 0 -1 0 2.40696
   children [
     DEF KICKER Servo {
       translation 0 0.065 -0.118
@@ -180,8 +266,8 @@ DEF Y1 DifferentialWheels {
         density -1
         mass 0.02
       }
-      maxVelocity 20
-      maxForce 0.3
+      maxVelocity 100
+      maxForce 100
       maxPosition 3
       springConstant 0.003
     }
@@ -284,146 +370,5 @@ DEF Y1 DifferentialWheels {
   wheelRadius 0.04
   maxSpeed 20
   maxAcceleration 5
-  maxForce 1
-}
-DEF NXT DifferentialWheels {
-  translation 1.0367 0.14444 0.00752448
-  rotation 0 -1 0 4.7419
-  children [
-    DEF KICKER Servo {
-      translation 0 0.065 -0.118
-      rotation 1 0 0 0
-      children [
-        DEF KICKER Solid {
-          translation 0 -0.072 0
-          children [
-            DEF KICK_PLATE Shape {
-              geometry Box {
-                size 0.18 0.19 0.01
-              }
-            }
-          ]
-          boundingObject Box {
-            size 0.18 0.19 0.01
-          }
-          locked TRUE
-        }
-      ]
-      boundingObject Transform {
-        translation 0 -0.072 0
-        children [
-          USE KICK_PLATE
-        ]
-      }
-      physics Physics {
-        density -1
-        mass 0.02
-      }
-      maxVelocity 20
-      maxForce 0.3
-      maxPosition 3
-      springConstant 0.003
-    }
-    DEF RIGHT_WHEEL Solid {
-      translation 0.097 -0.0696 0
-      rotation 1 0 0 0.526885
-      children [
-        Transform {
-          rotation 0 0 1 1.57
-          children [
-            DEF WHEEL_SHAPE Shape {
-              geometry Cylinder {
-                height 0.02
-                radius 0.04
-              }
-            }
-          ]
-        }
-      ]
-      name "right wheel"
-      boundingObject Transform {
-        rotation 0 0 1 1.57
-        children [
-          USE WHEEL_SHAPE
-        ]
-      }
-      physics DEF WHEEL_PHYSICS Physics {
-        density -1
-        mass 0.005
-      }
-    }
-    DEF LEFT_WHEEL Solid {
-      translation -0.097 -0.0696 0
-      rotation 1 0 0 0.526054
-      children [
-        Transform {
-          rotation 0 0 1 1.57
-          children [
-            Shape {
-              geometry Cylinder {
-                height 0.02
-                radius 0.04
-              }
-            }
-          ]
-        }
-      ]
-      name "left wheel"
-      boundingObject Transform {
-        rotation 0 0 1 1.57
-        children [
-          Shape {
-            geometry Cylinder {
-              height 0.02
-              radius 0.04
-            }
-          }
-        ]
-      }
-      physics USE WHEEL_PHYSICS
-    }
-    DEF CREATE_REAR_WHEEL Solid {
-      translation 0 -0.0925 0.0825
-      boundingObject Sphere {
-        radius 0.01
-      }
-      physics DEF CREATE_PASSIVE_WHEEL_PHYSICS Physics {
-        density -1
-        mass 0.05
-      }
-    }
-    DEF CREATE_FRONT_WHEEL Solid {
-      translation 0 -0.0925 -0.0825
-      boundingObject Sphere {
-        radius 0.01
-      }
-      physics USE CREATE_PASSIVE_WHEEL_PHYSICS
-    }
-    DEF YELLOW_ROBOT_SHAPE Shape {
-      appearance Appearance {
-        texture ImageTexture {
-          url [
-            "soccer/blue.png"
-          ]
-        }
-      }
-      geometry Box {
-        size 0.18 0.18 0.2
-      }
-    }
-  ]
-  name "b1"
-  boundingObject USE YELLOW_ROBOT_SHAPE
-  physics DEF ROBOT_PHYSICS Physics {
-    density -1
-    mass 0.2
-  }
-  controller "tcpip"
-  axleLength 0.2
-  wheelRadius 0.04
-  maxSpeed 20
-  maxAcceleration 5
-  encoderNoise 0
-  encoderResolution 100
   maxForce 1
 }

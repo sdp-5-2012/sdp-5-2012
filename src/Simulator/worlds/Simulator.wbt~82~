@@ -12,8 +12,8 @@ WorldInfo {
   ]
 }
 Viewpoint {
-  orientation 0.548825 -0.602679 -0.579284 4.29479
-  position 0.436645 3.61786 0.215666
+  orientation 0.439072 -0.73239 -0.520404 4.37824
+  position 1.50026 3.38177 0.234947
 }
 Background {
   skyColor [
@@ -418,12 +418,9 @@ DEF NXT DifferentialWheels {
     density -1
     mass 0.2
   }
-  controller "tcpip"
   axleLength 0.2
   wheelRadius 0.04
   maxSpeed 20
   maxAcceleration 5
-  encoderNoise 0
-  encoderResolution 100
   maxForce 1
 }

@@ -53,6 +53,10 @@ static WbDeviceTag servo;
 #define NULL_SPEED 0
 #define HALF_SPEED 10
 #define MIN_SPEED -10
+
+#define WHEEL_RADIUS 0.04
+#define AXLE_LENGTH 0.2
+#define ENCODER_RESOLUTION 100.0
 // Robot Actions:
 static int get_time_step() {
   static int time_step = -1;
@@ -100,6 +104,31 @@ static void kick(){
 static void unkick(){
   wb_servo_set_position(servo, 0);
   kicked = false;
+  }
+  
+static void turn(){//double angle) {
+  moving = false;
+  stop();
+  double angle = -1.5707;
+  wb_differential_wheels_enable_encoders(get_time_step());
+  wb_differential_wheels_set_encoders(0.0, 0.0);
+  step();
+  double neg = (angle < 0.0)? -1.0: 1.0;
+  wb_differential_wheels_set_speed((neg*HALF_SPEED / 4), (-neg*HALF_SPEED / 4));
+  double orientation;
+  do {
+    double l = wb_differential_wheels_get_left_encoder();
+    double r = wb_differential_wheels_get_right_encoder();
+    double dl = l / ENCODER_RESOLUTION * WHEEL_RADIUS; // distance covered by left wheel in meter
+    double dr = r / ENCODER_RESOLUTION * WHEEL_RADIUS; // distance covered by right wheel in meter
+    orientation = neg * (dl - dr) / AXLE_LENGTH; // delta orientation in radian
+    printf("Orientation %f \n",orientation);
+    printf("Angle %f \n",angle);
+    step();
+  } while (orientation < neg*angle); // overshooting here. REPORT ME.
+  stop();
+  wb_differential_wheels_disable_encoders();
+  step();
   }
 
 static int fd;
@@ -233,6 +262,10 @@ static void run()
 	} else if (buffer[0] == 'R') {
         turn_right();
         send(fd, "r\r\n", 3, 0);
+        
+  } else if (buffer[0] == 'T') {
+        turn();
+        send(fd, "t\r\n", 3, 0);
         
   } else if (buffer[0] == 'K') {
         if (kicked)
