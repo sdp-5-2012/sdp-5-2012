@@ -269,6 +269,9 @@ public class Runner extends Thread { //implements ActionListener {
 			case(5):
 				modeFive();
 			break;
+			case(6):
+				modeSix();
+			break;
 			default:
 				modeZero();
 				break;
@@ -377,7 +380,7 @@ public class Runner extends Thread { //implements ActionListener {
 
 				int dist = Move.getDist(nxt, ball);
 
-				while(dist > 50) { // dist in pixels
+				while(dist > 30) { // dist in pixels
 					if (s.getCurrentMode() != 0) {
 						break ModeZeroLoop;
 					}
@@ -400,6 +403,7 @@ public class Runner extends Thread { //implements ActionListener {
 				}
 
 				System.out.println("KICK NOW!!!!");
+				
 				nxt.kick();
 
 				getPitchInfo();

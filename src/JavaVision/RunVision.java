@@ -22,7 +22,7 @@ public class RunVision {
         ThresholdsState thresholdsState = new ThresholdsState();
 
         /* Default to main pitch. */
-        PitchConstants pitchConstants = new PitchConstants(0);
+        PitchConstants pitchConstants = new PitchConstants("pitch0");
         
         /* Default values for the main vision window. */
         String videoDevice = "/dev/video0";

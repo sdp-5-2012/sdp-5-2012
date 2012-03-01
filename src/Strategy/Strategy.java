@@ -51,10 +51,10 @@ public class Strategy extends Thread {
 		int mode = 0;
 
 		if(!(ball.getCoors().getX()==0) && !(ball.getCoors().getY()==0)){
-			if(ballInGoal(ball)){
-				System.out.println("BALL IN GOOOAL");
-				Runner.nxt.stop();
-			} else {
+	//		if(ballInGoal(ball)){
+		//		System.out.println("BALL IN GOOOAL");
+		//		Runner.nxt.stop();
+	//		} else {
 
 				if (doWeHaveTheBall(ourRobot, ball)) {
 					if (areWeInOurHalf(ourRobot, ourGoal, theirGoal)) {
@@ -95,7 +95,7 @@ public class Strategy extends Thread {
 					mode = 0;
 				}
 
-			}
+//			}
 		} else {
 			mode = 6;
 		}
