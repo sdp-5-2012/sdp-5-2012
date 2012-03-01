@@ -54,6 +54,14 @@ public class Runner extends Thread { //implements ActionListener {
 	Position rightGoalSide = new Position(567,238);
 	Position centreMain = new Position(284,246);
 	Position centreSide = new Position(253,236);
+	
+	// ADDEDBYSTRATEGY //
+	// Some location information for the so-called "deadzones"
+	// These get set upon pitch selection
+	Position deadzone1 = null;
+	Position deadzone2 = null;
+	int deadzone3y = 0;
+	int deadzone4y = 0;
 
 	int topY = 0;
 	int lowY = 0;
