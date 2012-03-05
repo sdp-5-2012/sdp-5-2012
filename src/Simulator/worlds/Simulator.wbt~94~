@@ -6,7 +6,6 @@ WorldInfo {
   ]
   title "SDP 2012 - N.U.K.E."
   runRealTime TRUE
-  northDirection -1 0 0
   contactProperties [
     ContactProperties {
     }
@@ -291,8 +290,6 @@ DEF NXT DifferentialWheels {
   translation 1.0367 0.14444 0.00752448
   rotation 0 -1 0 4.7419
   children [
-    DEF COMPASS Compass {
-    }
     DEF KICKER Servo {
       translation 0 0.065 -0.118
       rotation 1 0 0 0
@@ -424,7 +421,7 @@ DEF NXT DifferentialWheels {
   controller "tcpip"
   axleLength 0.2
   wheelRadius 0.04
-  maxSpeed 15
+  maxSpeed 20
   maxAcceleration 5
   encoderNoise 0
   encoderResolution 100

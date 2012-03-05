@@ -6,7 +6,6 @@ WorldInfo {
   ]
   title "SDP 2012 - N.U.K.E."
   runRealTime TRUE
-  northDirection -1 0 0
   contactProperties [
     ContactProperties {
     }
