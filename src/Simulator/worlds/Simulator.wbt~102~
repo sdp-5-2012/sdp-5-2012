@@ -5,7 +5,6 @@ WorldInfo {
     "Author: Steven Eardley - adapted from sample code by Olivier Michel (Cyberbotics Ltd)"
   ]
   title "SDP 2012 - N.U.K.E."
-  basicTimeStep 10
   runRealTime TRUE
   northDirection -1 0 0
   contactProperties [
@@ -425,7 +424,7 @@ DEF NXT DifferentialWheels {
   controller "tcpip_nxt"
   axleLength 0.2
   wheelRadius 0.04
-  maxSpeed 12
+  maxSpeed 15
   maxAcceleration 5
   encoderNoise 0
   encoderResolution 100

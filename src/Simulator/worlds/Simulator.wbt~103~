@@ -425,7 +425,7 @@ DEF NXT DifferentialWheels {
   controller "tcpip_nxt"
   axleLength 0.2
   wheelRadius 0.04
-  maxSpeed 12
+  maxSpeed 15
   maxAcceleration 5
   encoderNoise 0
   encoderResolution 100
