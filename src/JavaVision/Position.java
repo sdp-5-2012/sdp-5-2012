@@ -61,6 +61,14 @@ public class Position {
 		this.y = y;
 	}
 	
+	/**
+	 * set both coordinates
+	 */
+	public void setCoors(int x, int y) {
+		this.x = x;
+		this.y = y;
+	}
+	
 	
 	/**
 	 * Compares the current x and y co-ordinates to another set

@@ -1,32 +1,18 @@
 package GUI;
-
 import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-
-import javax.swing.Action;
-import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
-import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
-
-import JavaVision.PitchConstants;
 import JavaVision.Position;
-import JavaVision.ThresholdsState;
-import JavaVision.WorldState;
 import Planning.Runner;
-
 
 public class MainGui extends JFrame {
 	public GuiLog log;
@@ -220,6 +206,13 @@ public class MainGui extends JFrame {
 		} else {
 			isMainPitch = false;
 		}
+		
+		if(options.modeAvoid.isSelected()) {
+			isModeAvoid = true;
+		} else {
+			isModeAvoid = false;
+		}
+		System.out.println("modeAvoid " + isModeAvoid);
 	}
 
 	// Getters

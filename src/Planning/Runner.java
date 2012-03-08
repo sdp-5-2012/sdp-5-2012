@@ -9,31 +9,35 @@ import GUI.MainGui;
 import JavaVision.*;
 import Strategy.*;
 
-public class Runner extends Thread { 
-
+public class Runner extends Thread {
+	public Position bla = new Position(0,0);
+	public Position gotoBall = new Position(0,0);
+//	public ArrayList<Position> waypoints = new ArrayList<Position>();
+	public ArrayList<Position> waypoints = new ArrayList<Position>();
+	Position ballOffsetPosition;
+	
 	// Objects
 	public static Ball ball;
 	public static Robot nxt;
 	public static Robot otherRobot;
 	static Robot blueRobot;
-	static Robot yellowRobot;	
+	static Robot yellowRobot;
 	static WorldState state;
 	ControlGUI control;
 	static Runner instance = null;
 	boolean usingSimulator = false;
 	Vision vision;
-	PathPlanner planner = new PathPlanner();
+	PathPlanner planner;
 	static MainGui gui;
 	Strategy s;
 	boolean stopFlag = false;
-	Ball newBall;
-
+	
 	Point ourNXT = new Point();
 	Point otherNXT = new Point();
 	Point ballPoint = new Point();
 
 	// game flags
-	boolean teamYellow = true;
+	boolean teamYellow = false;
 	boolean attackLeft = false;
 	boolean isPenaltyAttack = false;
 	boolean isPenaltyDefend = false;
@@ -41,19 +45,19 @@ public class Runner extends Thread {
 	boolean isMainPitch = false;
 	String constantsLocation;
 	boolean initialVision = false;
-	boolean extremeStrip = false;
 	boolean isScore = false;
+	boolean extremeStrip = false;
 
 	// Positions
 	Position pitchCentre = null;
 	Position ourGoal = null;
 	Position theirGoal = null;
-	Position leftGoalMain = new Position(40,250);
-	Position leftGoalSide = new Position(62,233);
-	Position rightGoalMain = new Position(608,242);
-	Position rightGoalSide = new Position(567,238);
-	Position centreMain = new Position(284,246);
-	Position centreSide = new Position(253,236);
+	Position leftGoalMain = new Position(40, 250);
+	Position leftGoalSide = new Position(62, 233);
+	Position rightGoalMain = new Position(608, 242);
+	Position rightGoalSide = new Position(567, 238);
+	Position centreMain = new Position(284, 246);
+	Position centreSide = new Position(253, 236);
 
 	int topY = 0;
 	int lowY = 0;
@@ -70,11 +74,12 @@ public class Runner extends Thread {
 	int sideLeftX = 62;
 	int sideRightX = 567;
 
-	Position dest = new Position(0,0);
+	Position dest = new Position(0, 0);
 
-	public static final int DEFAULT_SPEED = 35;		// used for move_forward method in Robot
-	public static final int EACH_WHEEL_SPEED = 900; // used for each_wheel_speed method in Robot
-
+	public static final int DEFAULT_SPEED = 35; // used for move_forward method
+	// in Robot
+	public static final int EACH_WHEEL_SPEED = 900; // used for each_wheel_speed
+	// method in Robot
 	public static void main(String args[]) {
 		instance = new Runner();
 	}
@@ -82,6 +87,7 @@ public class Runner extends Thread {
 	/**
 	 * Instantiate objects and start the planning thread
 	 */
+
 	public Runner() {
 		start();
 	}
@@ -89,18 +95,16 @@ public class Runner extends Thread {
 	/**
 	 * Planning thread which begins planning loop
 	 */
-	public void run() {	
-
+	public void run() {
 		blueRobot = new Robot();
 		yellowRobot = new Robot();
-
-		ball = new Ball();	
-		newBall = new Ball();
+		ball = new Ball();
+		ballOffsetPosition = new Position(0,0);
 
 		javax.swing.SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				createAndShowGui();
-			}			
+			}
 		});
 
 		// Planning sleeps until GUI notifies
@@ -113,20 +117,22 @@ public class Runner extends Thread {
 		}
 
 		getUserOptions();
-
 		setPositionInformation();
+		planner = new PathPlanner(attackLeft);
 
 		try {
 			mainLoop();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
-		}	
+		}
 	}
 
 	/**
-	 * Method to set centres and goals based on pitch choice and shooting direction
+	 * Method to set centres and goals based on pitch choice and shooting
+	 * direction
 	 */
 	private void setPositionInformation() {
+
 		if (isMainPitch) {
 			pitchCentre = centreMain;
 			topY = mainTopY;
@@ -150,7 +156,7 @@ public class Runner extends Thread {
 				theirGoal = leftGoalSide;
 			}
 		} else {
-			if(isMainPitch) {
+			if (isMainPitch) {
 				ourGoal = leftGoalMain;
 				theirGoal = rightGoalMain;
 			} else {
@@ -171,7 +177,7 @@ public class Runner extends Thread {
 	private void createAndShowGui() {
 		// Set the the control gui
 		gui = new MainGui(instance);
-		gui.setSize(600,400);
+		gui.setSize(600, 400);
 		gui.setLocation(500, 500);
 		gui.setTitle("N.U.K.E Control Panel");
 		gui.setResizable(false);
@@ -181,12 +187,12 @@ public class Runner extends Thread {
 	/**
 	 * Method to initiate the vision
 	 */
-	public void startVision() {	    
+	public void startVision() {
 		/**
-		 * Creates the control
-		 * GUI, and initialises the image processing.
+		 * Creates the control GUI, and initialises the image processing.
 		 * 
-		 * @param args        Program arguments. Not used.
+		 * @param args
+		 *            Program arguments. Not used.
 		 */
 		// Get constants location from gui
 		constantsLocation = gui.getConstantsFileLocation();
@@ -209,8 +215,9 @@ public class Runner extends Thread {
 
 		try {
 			/* Create a new Vision object to serve the main vision window. */
-			vision = new Vision(videoDevice, width, height, channel, videoStandard,
-					compressionQuality, worldState, thresholdsState, pitchConstants);
+			vision = new Vision(videoDevice, width, height, channel,
+					videoStandard, compressionQuality, worldState,
+					thresholdsState, pitchConstants);
 
 		} catch (V4L4JException e) {
 			e.printStackTrace();
@@ -219,18 +226,18 @@ public class Runner extends Thread {
 		}
 	}
 
-
 	private void mainLoop() throws InterruptedException {
-		//		getPitchInfo();
-		//		s = new Strategy(instance);
-		//		Thread strategy = new Thread(s);
+		bla.setCoors(100, 100);
 
-		//		strategy.start();
+		getPitchInfo(false);
+		// s = new Strategy(instance);
+		// Thread strategy = new Thread(s);
 
+		// strategy.start();
 
 		if (!stopFlag) {
 			if(gui.isModeAvoid()) {
-				modeAvoid();
+				ModeAvoid();
 			} else {
 				modeScore();
 			}
@@ -241,8 +248,7 @@ public class Runner extends Thread {
 	}
 
 	/**
-	 * Method stops robot and waits for new 
-	 * input from GUI
+	 * Method stops robot and waits for new input from GUI
 	 */
 	private void waitForNewInput() {
 		// Planning sleeps until Gui notifies
@@ -256,14 +262,14 @@ public class Runner extends Thread {
 
 		getUserOptions();
 		setPositionInformation();
-		setRobotColour();		
+		setRobotColour();
 	}
 
 	public void applyChanges() {
 		// Planning sleeps until GUI notifies
 		getUserOptions();
 		setPositionInformation();
-		setRobotColour();		
+		setRobotColour();
 	}
 
 	/**
@@ -271,14 +277,8 @@ public class Runner extends Thread {
 	 * @throws InterruptedException
 	 */
 	public void modeScore() throws InterruptedException {
-		//		ArrayList<Position> goals = new ArrayList<Position>();
-		//		goals = planner.getOptimalPath(nxt.getCoors(), ball.getCoors(), otherRobot.getCoors());
-		//		Position goal = new Position(0,0);
-		//		Ball goalBall = new Ball();		
-
 		while (true) {
-
-			getPitchInfo();
+			getPitchInfo(false);
 			if (isScore) {
 				nxt.stop();	
 				break;
@@ -288,7 +288,7 @@ public class Runner extends Thread {
 
 			angle = getAverageAngle();
 
-			dist = Move.getDist(nxt, newBall);
+			dist = Move.getDist(nxt, ballOffsetPosition);
 
 			// Initial robot rotation
 			nxt.rotateRobot(angle);
@@ -296,18 +296,18 @@ public class Runner extends Thread {
 
 			nxt.moveForward(20);
 
-			while(dist > 30 && stopFlag == false) { // dist in pixels
+			while(dist > 40 && stopFlag == false) { // dist in pixels
 				//			System.out.println("dist to ball: " + dist);
-				getPitchInfo();
-				vision.drawPos(newBall.getCoors());
-				dist = Move.getDist(nxt, newBall);
-				int n = Move.getAngleToBall(nxt, newBall);
+				getPitchInfo(false);
+				vision.drawPos(ballOffsetPosition);
+				dist = Move.getDist(nxt, ballOffsetPosition);
+				int n = Move.getAngleToPosition(nxt, ballOffsetPosition);
 				//			System.out.println("angle to offset ball: " + n);
 
-				if((Math.abs(n) > 15)) {
+				if((Math.abs(n) > 20)) {
 					nxt.rotateRobot(n);
-					getPitchInfo();
-					dist = Move.getDist(nxt, newBall);
+					getPitchInfo(false);
+					dist = Move.getDist(nxt, ballOffsetPosition);
 
 					nxt.moveForward(20);
 				}
@@ -318,17 +318,17 @@ public class Runner extends Thread {
 				//	dist = Move.getDist(nxt, ball);
 
 				if (!extremeStrip) {
-					Ball goalLoc = new Ball();
+					Position goalLocation = new Position(0, 0);
 					if (attackLeft) {
-						goalLoc.setCoors(leftGoalSide);
+						goalLocation = leftGoalSide;
 					} else {
-						goalLoc.setCoors(rightGoalSide);
+						goalLocation = rightGoalSide;
 					}
-					angle = Move.getAngleToBall(nxt, goalLoc);
+					angle = Move.getAngleToPosition(nxt, goalLocation);
 				} else {
-					angle = Move.getAngleToBall(nxt, ball);
+					angle = Move.getAngleToPosition(nxt, ball.getCoors());
 				}
-				getPitchInfo();
+				getPitchInfo(false);
 				if (isScore) {
 					nxt.stop();	
 					break;
@@ -337,7 +337,7 @@ public class Runner extends Thread {
 				nxt.rotateRobot(angle);
 				nxt.moveForward(20);
 				try {
-					Thread.sleep(1000);
+					Thread.sleep(1100);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
@@ -346,87 +346,88 @@ public class Runner extends Thread {
 
 				System.out.println("Ball coordinates!!" + ball.getCoors().getX());
 			}
-			getPitchInfo();
+			getPitchInfo(false);
 			if (isScore) {
 				nxt.stop();	
 				break;
 			}
-
 		}
+	}
+
+	private void ModeAvoid() {		
+		while (Move.getDist(nxt, ball.getCoors()) > 50){
+
+			getPitchInfo(true);
+			try {
+				Thread.sleep(200);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+
+			int avgAngle = getAverageAngle();
+
+			nxt.setAngle(avgAngle);
+
+			getPitchInfo(false);
+			int angleToBall = Move.getAngleToPosition(nxt, gotoBall);
+
+			int dist = Move.getDist(nxt, gotoBall);
+
+			nxt.rotateRobot(angleToBall);
+
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+
+			//		 while(true){
+			//		 Vision.plotPoints(goals);
+			//		 }
+
+			nxt.moveForward(20);
+			while (dist > 50) { 
+				getPitchInfo(false);
+				Vision.plotPoints(waypoints);
+				dist = Move.getDist(nxt, gotoBall);
+				int n = Move.getAngleToPosition(nxt, gotoBall);
+
+
+				if ((Math.abs(n) > 20)) {
+					nxt.rotateRobot(n);
+					try {
+						Thread.sleep(200);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+					getPitchInfo(false);
+					dist = Move.getDist(nxt, gotoBall);
+					nxt.moveForward(20);
+				}
+			}
+		}
+		
+//		getPitchInfo(false);
+//		Ball goal = new Ball();
+//		if(attackLeft) {
+//			goal.setCoors(leftGoalSide);
+//		} else {
+//			goal.setCoors(rightGoalSide);
+//		}
+//		int angle = Move.getAngleToPosition(nxt, goal.getCoors());
+//		nxt.rotateRobot(angle);
+//		nxt.moveForward(30);
+//		try {
+//			Thread.sleep(1100);
+//		} catch (InterruptedException e) {
+//			e.printStackTrace();
+//		}
+//		nxt.kick();
+//		
+//		nxt.stop();
 
 	}
 
-	private void modeAvoid() {
-		nxt.moveForward(25);
-
-		getPitchInfo();
-		Ball otherRobotBall = new Ball();
-		otherRobotBall.setCoors(new Position(otherRobot.getCoors().getX(), otherRobot.getCoors().getY()));
-		int differenceX = Math.abs(nxt.getCoors().getX() - otherRobotBall.getCoors().getX());
-		int differenceY = Math.abs(nxt.getCoors().getX() - otherRobotBall.getCoors().getX());
-		boolean diffX = (differenceX > differenceY) ? true:false; 
-
-		while (Math.abs(Move.getAngleToBall(nxt, otherRobotBall)) < 15 && !stopFlag) {
-
-			getPitchInfo();
-
-			if((Move.getDist(nxt, otherRobotBall) > 75)) {
-				nxt.moveForward(25);
-			} else {
-				nxt.stop();
-			}
-		}
-		//when robot is facing goal with robot obstructing
-		if(diffX) {
-			if (nxt.getCoors().getX() < otherRobotBall.getCoors().getX()) {
-				if (otherRobotBall.getCoors().getY() < 145) {
-					nxt.rotateRobot(60);
-				} else {
-					nxt.rotateRobot(-60);
-				}
-			}
-
-
-			else if (nxt.getCoors().getX() > otherRobotBall.getCoors().getX()) {
-				if (otherRobotBall.getCoors().getY() < 145) {
-					nxt.rotateRobot(-60);
-				} else {
-					nxt.rotateRobot(60);
-				}
-
-			}
-		}
-
-		//when robot is facing adjacent wall with robot obstructing
-		else if(!diffX) {
-			if (nxt.getCoors().getY() < otherRobotBall.getCoors().getY()) {
-				if (otherRobotBall.getCoors().getX() < 280) {
-					nxt.rotateRobot(60);
-				} else {
-					nxt.rotateRobot(-60);
-				}
-			}
-			else if (nxt.getCoors().getY() > otherRobotBall.getCoors().getY()) {
-				if (otherRobotBall.getCoors().getY() < 280) {
-					nxt.rotateRobot(-60);
-				} else {
-					nxt.rotateRobot(60);
-				}
-			}
-
-		}
-
-		nxt.moveForward(25);
-
-		try {
-			Thread.sleep(2000);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		nxt.stop();
-	}
 
 	private int getAverageAngle() {
 		int angle = 0;
@@ -434,64 +435,54 @@ public class Runner extends Thread {
 		ArrayList<Integer> goodAngles = new ArrayList<Integer>();
 
 		// Sum 10 angles from Vision
-		for(int i = 1; i <= 10; i++) {	
-
-			getPitchInfo();
-
+		for (int i = 1; i <= 10; i++) {
+			getPitchInfo(false);
 			try {
 				Thread.sleep(50);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 
-			if (attackLeft) {
-				newBall.setCoors(new Position(newBall.getCoors().getX(), newBall.getCoors().getY()));
-			} else {
-				newBall.setCoors(new 
-						Position(newBall.getCoors().getX(), newBall.getCoors().getY()));
-			}
-			int m = Move.getAngleToBall(nxt, newBall);
+			int m = (int) Runner.nxt.getAngle();
 
-			if (i < 11) {
-				prevResults[i-1] = m;
-			}
+			prevResults[i - 1] = m;
+
 		}
-		// Remove outliers
-		goodAngles = removeVal(prevResults);
 
+		// Remove outliers
+
+		goodAngles = removeVal(prevResults);
 		for (int j = 0; j < goodAngles.size(); j++) {
 			angle += goodAngles.get(j);
 			System.out.println(goodAngles.get(j));
 		}
 
 		// Get the average angle
+
 		angle /= goodAngles.size();
 		System.out.println("return from avg angle " + angle);
 		return angle;
-	} 
-
+	}
 
 	/*
-	 * Compare the first element with all other elements.
-	 * If difference > 40 then place in 2nd array
-	 * Compare lengths of arrays, bigger array has more similar elements
-	 * Repeat the comparison step on the bigger array
-	 * to make sure that the array only contains similar elements
+	 * Compare the first element with all other elements. If difference > 40
+	 * then place in 2nd array Compare lengths of arrays, bigger array has more
+	 * similar elements Repeat the comparison step on the bigger array to make
+	 * sure that the array only contains similar elements
 	 */
-
 	private ArrayList<Integer> removeVal(int[] nums) {
-
 		ArrayList<Integer> array1 = new ArrayList<Integer>();
 		ArrayList<Integer> array2 = new ArrayList<Integer>();
-		ArrayList<Integer> array3 = new ArrayList<Integer>(); array1.add(nums[0]);
+		ArrayList<Integer> array3 = new ArrayList<Integer>();
+		array1.add(nums[0]);
 
 		/*
 		 * if i-th element in the array differs by more than 40 from the first
 		 * element, add to 2nd array instead of 1st array
 		 */
 
-		for (int i = 1; i < nums.length; i++ ) {
-			if ((nums[i]-nums[0] >= -20) && (nums[i]-nums[0] <= 20)) {
+		for (int i = 1; i < nums.length; i++) {
+			if ((nums[i] - nums[0] >= -20) && (nums[i] - nums[0] <= 20)) {
 				array1.add(nums[i]);
 			} else {
 				array2.add(nums[i]);
@@ -505,14 +496,17 @@ public class Runner extends Thread {
 		if (array2.size() > array1.size()) {
 			array1 = (ArrayList<Integer>) array2.clone();
 		}
+
 		array2.clear();
 		array2.add(array1.get(0));
 
 		/*
-		 * same as previous for loop, but compare elements in the newly made array
+		 * same as previous for loop, but compare elements in the newly made
+		 * array
 		 */
 		for (int i = 1; i < array1.size(); i++) {
-			if ((array1.get(i)-array1.get(0) >= -20) && (array1.get(i)-array1.get(0) <= 20)) {
+			if ((array1.get(i) - array1.get(0) >= -20)
+					&& (array1.get(i) - array1.get(0) <= 20)) {
 				array2.add(array1.get(i));
 			} else {
 				array3.add(array1.get(i));
@@ -532,67 +526,71 @@ public class Runner extends Thread {
 	/**
 	 * Get the most recent information from vision
 	 */
-	public void getPitchInfo() {
+	public void getPitchInfo(boolean findPath) {
+
 		// Get pitch information from vision
-		int i=0;
+		int i = 0;
 		state = vision.getWorldState();
 		// while not receiving correct info from Vision
-		while(state.getBlueX()==0){
+
+		while (state.getBlueX() == 0) {
 			state = vision.getWorldState();
 			i++;
 		}
 
 		ball.setCoors(new Position(state.getBallX(), state.getBallY()));
 
+		gotoBall.setCoors(bla.getX(), bla.getY());
+		extremeStrip = false;
 		// set the coordinates of offset ball based on location of ball
 		if(attackLeft){
 			// Extreme top Strip attacking left
-			if(ball.getCoors().getY() <145){
+			if(ball.getCoors().getY() <130){
 				// when moving to this one, no rotation to goal required
-				newBall.setCoors(new Position(ball.getCoors().getX()+50, ball.getCoors().getY()+30));
+				ballOffsetPosition.setCoors(ball.getCoors().getX()+50, ball.getCoors().getY()+30);
 				extremeStrip = true;
 				// Normal top strip 
 			} else 	if(ball.getCoors().getY() <187){
-				newBall.setCoors(new Position(ball.getCoors().getX()+50, ball.getCoors().getY()-30));
+				ballOffsetPosition.setCoors(ball.getCoors().getX()+50, ball.getCoors().getY()-30);
 				// Extreme bottom strip
-			} else if (ball.getCoors().getY() >325){
+			} else if (ball.getCoors().getY() >350){
 				// when moving to this one, no rotation to goal required
-				newBall.setCoors(new Position(ball.getCoors().getX()+50, ball.getCoors().getY()-30));
+				ballOffsetPosition.setCoors(ball.getCoors().getX()+50, ball.getCoors().getY()-30);
 				extremeStrip = true;
 				// Normal bottom strip
 			} else if (ball.getCoors().getY() >281){
-				newBall.setCoors(new Position(ball.getCoors().getX()+50, ball.getCoors().getY()+30));
+				ballOffsetPosition.setCoors(ball.getCoors().getX()+50, ball.getCoors().getY()+30);
 				// Upper Middle strip
 			} else if (187<= ball.getCoors().getY() && ball.getCoors().getY() <= 280 ){
-				newBall.setCoors(new Position(ball.getCoors().getX()+50, ball.getCoors().getY()-15));
+				ballOffsetPosition.setCoors(ball.getCoors().getX()+50, ball.getCoors().getY()-5);
 			}
 			// Lower Middle strip
 			else {
-				newBall.setCoors(new Position(ball.getCoors().getX()+50, ball.getCoors().getY()+15));
+				ballOffsetPosition.setCoors(ball.getCoors().getX()+50, ball.getCoors().getY()+5);
 			}
 		} else {
 			// Extreme top Strip attacking right
-			if(ball.getCoors().getY() <145){
+			if(ball.getCoors().getY() <130){
 				// when moving to this one, no rotation to goal required
-				newBall.setCoors(new Position(ball.getCoors().getX()-50, ball.getCoors().getY()+30));
+				ballOffsetPosition.setCoors(ball.getCoors().getX()-50, ball.getCoors().getY()+30);
 				extremeStrip = true;
 			} else if(ball.getCoors().getY() <187){
-				newBall.setCoors(new Position(ball.getCoors().getX()-50, ball.getCoors().getY()-30));
+				ballOffsetPosition.setCoors(ball.getCoors().getX()-50, ball.getCoors().getY()-30);
 				// Extreme bottom strip
-			} else if (ball.getCoors().getY() >325){
+			} else if (ball.getCoors().getY() >350){
 				// when moving to this one, no rotation to goal required
-				newBall.setCoors(new Position(ball.getCoors().getX()-50, ball.getCoors().getY()-30));
+				ballOffsetPosition.setCoors(ball.getCoors().getX()-50, ball.getCoors().getY()-30);
 				extremeStrip = true;
 				// Normal bottom strip
 			} else if (ball.getCoors().getY() >281){
-				newBall.setCoors(new Position(ball.getCoors().getX()-50, ball.getCoors().getY()+30));
+				ballOffsetPosition.setCoors(ball.getCoors().getX()-50, ball.getCoors().getY()+30);
 				// Upper Middle strip
 			} else if (187<= ball.getCoors().getY() && ball.getCoors().getY() <= 229 ){
-				newBall.setCoors(new Position(ball.getCoors().getX()-50, ball.getCoors().getY()-15));
+				ballOffsetPosition.setCoors(ball.getCoors().getX()-50, ball.getCoors().getY()-5);
 			}
 			// Lower Middle Strip
 			else {
-				newBall.setCoors(new Position(ball.getCoors().getX()-50, ball.getCoors().getY()+15));
+				ballOffsetPosition.setCoors(ball.getCoors().getX()-50, ball.getCoors().getY()+5);
 			}
 		}
 
@@ -601,32 +599,47 @@ public class Runner extends Thread {
 		} else {
 			isScore = false;
 		}
-
 		if (teamYellow) {
-
 			nxt.setAngle(state.getYellowOrientation());
 			nxt.setCoors(new Position(state.getYellowX(), state.getYellowY()));
-			ourNXT.x = state.getYellowX();
-			ourNXT.y = state.getYellowY();
 
 			otherRobot.setAngle(state.getBlueOrientation());
 			otherRobot.setCoors(new Position(state.getBlueX(), state.getBlueY()));
-			otherNXT.x = state.getBlueX();
-			otherNXT.y = state.getBlueY();
-
 
 		} else {
 			nxt.setAngle(state.getBlueOrientation());
 			nxt.setCoors(new Position(state.getBlueX(), state.getBlueY()));
 
 			otherRobot.setAngle(state.getYellowOrientation());
-			otherRobot.setCoors(new Position(state.getYellowX(), state.getYellowY()));
-			otherNXT.x = state.getYellowX();
-			otherNXT.y = state.getYellowY();
-		}
+			otherRobot.setCoors(new Position(state.getYellowX(), state
+					.getYellowY()));
 
+		}
 		gui.setCoordinateLabels(nxt.getCoors(), otherRobot.getCoors(), ball.getCoors());
+
+		if(findPath){
+			waypoints = planner.getOptimalPath(nxt.getCoors(), ball.getCoors(), otherRobot.getCoors());
+
+			for (int s = 0; s < waypoints.size(); s++) {
+				int distBetweenWaypoint = Move.getDist(nxt, waypoints.get(s));
+				if(distBetweenWaypoint < 40) waypoints.remove(s);
+			}
+			bla.setCoors(waypoints.get(0).getX(),waypoints.get(0).getY());
+		}
 	}
+
+	//	public ArrayList<Ball> getPath() {
+	//		waypoints = planner.getOptimalPath(nxt.getCoors(), ball.getCoors(),	otherRobot.getCoors());
+	//		for (int f = 0; f < waypoints.size(); f++) {
+	//			Ball a = new Ball();
+	//			a.setCoors(waypoints.get(f));
+	//			goals.add(a);
+	//		}
+	//		System.out.println("PLANNER IN BALLS: "
+	//				+ goals.get(goals.size() - 1).getCoors().getX() + " "
+	//				+ goals.get(goals.size() - 1).getCoors().getY());
+	//		return goals;
+	//	}
 
 	public void setRobotColour() {
 		if (teamYellow) {
@@ -650,6 +663,7 @@ public class Runner extends Thread {
 	public Robot getTheirRobot() {
 		return otherRobot;
 	}
+
 	public Ball getBall() {
 		return ball;
 	}
@@ -669,5 +683,4 @@ public class Runner extends Thread {
 	public void setStopFlag(boolean flag) {
 		stopFlag = flag;
 	}
-
 }

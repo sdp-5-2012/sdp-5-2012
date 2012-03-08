@@ -14,6 +14,7 @@ import java.util.Random;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 
+import Planning.Ball;
 import au.edu.jcu.v4l4j.CaptureCallback;
 import au.edu.jcu.v4l4j.Control;
 import au.edu.jcu.v4l4j.DeviceInfo;
@@ -41,10 +42,10 @@ public class Vision extends WindowAdapter {
 	private WorldState worldState;
 	private ThresholdsState thresholdsState;
 	private PitchConstants pitchConstants;
-	private BufferedImage globalImage;
 	private static final double barrelCorrectionX = -0.010;
 	private static final double barrelCorrectionY = -0.03;
-	BufferedImage frameImage;
+	static BufferedImage frameImage;
+
 
 	// private int[] xDistortion;
 	// private int[] yDistortion;
@@ -106,6 +107,25 @@ public class Vision extends WindowAdapter {
 	 * @throws V4L4JException
 	 *             If any parameter is invalid.
 	 */
+	
+	
+	
+//	1. These values are good for the last 4 computers from the left
+//	Hue - 0
+//	saturation - 100
+//	brightness - 130
+//	chroma gain - 20
+//	contrast - 80
+//
+//
+//	2. These values are good for the first 4 computers from the right
+//	Hue - -9
+//	saturation - 103
+//	brightness - 191
+//	chroma gain - 66
+//	contrast - 99	
+	
+	
 	private void initFrameGrabber(String videoDevice, int inWidth,
 			int inHeight, int channel, int videoStandard, int compressionQuality)
 			throws V4L4JException {
@@ -114,17 +134,16 @@ public class Vision extends WindowAdapter {
 			java.util.List<Control> controls = videoDev.getControlList()
 					.getList();
 			for (Control c : controls) {
-				if (c.getName().equals("Saturation"))
-					c.setValue(103);
-				if (c.getName().equals("Contrast"))
-					c.setValue(99);
-				if (c.getName().equals("Brightness"))
-					c.setValue(191);
-				if (c.getName().equals("Chroma Gain"))
-					c.setValue(66);
 				if (c.getName().equals("Hue"))
-					c.setValue(-9);
-
+					c.setValue(0);
+				if (c.getName().equals("Saturation"))
+					c.setValue(94);		
+				if (c.getName().equals("Brightness"))
+					c.setValue(75);
+				if (c.getName().equals("Chroma Gain"))
+					c.setValue(43);
+				if (c.getName().equals("Contrast"))
+					c.setValue(64);						
 			}
 			videoDev.releaseControlList();
 		} catch (V4L4JException e3) {
@@ -153,9 +172,8 @@ public class Vision extends WindowAdapter {
 			public void nextFrame(VideoFrame frame) {
 				long before = System.currentTimeMillis();
 				frameImage = frame.getBufferedImage();
-				globalImage = frameImage;
 				frame.recycle();
-				if (counter > 10){
+				if (counter > 10)
 					processAndUpdateImage(frameImage, before, counter);
 				counter++;
 			}
@@ -270,12 +288,12 @@ public class Vision extends WindowAdapter {
 				// System.out.println(newmehmeh.getX() + " " +
 				// newmehmeh.getY());
 
-				// Point current = new Point(row, column);
-				// current = convertToBarrelCorrected(current);
-				// int replacerow = row;
-				// int replacecolumn = column;
-				// row = (int) current.getX();
-				// column = (int) current.getY();
+//				 Point current = new Point(row, column);
+//				 current = convertToBarrelCorrected(current);
+//				 int replacerow = row;
+//				 int replacecolumn = column;
+//				 row = (int) current.getX();
+//				 column = (int) current.getY();
 
 				float hsbvals[] = new float[3];
 				Color.RGBtoHSB(c.getRed(), c.getBlue(), c.getGreen(), hsbvals);
@@ -312,7 +330,7 @@ public class Vision extends WindowAdapter {
 				}
 
 				/* Is this pixel part of the Blue T? */
-				if (justB > 25) {
+				if (justB > 35) {
 
 					blueX += column;
 					blueY += row;
@@ -462,28 +480,47 @@ public class Vision extends WindowAdapter {
 				yellowPY.add(gY);
 			}
 		}
+		
+//		for(int i=0; i<blueXPoints.size(); i++){
+//			image.getGraphics().drawOval(blueXPoints.get(i), blueYPoints.get(i), 3, 3);
+//		}
 
-		// for (int i = 0; i < yellowXPoints.size(); i++) {
-		//
-		//
-		// image.getGraphics().drawOval(yellowXPoints.get(i),
-		// yellowYPoints.get(i), 3, 3);
-		// }
+//		 for (int i = 0; i < yellowXPoints.size(); i++) {
+//		
+//		
+//		 image.getGraphics().drawOval(yellowXPoints.get(i),
+//		 yellowYPoints.get(i), 3, 3);
+//		 }
 
 		// for (int i = 0; i < yellowPX.size(); i++) {
 		// image.getGraphics()
 		// .drawOval(yellowPX.get(i), yellowPY.get(i), 3, 3);
 		// }
 
-		// image.getGraphics().setColor(Color.black);
-		// image.getGraphics().drawOval(meh[0].getX(), meh[0].getY(), 3, 3);
-		// image.getGraphics().setColor(Color.red);
-		// image.getGraphics().drawOval(meh[1].getX(), meh[1].getY(), 3, 3);
-		// image.getGraphics().setColor(Color.yellow);
-		// image.getGraphics().drawOval(meh[2].getX(), meh[2].getY(), 3, 3);
-		image.getGraphics().setColor(Color.orange);
-		// image.getGraphics().drawOval(meh[3].getX(), meh[3].getY(), 3, 3);*//
-		// try {
+		Position centroidy = calcCentroid(yellowPX, yellowPY);
+		ArrayList<Integer> newyellX = new ArrayList<Integer>();
+		ArrayList<Integer> newyellY = new ArrayList<Integer>();
+
+		try {
+			Position[] extremeties = findFurthest(centroidy, yellowPX, yellowPY,
+					100, 900);
+
+			Position second = extremeties[2];
+			extremeties[2] = extremeties[1];
+			extremeties[1] = second;
+
+			int[] xpoints1 = { extremeties[0].getX(), extremeties[1].getX(),
+					extremeties[2].getX(), extremeties[3].getX() };
+
+			int[] ypoints1 = { extremeties[0].getY(), extremeties[1].getY(),
+					extremeties[2].getY(), extremeties[3].getY() };
+
+			Graphics img = image.getGraphics();
+			img.setColor(Color.BLUE);
+			Polygon poly = new Polygon(xpoints1, ypoints1, 4);
+			img.drawPolygon(poly);
+
+			for (int i = 0; i < yellowXPoints.size(); i++) {
 
 				if (poly.contains(yellowXPoints.get(i), yellowYPoints.get(i))) {
 					newyellX.add(yellowXPoints.get(i));
@@ -542,18 +579,12 @@ public class Vision extends WindowAdapter {
 //			blueYPoints = newblueY;
 //		}
 //	
-		for (int i = 0; i < yellowXPoints.size(); i++) {
+//		for (int i = 0; i < yellowXPoints.size(); i++) {
+//
+//			image.getGraphics().drawOval(yellowXPoints.get(i),
+//					yellowYPoints.get(i), 3, 3);
+//		}
 
-		// for(int i=0; i<yellowXPoints.size(); i++){
-		// image.getGraphics().drawOval(yellowXPoints.get(i),
-		// yellowYPoints.get(i), 3, 3);
-		// }
-
-		/* Attempt to find the blue robot's orientation. */
-		
-		
-		//for(int i=0; i<blueXPoints.size(); i++)
-			//image.getGraphics().drawOval(blueXPoints.get(i), blueYPoints.get(i), 3, 3);
 		try {
 
 			float blueOrientation = findOrient(image, blue, blueXPoints,
@@ -576,6 +607,7 @@ public class Vision extends WindowAdapter {
 			float yellowOrientation = findOrient(image, yellow, yellowXPoints,
 					yellowYPoints, 120, 400);
 
+		//	System.out.println(Math.toDegrees(yellowOrientation));
 			float diff = Math.abs(yellowOrientation
 					- worldState.getYellowOrientation());
 			if (yellowOrientation != 0 && diff > 0.1) {
@@ -897,11 +929,6 @@ public class Vision extends WindowAdapter {
 		if (p1.getX() == p2.getX() || p3.getX() == p4.getX()) {
 			throw new NoAngleException("");
 		}
-		image.getGraphics()
-				.drawLine(p1.getX(), p1.getY(), p2.getX(), p2.getY());
-		image.getGraphics()
-				.drawLine(p3.getX(), p3.getY(), p4.getX(), p4.getY());
-		image.getGraphics().drawOval(centroid.getX(), centroid.getY(), 3, 3);
 
 		Graphics im = image.getGraphics();
 		im.setColor(Color.BLACK);
@@ -1071,6 +1098,9 @@ public class Vision extends WindowAdapter {
 		return new Point(pixi, pixj);
 	}
 
+	
+	
+	
 	/**
 	 * Finds the orientation of a robot, given a list of the points contained
 	 * within it's T-shape (in terms of a list of x coordinates and y
@@ -1403,8 +1433,21 @@ public class Vision extends WindowAdapter {
 		return false;
 	}
 
+	public static void plotPoints(ArrayList<Position> points){
+
+		for(int i=0; i<points.size(); i++)
+			frameImage.getGraphics().drawOval(points.get(i).getX(), points.get(i).getY(), 5, 5);
+	}
+	
+	
 	public WorldState getWorldState() {
 		return worldState;
+	}
+	
+	public void drawPos(Position pos) {
+		Graphics g = frameImage.getGraphics();
+		g.setColor(Color.RED);
+		g.fillOval(pos.getX(), pos.getY(), 3, 3);
 	}
 
 	/* Doesn't work */

@@ -1,14 +1,14 @@
 package Planning;
 
 import java.util.ArrayList;
+import java.awt.Point;
 import JavaVision.*;
-
 public class PathPlanner {
-	public static boolean shootingLeft = true;
+	public static boolean shootingLeft = false;
 	// SET PITCH INFO
 	public static int pitchXX = 567;
 	public static int pitchYY = 360;
-
+	
 	public static int pitchX = 493;// 500
 	public static int pitchY = 245;// 245
 	// Displacement for the side pitch
@@ -17,7 +17,7 @@ public class PathPlanner {
 	public static int gridSize = 10;// size of a square on the map
 	public static int gridX = (int) Math.ceil(pitchX / gridSize);
 	public static int gridY = (int) Math.ceil(pitchY / gridSize);
-	int correction = 40;
+	int correction = 60;
 	public static ArrayList<GraphPoint> path;
 	public static ArrayList<GraphPoint> occupied = new ArrayList<GraphPoint>();
 	public static ArrayList<GraphPoint> checked;
@@ -119,6 +119,10 @@ public class PathPlanner {
 	// return wayPositions.get(0);
 	//
 	// }
+	public PathPlanner(boolean attackLeft) {
+		shootingLeft = attackLeft;
+	}
+	
 	public ArrayList<Position> getOptimalPath(Position ourPosition,
 			Position goalPosition, Position oppPosition) {
 		// Gets occupied grids on the map
@@ -128,7 +132,31 @@ public class PathPlanner {
 		ourPositionCoor = new Position(ourPosition.getX() - displacementX, ourPosition.getY() - displacementY);
 		oppPositionCoor = new Position(oppPosition.getX() - displacementX, oppPosition.getY() - displacementY);
 		goalPositionCoor = new Position(goalPosition.getX() - displacementX, goalPosition.getY() - displacementY);
-
+		
+		
+		//UNCOMMENT WHEN POSITIONING TO SHOOT
+		if(shootingLeft) {
+			goalPositionCoor.setX(goalPositionCoor.getX() + 60);
+			
+			int dev = 122 -goalPositionCoor.getY();
+			if(dev<0&&((goalPositionCoor.getY()-dev/2)<pitchY)){
+				goalPositionCoor.setY(goalPositionCoor.getY()-dev/3);
+			}
+			if(dev>0&&(goalPositionCoor.getY()-dev/2>0)){
+				goalPositionCoor.setY(goalPositionCoor.getY()-dev/3);
+			}
+			
+		}else{
+			goalPositionCoor.setX(goalPositionCoor.getX() - 60);
+			
+			int dev = 122 -goalPositionCoor.getY();
+			if(dev<0&&((goalPositionCoor.getY()-dev/2)<pitchY)){
+				goalPositionCoor.setY(goalPositionCoor.getY()-dev/3);
+			}
+			if(dev>0&&(goalPositionCoor.getY()-dev/2>0)){
+				goalPositionCoor.setY(goalPositionCoor.getY()-dev/3);
+			}
+		}
 		// THIS WAS
 		// CHANGED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!^
 		ourPositionGrid = coordinatesToGrid(ourPositionCoor);
@@ -137,33 +165,62 @@ public class PathPlanner {
 		// System.out.println(occupied);
 		occupied.add(ourPositionGrid);
 		occupied.add(oppPositionGrid);
-
+		
 		// correction set to 10
 		for (int x = 0; x < correction; x++) {
 			for (int y = 0; y < correction; y++) {
 				// getting 10 pixels in which the opposition may be sitting
-				if ((oppPositionCoor.getX() + x < pitchXX) && (oppPositionCoor.getY() < pitchYY)) {
+				if ((oppPositionCoor.getX() + x < pitchX) && (oppPositionCoor.getY() < pitchY)) {
 					Position a = new Position(oppPositionCoor.getX() + x, oppPositionCoor.getY() + y);
 					GraphPoint aa = coordinatesToGrid(a);
-					checked.add(aa);
+					occupied.add(aa);
 				}
 
 				// getting 10 more pixels in which the opposition may be sitting
 				if ((oppPositionCoor.getX() - x > 0) && (oppPositionCoor.getY() - y > 0)) {
+					
 					Position b = new Position(oppPositionCoor.getX() - x, oppPositionCoor.getY() - y);
 					GraphPoint bb = coordinatesToGrid(b);
-					checked.add(bb);
+					occupied.add(bb);
 				}
 			}
 		}
-		System.out.println(occupied);
+		
+		// correction set to 10
+//		for (int x = 0; x < 30; x++) {
+//			for (int y = 0; y < 2; y++) {
+//				// getting 10 pixels in which the opposition may be sitting
+//				if ((goalPositionCoor.getX() + x < pitchX) && (goalPositionCoor.getY() < pitchY)) {
+//					Position a = new Position(goalPositionCoor.getX() + x, goalPositionCoor.getY() + y);
+//					GraphPoint aa = coordinatesToGrid(a);
+//					occupied.add(aa);
+//				}
+//
+//				// getting 10 more pixels in which the opposition may be sitting
+//				if ((goalPositionCoor.getX() - x > 0) && (goalPositionCoor.getY() - y > 0)) {
+//					
+//					Position b = new Position(goalPositionCoor.getX() - x, goalPositionCoor.getY() - y);
+//					GraphPoint bb = coordinatesToGrid(b);
+//					occupied.add(bb);
+//				}
+//			}
+//		}
+//		for(int index = 0; index<occupied.size(); index++){
+//			GraphPoint pp = coordinatesToGrid(new Position(goalPositionCoor.getX(), goalPositionCoor.getY()));
+//			if((occupied.get(index).getX()==pp.getX())&&(occupied.get(index).getY()==pp.getY())){
+//				System.out.println("SEXYY");
+//				occupied.remove(index);
+//				break;
+//			}
+//		}
+		//System.out.println(occupied);
 		// System.out.println(ourPositionGrid);
 		// path = new ArrayList<GraphPoint>();
 		// checked = new ArrayList<GraphPoint>();
 		// occupied = new ArrayList<GraphPoint>();
 
 		checked.add(ourPositionGrid);
-		goalPositionGrid.x = goalPositionGrid.x - 2;
+		goalPositionGrid.x = goalPositionGrid.x;
 		search(ourPositionGrid, goalPositionGrid);
 		path = optimisePath(path);
 		// System.out.println(path.get(0));
@@ -175,8 +232,12 @@ public class PathPlanner {
 		}
 		// System.out.println(wayPositions.get(0));
 		// System.out.println(wayPositions.size());
-		// System.out.println(wayPositions);
-
+		 System.out.println(wayPositions);
+		 int a = goalPositionCoor.getX()+displacementX;
+		 int b = goalPositionCoor.getY()+displacementY;
+		 goalPositionCoor.setX(a);
+		 goalPositionCoor.setY(b);
+		 wayPositions.add(goalPositionCoor);
 		return wayPositions;
 	}
 
@@ -193,7 +254,7 @@ public class PathPlanner {
 		int y = a.y * gridSize;
 		a.x = x + displacementX;
 		a.y = y + displacementY;
-
+		
 		return new Position(a.x, a.y);
 	}
 
@@ -207,11 +268,11 @@ public class PathPlanner {
 			return 500;
 		}
 
-		if ((Math.abs(gridX - newPosition.x) < 3)
-				|| (Math.abs(gridY - newPosition.y)) < 3) {
-			// Discourage going too close to walls
-			return 100;
-		}
+//		if ((Math.abs(gridX - newPosition.x) < 3)
+//				|| (Math.abs(gridY - newPosition.y)) < 3) {
+//			// Discourage going too close to walls
+//			return 100;
+//		}
 		if (!shootingLeft) {
 			if (Math.abs(newPosition.y - goalPositionGrid.y) < 6
 					&& newPosition.x >= goalPositionGrid.x)
@@ -271,7 +332,7 @@ public class PathPlanner {
 						// if it's not already on check list, add it
 						if (!checked.contains(pt)) {
 							checked.add(pt); // checked means it's a valid Position
-							// in which we can travel
+												// in which we can travel
 							pt.setParent(currentPosition);
 							if ((pt.x == goalPositionGrid.x)
 									&& (pt.y == goalPositionGrid.y)) {
