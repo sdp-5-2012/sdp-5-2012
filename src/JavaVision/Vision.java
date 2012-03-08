@@ -37,6 +37,7 @@ public class Vision extends WindowAdapter {
 	private WorldState worldState;
 	private ThresholdsState thresholdsState;
 	private PitchConstants pitchConstants;
+	private BufferedImage globalImage;
 
 	// private int[] xDistortion;
 	// private int[] yDistortion;
@@ -125,9 +126,12 @@ public class Vision extends WindowAdapter {
 			public void nextFrame(VideoFrame frame) {
 				long before = System.currentTimeMillis();
 				BufferedImage frameImage = frame.getBufferedImage();
+				globalImage = frameImage;
 				frame.recycle();
-				if (counter > 10)
+				if (counter > 10){
 					processAndUpdateImage(frameImage, before, counter);
+					
+					}
 				counter++;
 			}
 		});
@@ -166,6 +170,12 @@ public class Vision extends WindowAdapter {
 		windowFrame.dispose();
 
 		System.exit(0);
+	}
+	
+	public void drawPos(Position pos) {
+		Graphics g = globalImage.getGraphics();
+		g.setColor(Color.RED);
+		g.fillOval(pos.getX(), pos.getY(), 3, 3);
 	}
 
 	/**

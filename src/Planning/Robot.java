@@ -203,7 +203,6 @@ public class Robot extends ObjectDetails {
 				e.printStackTrace();
 			}
 			if (moving == false) {
-				System.out.println("IS MOVING (ROBOT) " + moving);
 				break;
 			}
 		}

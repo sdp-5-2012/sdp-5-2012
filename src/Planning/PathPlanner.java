@@ -1,255 +1,351 @@
 package Planning;
 
 import java.util.ArrayList;
-import java.awt.Point;
+import JavaVision.*;
 
 public class PathPlanner {
-	
 	public static boolean shootingLeft = true;
-	//SET PITCH INFO
-	public static int pitchX=565;
-	public static int pitchY=358;
-	
-	public static int gridSize = 5;//size of a square on the map
-	public static int gridX = (int) Math.ceil(pitchX/gridSize);
-	public static int gridY = (int) Math.ceil(pitchY/gridSize);
-	
-	int correction = 10;
+	// SET PITCH INFO
+	public static int pitchXX = 567;
+	public static int pitchYY = 360;
+
+	public static int pitchX = 493;// 500
+	public static int pitchY = 245;// 245
+	// Displacement for the side pitch
+	public int displacementX = 67;
+	public int displacementY = 110;
+	public static int gridSize = 10;// size of a square on the map
+	public static int gridX = (int) Math.ceil(pitchX / gridSize);
+	public static int gridY = (int) Math.ceil(pitchY / gridSize);
+	int correction = 40;
 	public static ArrayList<GraphPoint> path;
 	public static ArrayList<GraphPoint> occupied = new ArrayList<GraphPoint>();
 	public static ArrayList<GraphPoint> checked;
-	
-	public static Point ourPositionCoor;
-	public static Point goalPositionCoor;
-	
-		
-	public static GraphPoint oppPositionGrid = new GraphPoint(0, 0);
-	public static GraphPoint goalPositionGrid = new GraphPoint(0, 0);
-	public static GraphPoint ourPositionGrid = new GraphPoint(0, 0);
-	
-	
+	public static Position ourPositionCoor;
+	public static Position goalPositionCoor;
+	public static Position oppPositionCoor;
+	public static GraphPoint oppPositionGrid;
+	public static GraphPoint goalPositionGrid;
+	public static GraphPoint ourPositionGrid;
+	// ADDITIONAL
+	public static GraphPoint newGoalGrid;
 	private static GraphPointComparator comparator = new GraphPointComparator();
-	
-	
-	public Point getOptimalPath(Point ourPosition, Point goalPosition, Point oppPosition, int angle){
-		
-		GraphPoint ourPositionGrid = coordinatesToGrid(ourPosition) ;//Get our coordinates to grid X
-		GraphPoint goalPositionGrid = coordinatesToGrid(goalPosition) ;//Get goal coordintes to grid X
-		GraphPoint oppPositionGrid = coordinatesToGrid(oppPosition) ;//Get opponent's coordinates to grid X
-	
-		//Gets occupied grids on the map
-//		ArrayList<GraphPoint> occupied = new ArrayList<GraphPoint>();
+
+	// public Position getOptimalPath(Position ourPosition, Position goalPosition, Position
+	// oppPosition, int angle){
+	//
+	//
+	//
+	// //Gets occupied grids on the map
+	//
+	// path = new ArrayList<GraphPoint>();
+	// checked = new ArrayList<GraphPoint>();
+	//
+	// ourPositionCoor.x=ourPosition.x;// - displacementX;
+	// ourPositionCoor.y=ourPosition.y;// - displacementY;
+	//
+	// oppPositionCoor.x=oppPosition.x;// - displacementX;
+	// oppPositionCoor.y=oppPosition.y;// - displacementY;
+	// //THIS WAS
+	// CHANGED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!^
+	// goalPositionCoor.x = goalPosition.x;//-displacementX;
+	// goalPositionCoor.y = goalPosition.x;//-displacementY;
+	//
+	// ourPositionGrid = coordinatesToGrid(ourPositionCoor);
+	// goalPositionGrid = coordinatesToGrid(goalPositionCoor);
+	// oppPositionGrid = coordinatesToGrid(oppPositionCoor);
+	//
+	// //System.out.println(occupied);
+	//
+	// occupied.add(ourPositionGrid);
+	//
+	// occupied.add(oppPositionGrid);
+	//
+	//
+	// //correction set to 10
+	// for(int x = 0; x<correction;x++){
+	// for(int y = 0;y<correction; y++){
+	//
+	// //getting 10 pixels in which the opposition may be sitting
+	// if((oppPosition.x+x<pitchX)&&(oppPosition.y<pitchY)){
+	// Position a = new Position(oppPosition.x+x,oppPosition.y+y);
+	// GraphPoint aa = coordinatesToGrid(a);
+	//
+	// occupied.add(aa);
+	//
+	// }
+	//
+	// //getting 10 more pixels in which the opposition may be sitting
+	// if((oppPosition.x-x>0)&&(oppPosition.y-y>0)){
+	// Position b = new Position(oppPosition.x-x,oppPosition.y-y);
+	// GraphPoint bb = coordinatesToGrid(b);
+	// occupied.add(bb);
+	// }
+	//
+	// }
+	//
+	// }
+	//
+	//
+	// //System.out.println(ourPositionGrid);
+	// // path = new ArrayList<GraphPoint>();
+	// // checked = new ArrayList<GraphPoint>();
+	// // occupied = new ArrayList<GraphPoint>();
+	//
+	//
+	//
+	// checked.add(ourPositionGrid);
+	//
+	// search(ourPositionGrid, goalPositionGrid);
+	//
+	//
+	//
+	// //path = optimisePath(path);
+	// //System.out.println(path.get(0));
+	//
+	// ArrayList<Position> wayPositions=new ArrayList<Position>();
+	// //System.out.println("PATH SIZE IS: " + path.size());
+	//
+	// for(int x = 0; x<path.size();x++){
+	// wayPositions.add(x,gridToCoor(path.get(x)));
+	// }
+	//
+	// // System.out.println(wayPositions.get(0));
+	// // System.out.println(wayPositions.size());
+	// //System.out.println(wayPositions);
+	//
+	//
+	// //GIVES THE FIRST WAYPosition OF THE PATH FOUND
+	// return wayPositions.get(0);
+	//
+	// }
+	public ArrayList<Position> getOptimalPath(Position ourPosition,
+			Position goalPosition, Position oppPosition) {
+		// Gets occupied grids on the map
+
 		path = new ArrayList<GraphPoint>();
 		checked = new ArrayList<GraphPoint>();
-		
-		ourPositionCoor = ourPosition;
-		goalPositionCoor = goalPosition;
-		
-		ourPositionGrid = coordinatesToGrid(ourPosition);
-		goalPositionGrid = coordinatesToGrid(goalPosition);
-		oppPositionGrid = coordinatesToGrid(oppPosition);
-		//System.out.println(occupied);
-		occupied.add(ourPositionGrid);
-		occupied.add(goalPositionGrid);
-		
-		for(int x = 0; x<correction;x++){
-			for(int y = 0;y<correction; y++){
-				
-				if((oppPosition.x+x<pitchX)&&(oppPosition.y<pitchY)){
-					Point a = new Point(oppPosition.x+x,oppPosition.y+y);
-					GraphPoint aa = coordinatesToGrid(a);
-					
-					occupied.add(aa);
-					
-				}
-			   
-				if((oppPosition.x-x>0)&&(oppPosition.y-y>0)){
-					Point b = new Point(oppPosition.x-x,oppPosition.y-y);
-					GraphPoint bb = coordinatesToGrid(b);
-					occupied.add(bb);
-				}
-				
-			}
-		
-		}
-		
-//		path = new ArrayList<GraphPoint>();
-//		checked = new ArrayList<GraphPoint>();
-//		occupied = new ArrayList<GraphPoint>();
+		ourPositionCoor = new Position(ourPosition.getX() - displacementX, ourPosition.getY() - displacementY);
+		oppPositionCoor = new Position(oppPosition.getX() - displacementX, oppPosition.getY() - displacementY);
+		goalPositionCoor = new Position(goalPosition.getX() - displacementX, goalPosition.getY() - displacementY);
 
-		
+		// THIS WAS
+		// CHANGED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!^
+		ourPositionGrid = coordinatesToGrid(ourPositionCoor);
+		goalPositionGrid = coordinatesToGrid(goalPositionCoor);
+		oppPositionGrid = coordinatesToGrid(oppPositionCoor);
+		// System.out.println(occupied);
+		occupied.add(ourPositionGrid);
+		occupied.add(oppPositionGrid);
+
+		// correction set to 10
+		for (int x = 0; x < correction; x++) {
+			for (int y = 0; y < correction; y++) {
+				// getting 10 pixels in which the opposition may be sitting
+				if ((oppPositionCoor.getX() + x < pitchXX) && (oppPositionCoor.getY() < pitchYY)) {
+					Position a = new Position(oppPositionCoor.getX() + x, oppPositionCoor.getY() + y);
+					GraphPoint aa = coordinatesToGrid(a);
+					checked.add(aa);
+				}
+
+				// getting 10 more pixels in which the opposition may be sitting
+				if ((oppPositionCoor.getX() - x > 0) && (oppPositionCoor.getY() - y > 0)) {
+					Position b = new Position(oppPositionCoor.getX() - x, oppPositionCoor.getY() - y);
+					GraphPoint bb = coordinatesToGrid(b);
+					checked.add(bb);
+				}
+			}
+		}
+		System.out.println(occupied);
+		// System.out.println(ourPositionGrid);
+		// path = new ArrayList<GraphPoint>();
+		// checked = new ArrayList<GraphPoint>();
+		// occupied = new ArrayList<GraphPoint>();
 
 		checked.add(ourPositionGrid);
+		goalPositionGrid.x = goalPositionGrid.x - 2;
 		search(ourPositionGrid, goalPositionGrid);
-
 		path = optimisePath(path);
-		System.out.println(path.get(0));
+		// System.out.println(path.get(0));
 
-		ArrayList<Point> waypoints=new ArrayList<Point>();;
-		
-		for(int x = 0; x<path.size();x++){
-			waypoints.add(x,gridToCoor(path.get(x)));
+		ArrayList<Position> wayPositions = new ArrayList<Position>();
+		System.out.println("PATH SIZE IS: " + path.size());
+		for (int x = 0; x < path.size(); x++) {
+			wayPositions.add(x, gridToCoor(path.get(x)));
 		}
-		
-		System.out.println(waypoints.get(0));
-		System.out.println(waypoints.size());
-		return waypoints.get(0);
-			
+		// System.out.println(wayPositions.get(0));
+		// System.out.println(wayPositions.size());
+		// System.out.println(wayPositions);
+
+		return wayPositions;
 	}
-		
 
-	
-	
-	
-	
-	private GraphPoint coordinatesToGrid(Point a){
-		
-		int x = (int) Math.ceil(a.x/gridSize);
-		int y = (int) Math.ceil(a.y/gridSize);
+	private GraphPoint coordinatesToGrid(Position a) {
+		int x = (int) Math.ceil(a.getX() / gridSize);
+		int y = (int) Math.ceil(a.getY() / gridSize);
 
-		GraphPoint b = new GraphPoint(x,y);
-		
-		
+		GraphPoint b = new GraphPoint(x, y);
 		return b;
 	}
 
-	private Point gridToCoor(GraphPoint a){
-		int x = a.x*gridSize;
-		int y = a.y*gridSize;
-		
-		a.x = x;
-		a.y = y;
-		
-		return a;
-		
+	private Position gridToCoor(GraphPoint a) {
+		int x = a.x * gridSize;
+		int y = a.y * gridSize;
+		a.x = x + displacementX;
+		a.y = y + displacementY;
+
+		return new Position(a.x, a.y);
 	}
-	
-	private static int calcMovementCost(GraphPoint currentPoint, GraphPoint newPoint){
-		
-		/* SAME THING WITH PLACING INACCESSIBLE POINTS ON THE GRID
-		 * 
-		 * if (oppPositionGrid.distance(newPoint) < 3) {
+
+	private static int calcMovementCost(GraphPoint currentPosition,
+			GraphPoint newPosition) {
+		/*
+		 * SAME THING WITH PLACING INACCESSIBLE PositionS ON THE GRID
+		 */
+		if (oppPositionGrid.distance(newPosition) < 3) {
 			// discourage it heavily, to not crash into opponent
 			return 500;
-		}*/ 
-		if((Math.abs(gridX-newPoint.x)<3)||(Math.abs(gridY-newPoint.y))<3){
-			//Discourage going too close to walls
+		}
+
+		if ((Math.abs(gridX - newPosition.x) < 3)
+				|| (Math.abs(gridY - newPosition.y)) < 3) {
+			// Discourage going too close to walls
 			return 100;
 		}
 		if (!shootingLeft) {
-			if (Math.abs(newPoint.y - goalPositionGrid.y) < 6
-					&& newPoint.x >= goalPositionGrid.x)
+			if (Math.abs(newPosition.y - goalPositionGrid.y) < 6
+					&& newPosition.x >= goalPositionGrid.x)
 				return 65;
 		}
 		if (shootingLeft) {
-			if (Math.abs(newPoint.y - goalPositionGrid.y) < 6
-					&& newPoint.x <= goalPositionGrid.x)
+			if (Math.abs(newPosition.y - goalPositionGrid.y) < 6
+					&& newPosition.x <= goalPositionGrid.x)
 				return 65;
 		}
-		if (oppPositionGrid.distance(newPoint) < 5) {
-			// discourage points that are quite close to the opponent
+		if (oppPositionGrid.distance(newPosition) < 5) {
+			// discourage Positions that are quite close to the opponent
 			return 30;
 		}
-		if (Math.abs(oppPositionGrid.y - newPoint.y) < 5) {
+		if (Math.abs(oppPositionGrid.y - newPosition.y) < 5) {
 			return 18;
 		}
 		// horizontal and vertical movements
-		if (Math.abs(newPoint.x - currentPoint.x)
-				+ Math.abs(newPoint.y - currentPoint.y) == 1) {
+		if (Math.abs(newPosition.x - currentPosition.x)
+				+ Math.abs(newPosition.y - currentPosition.y) == 1) {
 			return 10;
 		}
 
 		// diagonal movements
-		if (Math.abs(newPoint.x - currentPoint.x)
-				+ Math.abs(newPoint.y - currentPoint.y) == 2) {
+		if (Math.abs(newPosition.x - currentPosition.x)
+				+ Math.abs(newPosition.y - currentPosition.y) == 2) {
 			return 14;
 		}
 
 		return 0;
 
-			
-			
-		}
-	
-	private static int calcHeuristicCost(GraphPoint currentPoint,
-			GraphPoint endPoint) {
-		// int xDist = (Math.abs(currentPoint.x - endPoint.x));
-		// int yDist = (Math.abs(currentPoint.y - endPoint.y));
+	}
+
+	private static int calcHeuristicCost(GraphPoint currentPosition,
+			GraphPoint endPosition) {
+		// int xDist = (Math.abs(currentPosition.x - endPosition.x));
+		// int yDist = (Math.abs(currentPosition.y - endPosition.y));
 		// if (xDist > yDist) {
 		// return 14 * yDist + 10*(xDist - yDist);
 		// } else {
 		// return 14 * xDist + 10*(yDist - xDist);
 		// }
-		return 10 * (Math.abs(endPoint.x - currentPoint.x) + Math
-				.abs(endPoint.y - currentPoint.y));
+		return 10 * (Math.abs(endPosition.x - currentPosition.x) + Math
+				.abs(endPosition.y - currentPosition.y));
 	}
 
-	public static void search(GraphPoint currentPoint, GraphPoint endPoint){
-		
-		for (int x = currentPoint.x - 1; x < currentPoint.x + 2; x++) {
-			for (int y = currentPoint.y - 1; y < currentPoint.y + 2; y++) {
+	public static void search(GraphPoint currentPosition, GraphPoint endPosition) {
+		// going through a few Positions around the current position
+		for (int x = currentPosition.x - 1; x < currentPosition.x + 2; x++) {
+			for (int y = currentPosition.y - 1; y < currentPosition.y + 2; y++) {
 				GraphPoint pt = new GraphPoint(x, y);
 				// check whether grid is on the "blacklist"
-//				System.out.println(occupied);
+				// System.out.println(occupied);
 				if (!occupied.contains(pt)) {
 					// check in range of grids
 					if (x > 0 && y > 0 && x <= gridX && y <= gridY) {
 						// if it's not already on check list, add it
 						if (!checked.contains(pt)) {
-							checked.add(pt);
-							pt.setParent(currentPoint);
-							if ((pt.x == goalPositionGrid.x) && (pt.y == goalPositionGrid.y)) {
-								goalPositionGrid.setParent(currentPoint);
+							checked.add(pt); // checked means it's a valid Position
+							// in which we can travel
+							pt.setParent(currentPosition);
+							if ((pt.x == goalPositionGrid.x)
+									&& (pt.y == goalPositionGrid.y)) {
+								goalPositionGrid.setParent(currentPosition);
 							}
-							pt.setMovementCost(pt.getParent().getMovementCost() + calcMovementCost(currentPoint, pt));
-							pt.setHeuristicCost(calcHeuristicCost(pt,endPoint));
-							pt.setTotalCost(pt.getMovementCost() + pt.getHeuristicCost());
+							// the distance to reach the parent + the distance
+							// from the parent to the current Position
+							// getmovementcost - the cost to reach the Position
+							// calcmovementcost - calc the distance between 2
+							// Positions
+							pt.setMovementCost(pt.getParent().getMovementCost()
+									+ calcMovementCost(currentPosition, pt));
+							// computing the distance from pt onwards to the
+							// goal
+							pt.setHeuristicCost(calcHeuristicCost(pt, endPosition));
+							// the total distance is the distance to reach pt +
+							// the distance remained to goal
+							pt.setTotalCost(pt.getMovementCost()
+									+ pt.getHeuristicCost());
 						}
+						// if it's already in my list of ok Positions
 						if (checked.contains(pt)) {
-							if (pt.getMovementCost() > calcMovementCost(currentPoint, pt)) {
-								pt.setParent(currentPoint);
-								pt.setMovementCost(pt.getParent().getMovementCost() + calcMovementCost(currentPoint, pt));
-								pt.setTotalCost(pt.getMovementCost() + pt.getHeuristicCost());
+							// if there is an easier way of reaching pt by
+							// considering currentPosition as parent
+							if (pt.getMovementCost() > calcMovementCost(
+									currentPosition, pt)) {
+								pt.setParent(currentPosition);
+								pt.setMovementCost(pt.getParent()
+										.getMovementCost()
+										+ calcMovementCost(currentPosition, pt));
+								pt.setTotalCost(pt.getMovementCost()
+										+ pt.getHeuristicCost());
 							}
 						}
 					}
 				}
-				
-				
-				
 			}
 		}
+		// sorts checked Positions by cost to reach them
 		checked = comparator.sortGridPoints(checked);
 		if (checked.size() > 0) {
 			GraphPoint closestPt = checked.get(0);
 
 			checked.remove(closestPt);
+			if (closestPt.y == goalPositionGrid.y
+					&& closestPt.x == goalPositionGrid.x)
+				// System.out.println("CLOSEST Position X AND GOAL X :" +
+				// closestPt.x + " " + goalPositionGrid.x );
+				System.out.println("CLOSEST Position Y AND GOAL Y :" + closestPt.y
+						+ " " + goalPositionGrid.y);
 			if ((closestPt.x == goalPositionGrid.x)
 					&& (closestPt.y == goalPositionGrid.y)) {
 				tracePath(ourPositionGrid, goalPositionGrid);
 			} else {
 				occupied.add(closestPt);
-				search(closestPt, endPoint);
+				search(closestPt, endPosition);
 			}
 		} else
 			return;
 	}
-	
-	
-	private static void tracePath(GraphPoint startPoint, GraphPoint endPoint) {
-		path.add(endPoint);
-		if (endPoint.getParent() != null) {
-			tracePath(startPoint, endPoint.getParent());
+
+	private static void tracePath(GraphPoint startPosition, GraphPoint endPosition) {
+		// System.out.println("IT REACHED TRACEPATH");
+		path.add(0, endPosition);
+		if (endPosition.getParent() != null) {
+			tracePath(startPosition, endPosition.getParent());
 		}
 	}
-	
-	
-	
+
 	private static ArrayList<GraphPoint> optimisePath(ArrayList<GraphPoint> path) {
 
 		ArrayList<GraphPoint> newPath = path;
 		for (int i = 0; i < newPath.size() - 1; i++) {
-			// remove points that are too close to each other
+			// remove Positions that are too close to each other
 			if (newPath.get(i).distance(newPath.get(i + 1)) < 3) {
 				newPath.remove(i + 1);
 			}
@@ -258,7 +354,7 @@ public class PathPlanner {
 		// optimise angles repeatedly 3 times
 		for (int j = 0; j < 3; j++) {
 			for (int i = 0; i < newPath.size() - 2; i++) {
-				// remove points that hardly change in gradient
+				// remove Positions that hardly change in gradient
 				if (Math.abs((getAngle(newPath.get(i), newPath.get(i + 1)))
 						- (getAngle(newPath.get(i + 1), newPath.get(i + 2)))) < 30)
 					newPath.remove(i + 2);
@@ -267,12 +363,25 @@ public class PathPlanner {
 
 		return newPath;
 	}
-	
-	
-	private static double getAngle(Point a, Point b) {
+
+	private static double getAngle(GraphPoint a, GraphPoint b) {
 		return Math.toDegrees(Math.atan2((a.y - b.y), (b.x - a.x)));
 	}
+
+	// public static GraphPoint getGoalPosition(GraphPoint ballPosition){
+	//
+	// newGoalGrid = new GraphPoint(ballPosition.x,ballPosition.y);
+	//
+	// if(shootingLeft){
+	// //x po golqmo
+	// newGoalGrid.x = ballPosition.x-2;
+	//
+	// if(ballPosition.y>gridY/2){
+	//
+	// }
+	//
+	// }
+	//
+	// }
+
 }
-
-	
-

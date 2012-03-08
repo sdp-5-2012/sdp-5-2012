@@ -21,14 +21,18 @@ public class GuiLog extends JPanel {
 	Position enemyCoords = new Position(0, 0);
 	Position ballCoords = new Position(0, 0);
 	
-	JPanel buttons = new JPanel(new GridLayout(2, 2));
-	JButton start = new JButton("Start");
+	JPanel buttons = new JPanel(new GridLayout(3, 1));
+	JButton startStop = new JButton("Start");
 	JButton apply = new JButton("Apply");
+	JButton connect = new JButton("Connect");
 
 	String currentPitchConstants = "...";
 	String currentColour ="Yellow";
 	String currentAttackGoal ="Right";
 	String currentMode = "Normal";
+	String connectionStatus = "Connection Status";
+	
+	boolean isConnected = false;	
 	
 	String ballCoordsStr ="";
 	String ourCoordsStr = "";
@@ -52,10 +56,12 @@ public class GuiLog extends JPanel {
 		enemyCoordsStr = positionToString(enemyCoords);
 		updateJTextArea();
 		
-		// apply is disabled at launch
+		// apply and start disabled at launch
+		startStop.setEnabled(false);
 		apply.setEnabled(false);
 		// Add buttons to buttons JPanel
-		buttons.add(start);
+		buttons.add(connect);
+		buttons.add(startStop);
 		buttons.add(apply);
 		// add components to control panel
 		add(scrollPane, BorderLayout.WEST);
@@ -95,6 +101,11 @@ public class GuiLog extends JPanel {
 		updateJTextArea();
 	}
 	
+	public void setIsConnected(boolean status) {
+		isConnected = status;
+		updateJTextArea();
+	}
+	
 	public void setCurrentPitchConstants(String newPitchConstants) {
 		currentPitchConstants = newPitchConstants;
 		updateJTextArea();
@@ -116,7 +127,16 @@ public class GuiLog extends JPanel {
 		logging.setText("Ball Coords:\t" + ballCoordsStr  + "\t\t" + "Current Colour: "+ currentColour + "\n" +
 				"Our Coords:\t"  + ourCoordsStr + "\t\t" + "Current Attack Goal: "+ currentAttackGoal +"\n" +
 				"Enemy Coords:\t" + enemyCoordsStr + "\t\t" + "Current Mode: "+ currentMode + "\n\n" + 
+				"Connection Status:\t" + connectionStatus() + "\n" +
 				"Loaded Constants:\t" + currentPitchConstants);
+	}
+	
+	public String connectionStatus() {
+		if (isConnected) {
+			return "Connected";
+		} else {
+			return "Not Connected";
+		}
 	}
 }
 
