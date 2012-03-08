@@ -30,8 +30,8 @@
 ### if your controller needs additional libraries:
 # LIBRARIES=-L/path/to/my/library -lmy_library -lmy_other_library
 ###
-### you may want, for example, to use the C API in your C++ program by adding:
-# CFLAGS=-I"$(WEBOTS_HOME)/include/controller/c"
+### if you want to use the C API in your C++ program add:
+# USE_C_API=1
 
 ### -----Java Options-----
 ###

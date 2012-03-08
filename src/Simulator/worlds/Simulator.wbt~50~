@@ -1,0 +1,365 @@
+#VRML_SIM V6.0 utf8
+WorldInfo {
+  info [
+    "Simulator for SDP 2012 Group 5 - N.U.K.E."
+    "Author: Steven Eardley - adapted from sample code by Olivier Michel (Cyberbotics Ltd)"
+  ]
+  title "SDP 2012 - N.U.K.E."
+  runRealTime TRUE
+  contactProperties [
+    ContactProperties {
+      coulombFriction 2
+      bounce 0.4
+      bounceVelocity 0.12
+    }
+  ]
+}
+Viewpoint {
+  orientation 0.323669 -0.858697 -0.397338 4.53632
+  position 2.12168 2.15563 0.106999
+}
+Background {
+  skyColor [
+    0.396078 0.396078 0.396078
+  ]
+}
+PointLight {
+  ambientIntensity 1
+  attenuation 0 0 1
+  intensity 8
+  location 0.5 2 0.5
+}
+DEF SOCCER_FIELD Solid {
+  children [
+    DEF GROUND Shape {
+      appearance Appearance {
+        texture ImageTexture {
+          url [
+            "soccer/soccer-256.png"
+          ]
+        }
+      }
+      geometry Plane {
+        size 2.45 1.225
+      }
+    }
+  ]
+  name "soccer field"
+  boundingObject Group {
+    children [
+      USE GROUND
+    ]
+  }
+  locked TRUE
+}
+DEF BALL Solid {
+  translation -0.000232454 0.05 -0.00276169
+  rotation 0.707107 0 0.707107 2.62318
+  children [
+    Shape {
+      geometry DEF SOCCERBALL Sphere {
+        radius 0.042
+        subdivision 10
+      }
+    }
+  ]
+  name "ball"
+  boundingObject USE SOCCERBALL
+  physics Physics {
+    density -1
+    mass 0.05
+  }
+}
+DEF B1 DifferentialWheels {
+  translation 0.969876 0.116177 -0.012131
+  rotation 0 1 0 7.82208
+  children [
+    Solid {
+      translation 0.097 -0.0786 -0.025
+      rotation 1 0 0 0.526885
+      children [
+        Transform {
+          rotation 0 0 1 1.57
+          children [
+            DEF WHEEL_SHAPE Shape {
+              geometry Cylinder {
+                height 0.01
+                radius 0.02
+              }
+            }
+          ]
+        }
+      ]
+      name "right wheel"
+      boundingObject Transform {
+        rotation 0 0 1 1.57
+        children [
+          USE WHEEL_SHAPE
+        ]
+      }
+      physics DEF WHEEL_PHYSICS Physics {
+        density -1
+        mass 0.005
+      }
+    }
+    Solid {
+      translation -0.097 -0.0786 -0.025
+      rotation 1 0 0 0.526054
+      children [
+        Transform {
+          rotation 0 0 1 1.57
+          children [
+            Shape {
+              geometry Cylinder {
+                height 0.01
+                radius 0.02
+              }
+            }
+          ]
+        }
+      ]
+      name "left wheel"
+      boundingObject Transform {
+        rotation 0 0 1 1.57
+        children [
+          Shape {
+            geometry Cylinder {
+              height 0.01
+              radius 0.02
+            }
+          }
+        ]
+      }
+      physics USE WHEEL_PHYSICS
+    }
+    DEF BLUE_ROBOT_SHAPE Shape {
+      appearance Appearance {
+        texture ImageTexture {
+          url [
+            "soccer/blue.png"
+          ]
+        }
+      }
+      geometry Box {
+        size 0.18 0.18 0.2
+      }
+    }
+  ]
+  name "b1"
+  boundingObject USE BLUE_ROBOT_SHAPE
+  physics DEF ROBOT_PHYSICS Physics {
+    density -1
+    mass 0.2
+  }
+  axleLength 0.2
+  wheelRadius 0.04
+  maxSpeed 30
+  maxForce 1
+}
+DEF WALL_LEFT Solid {
+  translation 0 0.158 0.609
+  children [
+    Shape {
+      geometry Box {
+        size 2.45 0.32 0.01
+      }
+    }
+  ]
+  boundingObject Box {
+    size 2.45 0.32 0.01
+  }
+}
+DEF WALL_RIGHT Solid {
+  translation 0 0.159 -0.612
+  children [
+    Shape {
+      appearance Appearance {
+      }
+      geometry Box {
+        size 2.45 0.32 0.01
+      }
+    }
+  ]
+  boundingObject Box {
+    size 2.45 0.32 0.01
+  }
+}
+DEF WALL_LOWERLEFT Solid {
+  translation 1.223 0.154 0.455
+  children [
+    Shape {
+      geometry Box {
+        size 0.01 0.32 0.3
+      }
+    }
+  ]
+  boundingObject Box {
+    size 0.01 0.32 0.3
+  }
+}
+DEF WALL_LOWERRIGHT Solid {
+  translation 1.223 0.154 -0.455
+  children [
+    Shape {
+      geometry Box {
+        size 0.01 0.32 0.3
+      }
+    }
+  ]
+  boundingObject Box {
+    size 0.01 0.32 0.3
+  }
+}
+DEF WALL_UPPERRIGHT Solid {
+  translation -1.223 0.154 -0.455
+  children [
+    Shape {
+      geometry Box {
+        size 0.01 0.32 0.3
+      }
+    }
+  ]
+  boundingObject Box {
+    size 0.01 0.32 0.3
+  }
+}
+DEF WALL_UPPERLEFT Solid {
+  translation -1.223 0.154 0.455
+  children [
+    Shape {
+      geometry Box {
+        size 0.01 0.32 0.3
+      }
+    }
+  ]
+  boundingObject Box {
+    size 0.01 0.32 0.3
+  }
+}
+DEF Y1 DifferentialWheels {
+  translation -0.14775 0.14444 -0.162598
+  rotation 0 -1 0 2.40696
+  children [
+    DEF KICKER Servo {
+      translation 0 0.065 -0.118
+      rotation 1 0 0 0
+      children [
+        Solid {
+          translation 0 -0.072 0
+          children [
+            Shape {
+              geometry Box {
+                size 0.18 0.19 0.01
+              }
+            }
+          ]
+          boundingObject Box {
+            size 0.18 0.19 0.01
+          }
+        }
+      ]
+      maxVelocity 20
+      maxForce 20
+      maxPosition 3
+    }
+    DEF RIGHT_WHEEL Solid {
+      translation 0.097 -0.0696 0
+      rotation 1 0 0 0.526885
+      children [
+        Transform {
+          rotation 0 0 1 1.57
+          children [
+            DEF WHEEL_SHAPE Shape {
+              geometry Cylinder {
+                height 0.02
+                radius 0.04
+              }
+            }
+          ]
+        }
+      ]
+      name "right wheel"
+      boundingObject Transform {
+        rotation 0 0 1 1.57
+        children [
+          USE WHEEL_SHAPE
+        ]
+      }
+      physics DEF WHEEL_PHYSICS Physics {
+        density -1
+        mass 0.005
+      }
+    }
+    DEF LEFT_WHEEL Solid {
+      translation -0.097 -0.0696 0
+      rotation 1 0 0 0.526054
+      children [
+        Transform {
+          rotation 0 0 1 1.57
+          children [
+            Shape {
+              geometry Cylinder {
+                height 0.02
+                radius 0.04
+              }
+            }
+          ]
+        }
+      ]
+      name "left wheel"
+      boundingObject Transform {
+        rotation 0 0 1 1.57
+        children [
+          Shape {
+            geometry Cylinder {
+              height 0.02
+              radius 0.04
+            }
+          }
+        ]
+      }
+      physics USE WHEEL_PHYSICS
+    }
+    DEF CREATE_REAR_WHEEL Solid {
+      translation 0 -0.0925 0.0825
+      boundingObject Sphere {
+        radius 0.01
+      }
+      physics DEF CREATE_PASSIVE_WHEEL_PHYSICS Physics {
+        density -1
+        mass 0.05
+      }
+    }
+    DEF CREATE_FRONT_WHEEL Solid {
+      translation 0 -0.0925 -0.0825
+      boundingObject Sphere {
+        radius 0.01
+      }
+      physics USE CREATE_PASSIVE_WHEEL_PHYSICS
+    }
+    DEF YELLOW_ROBOT_SHAPE Shape {
+      appearance Appearance {
+        texture ImageTexture {
+          url [
+            "soccer/yellow.png"
+          ]
+        }
+      }
+      geometry Box {
+        size 0.18 0.18 0.2
+      }
+    }
+  ]
+  name "b1"
+  boundingObject USE YELLOW_ROBOT_SHAPE
+  physics DEF ROBOT_PHYSICS Physics {
+    density -1
+    mass 0.2
+  }
+  controller "Remote"
+  axleLength 0.2
+  wheelRadius 0.04
+  maxSpeed 20
+  maxAcceleration 5
+  maxForce 1
+}
