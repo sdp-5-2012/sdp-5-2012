@@ -5,8 +5,6 @@ import Planning.*;
 
 public class Strategy {
 
-	Move move;
-
 	/*
 	 * Modes:
 	 * 0 - default "go to ball, aim, kick"
@@ -24,7 +22,7 @@ public class Strategy {
 		
 		if(!(ball.getCoors().getX()==0) && !(ball.getCoors().getY()==0)){
 
-		if (doWeHaveTheBall(ourRobot, ball)) {
+		if (doWeHaveTheBall(ourRobot, ball.getCoors())) {
 			if (areWeInOurHalf(ourRobot, ourGoal, theirGoal)) {
 				if (areTheyInOurHalf(theirRobot, ourGoal, theirGoal)) {
 
@@ -47,7 +45,7 @@ public class Strategy {
 				}
 			}
 
-		} else if (doTheyHaveTheBall(theirRobot, ball)) {
+		} else if (doTheyHaveTheBall(theirRobot, ball.getCoors())) {
 			if (areTheyInOurHalf(theirRobot, ourGoal, theirGoal)) {
 				mode = 3;
 			} else {
@@ -72,15 +70,15 @@ mode = 5;
 	}
 
 	// Returns true if our robot has possession of the ball
-	public boolean doWeHaveTheBall(Robot ourRobot, Ball ball) {
-		boolean ourBall = move.getDist(ourRobot, ball) < 50;
+	public boolean doWeHaveTheBall(Robot ourRobot, Position ballPos) {
+		boolean ourBall = Move.getDist(ourRobot, ballPos) < 50;
 
 		return ourBall;
 	}
 
 	// Returns true if their robot has possession of the ball
-	public boolean doTheyHaveTheBall(Robot theirRobot, Ball ball) {
-		boolean theirBall = move.getDist(theirRobot, ball) < 50;
+	public boolean doTheyHaveTheBall(Robot theirRobot, Position ballPos) {
+		boolean theirBall = Move.getDist(theirRobot, ballPos) < 50;
 
 		return theirBall;
 	}
