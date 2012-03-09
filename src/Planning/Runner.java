@@ -118,15 +118,28 @@ public class Runner extends Thread {
 		getUserOptions();
 		setPositionInformation();
 		planner = new PathPlanner(attackLeft);
-
-
-		
-		
+		nxt.moveForward(25);
 		try {
-			mainLoop();
+			Thread.sleep(2000);
 		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		while(true) {
+			nxt.askIfStuck();
+			if(nxt.isStuck()) {
+				nxt.backwardsSlightly();
+				nxt.rotateRobot(90);
+				break;
+			}
+		}
+		
+		
+//		try {
+//			mainLoop();
+//		} catch (InterruptedException e) {
+//			e.printStackTrace();
+//		}
 	}
 
 	/**

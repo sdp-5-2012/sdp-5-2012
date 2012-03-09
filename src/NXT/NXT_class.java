@@ -140,7 +140,7 @@ public class NXT_class implements Runnable{
 						int counterC = Motor.C.getTachoCount();
 						
 						Thread.sleep(50);
-						if(Motor.B.getTachoCount()-counterB == 0 && Motor.C.getTachoCount()-counterC==0) {
+						if (!(Math.abs(Motor.B.getTachoCount()-counterB) > 0 && Math.abs(Motor.C.getTachoCount()-counterC)>0)){
 							os.write('S');
 							os.flush();
 							break;
