@@ -18,6 +18,7 @@ public class Robot extends ObjectDetails {
 	public boolean askingToReset = false;
 
 	public boolean moving = true;
+	public boolean stuck = false;
 
 	private final static int DO_NOTHING = 0X00;
 	private final static int FORWARDS = 0X01;
@@ -33,7 +34,8 @@ public class Robot extends ObjectDetails {
 	private final static int ROTATE = 0X0A;
 	private final static int EACH_WHEEL_SPEED=0X0B;
 	private final static int STEER =0X0C;
-
+	private final static int ARE_WE_STUCK = 0X0D;
+	
 	private LinkedList<Integer> commandList = new LinkedList<Integer>();
 	private BluetoothCommunication comms;
 	private lejos.pc.comm.NXTComm nxtComm;
@@ -150,6 +152,8 @@ public class Robot extends ObjectDetails {
 			// Robot has finished moving
 			System.out.println("RESPONSE: FINISHED ROTATION!");
 			moving = false;
+		} else if (response == 'S'){
+			stuck = true;
 		}
 
 		return response;
@@ -190,6 +194,11 @@ public class Robot extends ObjectDetails {
 	public void backwardsSlightly(){
 		addCommand(TRAVEL_BACKWARDS_SLIGHRLY);
 		System.out.println("move backward a little bit");
+	}
+	
+	public void backOffBitch(){
+		backwardsSlightly();
+		rotateRobot(90);
 	}
 
 	/**
@@ -261,6 +270,11 @@ public class Robot extends ObjectDetails {
 		moving = false;
 		addCommand(STOP);
 	}
+	
+	public void askIfStuck() {
+		
+		addCommand(ARE_WE_STUCK);
+	}
 
 	/**
 	 * Commands the robot to kick
@@ -280,6 +294,10 @@ public class Robot extends ObjectDetails {
 
 	public boolean isMoving() {
 		return moving;
+	}
+	
+	public boolean isStuck() {
+		return stuck;
 	}
 
 }
