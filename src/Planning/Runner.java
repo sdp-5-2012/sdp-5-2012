@@ -230,20 +230,55 @@ public class Runner extends Thread {
 		bla.setCoors(100, 100);
 
 		getPitchInfo(false);
-		// s = new Strategy(instance);
-		// Thread strategy = new Thread(s);
+		
+		s = new Strategy(instance);
+		Thread strategy = new Thread(s);
 
-		// strategy.start();
+		strategy.start();
 
-		if (!stopFlag) {
-			if(gui.isModeAvoid()) {
-				ModeAvoid();
-			} else {
-				modeScore();
+		while (true) {
+			if(!stopFlag) {		
+			
+			if (isPenaltyAttack) {
+				penaltyAttack();
+			} else if (isPenaltyDefend) {
+				penaltyDefend();
 			}
-		} else {
-			nxt.stop();
-			waitForNewInput();
+			switch(s.getCurrentMode()) {
+			case(0):
+				modeZero();	
+			break;
+			case(1): 
+				modeOne();
+			break;
+			case(2):
+				modeTwo();
+			break;
+			case(3):
+				try {
+					modeThree();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				break;
+			case(4):
+				modeFour();
+			break;
+			case(5):
+				modeFive();
+			break;
+			case(6):
+				modeSix();
+			break;
+			default:
+				modeZero();
+				break;
+
+			}
+			Thread.sleep(1000);
+			} else {
+				waitForNewInput();
+			}
 		}
 	}
 
@@ -276,7 +311,7 @@ public class Runner extends Thread {
 	 * Mode 0: Default "go to ball, aim, kick"
 	 * @throws InterruptedException
 	 */
-	public void modeScore() throws InterruptedException {
+	public void modeZero() throws InterruptedException {
 		while (true) {
 			getPitchInfo(false);
 			if (isScore) {
@@ -354,6 +389,137 @@ public class Runner extends Thread {
 		}
 	}
 
+	/**
+	 * Mode 1: kick wildly (at an angle - off the wall?)
+	 * @throws InterruptedException
+	 */
+	private void modeOne() {
+		System.out.println("Change to mode 1");
+		while(s.getCurrentMode() == 1) {
+			int dist = (int) Position.sqrdEuclidDist(nxt.getCoors().getX(), nxt.getCoors().getY(), theirGoal.getX(), theirGoal.getY());
+			int angle;
+			Position wallPoint = new Position(dist/2, 80);
+
+			angle = Move.getAngleToPosition(nxt, wallPoint);
+
+			nxt.rotateRobot(angle);
+			nxt.kick();
+		}
+
+	}
+
+	/**
+	 * Mode 2: dribble towards enemy half
+	 */
+	private void modeTwo() {
+		System.out.println("Change to mode 2");
+		while(s.getCurrentMode() == 2) {
+
+			getPitchInfo(false);
+
+			int angle = Move.getAngleToPosition(nxt, theirGoal);
+			nxt.rotateRobot(angle);
+
+			while((nxt.getCoors().getX() < pitchCentre.getX()) && s.getCurrentMode() == 2) {
+				nxt.moveForward(50);
+			}
+			nxt.kick();
+		}
+
+	}
+
+	/**
+	 * Mode 3: retreat to own goal, defend
+	 * @throws InterruptedException
+	 */
+	private void modeThree() throws InterruptedException {
+		System.out.println("Change to mode 3");
+		ModeThreeLoop:
+			while(s.getCurrentMode() == 3) {
+
+				Position inFrontOfGoal = new Position(0,0);
+				Position rotatePoint = new Position(0,0);
+				if (attackLeft) {
+					inFrontOfGoal.setCoors(ourGoal.getX() - 60,ourGoal.getY());
+				} else {
+					inFrontOfGoal.setCoors(ourGoal.getX() + 60, ourGoal.getY());
+				}
+
+				int angle = Move.getAngleToPosition(nxt, inFrontOfGoal);
+				nxt.rotateRobot(angle);
+				while((Move.getDist(nxt, inFrontOfGoal) > 5)) {
+					if (s.getCurrentMode() != 3) {
+						break ModeThreeLoop;
+					}
+					nxt.moveForward(50);
+				}
+				nxt.stop();
+
+				rotatePoint.setCoors(nxt.getCoors().getX(), nxt.getCoors().getY()-50);
+				angle = Move.getAngleToPosition(nxt, rotatePoint);
+				nxt.rotateRobot(angle);
+
+				nxt.moveForward(30);
+				Thread.sleep(1000);
+				nxt.stop();
+				nxt.moveBackward(30);
+				Thread.sleep(2000);
+				nxt.stop();
+				nxt.moveForward(30);
+				Thread.sleep(1000);
+			}
+	}
+
+	/**
+	 * Method 4: attack hard
+	 */
+	private void modeFour() {
+
+		ModeFourLoop:
+			while(s.getCurrentMode() == 4) {
+
+				// determine point ahead of enemy in direction of ball
+				int pointAheadX = ball.getCoors().getX() + (ball.getCoors().getX() - otherRobot.getCoors().getX());
+				int pointAheadY = ball.getCoors().getY() + (ball.getCoors().getY() - otherRobot.getCoors().getY());
+				Position pointAheadOfEnemy = new Position(pointAheadX, pointAheadY);
+				Position ballPositionAheadOfEnemy = new Position(0,0);
+				ballPositionAheadOfEnemy.setCoors(pointAheadOfEnemy.getX(), pointAheadOfEnemy.getY());
+
+				getPitchInfo(false);
+
+				int angle = Move.getAngleToPosition(nxt, ballPositionAheadOfEnemy);
+
+				nxt.rotateRobot(angle);
+				while((Move.getDist(nxt, ballPositionAheadOfEnemy) > 5)) {
+					if (s.getCurrentMode() != 4) {
+						break ModeFourLoop;
+					}
+					nxt.moveForward(50);
+				}
+				nxt.stop();
+
+			}
+	nxt.stop();
+
+	}
+
+
+	private void modeFive() {
+		while(s.getCurrentMode() == 5) {
+			getPitchInfo(false);
+		}
+	}
+	
+	private void modeSix() {
+		while(s.getCurrentMode() == 6) {
+			nxt.moveForward(20);
+			nxt.kick();
+			nxt.stop();
+			getPitchInfo(false);
+		}
+	}
+
+	
 	private void ModeAvoid() {		
 		while (Move.getDist(nxt, ball.getCoors()) > 50){
 
@@ -428,7 +594,47 @@ public class Runner extends Thread {
 
 	}
 
+	private void penaltyDefend() throws InterruptedException {
+		getPitchInfo(false);
+		Position ballInitial = new Position(ball.getCoors().getX(), ball.getCoors().getY());
+		int dist = 0;
+		int difference;
+		long time = System.currentTimeMillis();
+		penaltyLoop:
+			while(true) {
+				while(System.currentTimeMillis() - time < 30000) {
+					getPitchInfo(false);
+					dist = (int) Position.sqrdEuclidDist(ball.getCoors().getX(), ball.getCoors().getY(), ballInitial.getX(), ballInitial.getY());
+					if (dist > 10) {
+						difference = ballInitial.getY() - ball.getCoors().getY();
+						if (Math.abs(difference) > 5 ) {
+							if (difference > 0) { 
+								nxt.moveForward(35);
+								Thread.sleep(1000);
+								nxt.stop();
+							} else if(difference < 0) { 
+								nxt.moveBackward(35);
+								Thread.sleep(1000);
+								nxt.stop();
+							} else {
+								Thread.sleep(1000);
+								break penaltyLoop;
+							}
 
+						}
+					}
+				}
+				break;
+			}
+	}
+	
+	private void penaltyAttack() {
+		int angle = -20 + (int)(Math.random()*20);
+		System.out.println("Angle for penalty: " + angle);
+		nxt.rotateRobot(angle);
+		nxt.kick();
+	}
+	
 	private int getAverageAngle() {
 		int angle = 0;
 		int[] prevResults = new int[10];
