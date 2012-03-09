@@ -91,8 +91,8 @@ public class Strategy extends Thread {
 
 				// POSSIBLY OBSOLETE DUE TO PATHFINDING ALGORITHM AVOIDING OTHER ROBOT ANYWAY
 				if (ballObstructed(ourRobot, theirRobot, ball)) {
-					// mode = 5;
-					mode = 0;
+					mode = 5;
+					
 				}
 
 //			}

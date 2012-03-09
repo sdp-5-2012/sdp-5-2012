@@ -41,6 +41,7 @@ public class NXT_class implements Runnable{
 	private final static int ROTATE = 0X0A;
 	private final static int EACH_WHEEL_SPEED=0X0B;
 	private final static int STEER =0X0C;
+	private final static int ARE_WE_STUCK = 0X0D;
 
 
 	public static void main(String[] args) throws Exception {
@@ -130,7 +131,16 @@ public class NXT_class implements Runnable{
 						pilot.setTravelSpeed(speedBackward);
 						break;
 
-
+					case ARE_WE_STUCK:
+						LCD.clear();
+						LCD.drawString("COUNT " +Motor.B.getTachoCount() + " " + Motor.C.getTachoCount(), 0, 4);
+							boolean areWeStuck = false;
+							if (Motor.B.getTachoCount() == 0 && Motor.C.getTachoCount() ==0){
+								areWeStuck = true;
+								os.write('S');
+								os.flush();
+								break;
+							} 
 
 					case ROTATE:	
 						int rotateAngle = n >> 8;
