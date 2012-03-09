@@ -33,18 +33,16 @@ public class MainGui extends JFrame {
 	boolean isPenaltyDefend = false;
 	String constantsLocation;
 	boolean isMainPitch = false;
-	boolean isModeAvoid = true;
-
 
 	public MainGui(Runner runner) {
 		this.runner = runner;
-	
+
 		// default constants is pitch0
 		constantsLocation = getClass().getClassLoader().getResource(".").getPath();
 		String src = constantsLocation.substring(0, constantsLocation.length()-4);
 		src = src + "src/JavaVision/constants/pitch0";
 		constantsLocation = src;
-		
+
 		getContentPane().setLayout(new BorderLayout());
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		addMenu();
@@ -60,7 +58,7 @@ public class MainGui extends JFrame {
 
 		addListeners();
 		log.setCurrentPitchConstants("pitch0");
-		
+
 		pack();
 	}
 
@@ -96,9 +94,9 @@ public class MainGui extends JFrame {
 				constantsFile = fc.getSelectedFile();
 				constantsLocation += "/" + constantsFile.getName();
 
-//				int pitchNumber = (constantsFile.getName() == "pitch0") ? 0 : 1;
-//				controls.setNewConstants(constantsLocation, pitchNumber);
-				
+				//				int pitchNumber = (constantsFile.getName() == "pitch0") ? 0 : 1;
+				//				controls.setNewConstants(constantsLocation, pitchNumber);
+
 				log.setCurrentPitchConstants(constantsFile.getName());
 			}
 		});        
@@ -115,7 +113,7 @@ public class MainGui extends JFrame {
 				} else {
 					runner.setTeamYellow(false);
 				}
-				
+
 				runner.setRobotColour();
 
 				// Repeatedly try and make connection
@@ -128,8 +126,6 @@ public class MainGui extends JFrame {
 				runner.startVision();
 				log.startStop.setEnabled(true);
 				log.connect.setEnabled(false);
-				log.apply.setEnabled(true);
-
 			}
 		});
 
@@ -147,20 +143,9 @@ public class MainGui extends JFrame {
 					}
 				} else if(log.startStop.getText() == "Stop") {
 					runner.setStopFlag(true);
-					log.apply.setEnabled(false);
 					log.startStop.setText("Start");
-					Runner.nxt.stop();
+					//			Runner.nxt.stop();
 				}
-			}
-		});
-
-
-		log.apply.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				runner.setStopFlag(true);
-				runner.applyChanges();
 			}
 		});
 	}
@@ -191,9 +176,11 @@ public class MainGui extends JFrame {
 		if(options.penaltyAttack.isSelected()) {
 			log.setCurrentMode("Penalty Attack");
 			isPenaltyAttack = true;
+			isPenaltyDefend = false;
 		} else if(options.penaltyDefend.isSelected()) {
 			log.setCurrentMode("Penalty Defend");
 			isPenaltyDefend = true;
+			isPenaltyAttack = false;
 		} else if (options.normal.isSelected()) {
 			log.setCurrentMode("Normal");
 			isPenaltyAttack = false;
@@ -206,13 +193,6 @@ public class MainGui extends JFrame {
 		} else {
 			isMainPitch = false;
 		}
-		
-		if(options.modeAvoid.isSelected()) {
-			isModeAvoid = true;
-		} else {
-			isModeAvoid = false;
-		}
-		System.out.println("modeAvoid " + isModeAvoid);
 	}
 
 	// Getters
@@ -243,11 +223,7 @@ public class MainGui extends JFrame {
 	public String getConstantsFileLocation() {
 		return constantsLocation;
 	}
-	
-	public boolean isModeAvoid() {
-		return isModeAvoid;
-	}
-	
+
 	public void setCoordinateLabels(Position ourRobot, Position enemyRobot, Position ball) {
 		log.setOurCoors(ourRobot);
 		log.setEnemyCoors(enemyRobot);

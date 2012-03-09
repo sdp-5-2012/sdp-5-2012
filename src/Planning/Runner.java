@@ -12,7 +12,6 @@ import Strategy.*;
 public class Runner extends Thread {
 	public Position bla = new Position(0,0);
 	public Position gotoBall = new Position(0,0);
-//	public ArrayList<Position> waypoints = new ArrayList<Position>();
 	public ArrayList<Position> waypoints = new ArrayList<Position>();
 	Position ballOffsetPosition;
 	
@@ -118,7 +117,7 @@ public class Runner extends Thread {
 
 		getUserOptions();
 		setPositionInformation();
-		planner = new PathPlanner(attackLeft);
+//		planner = new PathPlanner(attackLeft);
 
 		try {
 			mainLoop();
@@ -177,7 +176,7 @@ public class Runner extends Thread {
 	private void createAndShowGui() {
 		// Set the the control gui
 		gui = new MainGui(instance);
-		gui.setSize(600, 400);
+		gui.setSize(625, 400);
 		gui.setLocation(500, 500);
 		gui.setTitle("N.U.K.E Control Panel");
 		gui.setResizable(false);
@@ -227,10 +226,11 @@ public class Runner extends Thread {
 	}
 
 	private void mainLoop() throws InterruptedException {
+	
 		bla.setCoors(100, 100);
-
 		getPitchInfo(false);
 		
+		// initiate strategy thread
 		s = new Strategy(instance);
 		Thread strategy = new Thread(s);
 
@@ -295,13 +295,6 @@ public class Runner extends Thread {
 			}
 		}
 
-		getUserOptions();
-		setPositionInformation();
-		setRobotColour();
-	}
-
-	public void applyChanges() {
-		// Planning sleeps until GUI notifies
 		getUserOptions();
 		setPositionInformation();
 		setRobotColour();

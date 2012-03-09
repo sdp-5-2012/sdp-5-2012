@@ -31,9 +31,8 @@ public class GuiLog extends JPanel {
 	Position enemyCoords = new Position(0, 0);
 	Position ballCoords = new Position(0, 0);
 
-	JPanel buttons = new JPanel(new GridLayout(3, 1));
+	JPanel buttons = new JPanel(new GridLayout(2, 1));
 	JButton startStop = new JButton("Start");
-	JButton apply = new JButton("Apply");
 	JButton connect = new JButton("Connect");
 
 	String currentPitchConstants = "...";
@@ -68,19 +67,14 @@ public class GuiLog extends JPanel {
 
 		// apply and start disabled at launch
 		startStop.setEnabled(false);
-		apply.setEnabled(false);
 
 		// Add buttons to buttons JPanel
 		buttons.add(connect);
 		buttons.add(startStop);
-		buttons.add(apply);
 
 		// add components to control panel
 		add(scrollPane, BorderLayout.WEST);
 		add(buttons);
-
-
-
 	}
 
 	// Setters for the strings for the log

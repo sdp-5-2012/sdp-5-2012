@@ -13,10 +13,7 @@ public class OptionsPanel extends JPanel {
 	JLabel attackGoal = new JLabel("Goal to attack:");
 	JLabel mode = new JLabel("Mode:");
 	JLabel pitchChoice = new JLabel("Pitch Choice:");
-	
-	// Milestone 3 options
-	JLabel milestoneOptionsLbl = new JLabel("Milestone 3 Mode:");
-	
+		
 	// Radio buttons
 	public JRadioButton yellowRobotButton;
 	public JRadioButton blueRobotButton;
@@ -27,22 +24,17 @@ public class OptionsPanel extends JPanel {
 	public JRadioButton normal;
 	public JRadioButton pitchMain;
 	public JRadioButton pitchSide;
-	// Milestone 3 options
-	public JRadioButton modeScore;
-	public JRadioButton modeAvoid;
 	
 	// Button Groups
 	ButtonGroup colourGroup;
 	ButtonGroup attackGroup;
 	ButtonGroup modeGroup;
 	ButtonGroup pitchChoiceGroup;
-	// Milestone 3 options
-	ButtonGroup milestoneGroup;
 
 	/** Constructor */
 	public OptionsPanel() {
 
-		setLayout(new GridLayout(5,4));
+		setLayout(new GridLayout(4,4));
 
 		// robot colour
 		yellowRobotButton = new JRadioButton("Yellow");
@@ -87,16 +79,7 @@ public class OptionsPanel extends JPanel {
 		pitchChoiceGroup.add(pitchSide);
 		
 		pitchMain.setSelected(true);
-		
-		// Milestone shite
-		modeScore = new JRadioButton("Mode Score");
-		modeAvoid = new JRadioButton("Mode Avoid");
-		// Group together
-		milestoneGroup = new ButtonGroup();
-		milestoneGroup.add(modeAvoid);
-		milestoneGroup.add(modeScore);
-		
-		
+				
 		// Add all components
 		add(robotColour);
 		add(yellowRobotButton);
@@ -113,12 +96,6 @@ public class OptionsPanel extends JPanel {
 		add(pitchChoice);
 		add(pitchMain);
 		add(pitchSide);
-		add(new JLabel(""));
-		add(milestoneOptionsLbl);
-		add(modeScore);
-		add(modeAvoid);
-		
-		modeAvoid.setSelected(true);
 	}
 }
 

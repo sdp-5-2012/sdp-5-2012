@@ -1,6 +1,10 @@
 package Planning;
 import JavaVision.*;
+
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.LinkedList;
 import lejos.pc.comm.NXTCommFactory;
 import lejos.pc.comm.NXTInfo;
@@ -105,9 +109,9 @@ public class Robot extends ObjectDetails {
 
 	/**
 	 * Add a command to the queue to be sent to the robot
+	 * @throws IOException 
 	 */
-	public void addCommand(int command) {
-
+	public void addCommand(int command)  {
 		while (commandList.size() > 3) {
 			commandList.remove();
 			System.out.println("<");
