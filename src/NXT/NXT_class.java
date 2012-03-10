@@ -24,7 +24,7 @@ public class NXT_class implements Runnable{
 	private static volatile boolean kicking = false;
 
 	// constants for the pilot class
-	private static final float TRACK_WIDTH = (float) 12.7; // Secondary table
+	private static final float TRACK_WIDTH = (float) 12.0; // Secondary table
 	private static final float WHEEL_DIAMETER = (float) 8.0;
 
 	// NXT Opcodes
@@ -38,8 +38,6 @@ public class NXT_class implements Runnable{
 	private final static int TRAVEL_BACKWARDS_SLIGHRLY=0X07;
 	private final static int TRAVEL_ARC=0X08;
 	private final static int ACCELERATE=0X09;
-
-
 	private final static int ROTATE = 0X0A;
 	private final static int EACH_WHEEL_SPEED=0X0B;
 	private final static int STEER =0X0C;
@@ -151,7 +149,7 @@ public class NXT_class implements Runnable{
 								break;
 							}
 						}
-						//						blocking = false;
+						//					blocking = false;
 						break;
 
 					case EACH_WHEEL_SPEED:	

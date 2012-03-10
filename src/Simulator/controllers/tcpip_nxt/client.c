@@ -31,7 +31,8 @@ int main(int argc, char *argv[])
     struct sockaddr_in address;
     struct hostent *server;
     int fd, rc, n;
-    char buffer[256];
+    unsigned char buffer[5];
+    unsigned char buffer2[5];
 
 #ifdef WIN32
     /* initialize the socket api */
@@ -76,20 +77,20 @@ int main(int argc, char *argv[])
     }
 
     for (;;) {
-        printf("Enter command: ");
-        scanf("%255s", buffer);
-        n = strlen(buffer);
-        buffer[n++] = '\n';     /* append carriage return */
-        buffer[n] = '\0';
+        printf("\nEnter command: ");
+        scanf("%5s", buffer2);
+        buffer[0] = 0x00;
+        buffer[1] = 0x00;
+        buffer[2] = 0xb4;
+        buffer[3] = 0x01;
+        n = sizeof(buffer);
+        //buffer[n++] = '\n';     /* append carriage return */
+        //buffer[n] = '\0';
         n = send(fd, buffer, n, 0);
 
         if (strncmp(buffer, "exit", 4) == 0) {
             break;
         }
-
-        n = recv(fd, buffer, 256, 0);
-        buffer[n] = '\0';
-        printf("Answer is: %s", buffer);
     }
 
 #ifdef WIN32

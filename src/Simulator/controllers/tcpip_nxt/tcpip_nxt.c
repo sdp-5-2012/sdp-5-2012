@@ -51,11 +51,26 @@ static WbDeviceTag servo;
 static WbDeviceTag compass;
 //static const char *compass_name = "compass";
 
-/* Misc Stuff */
+/* Sim Stuff */
 #define MAX_SPEED 12
 #define NULL_SPEED 0
 #define HALF_SPEED 6
 #define MIN_SPEED -10
+
+/* Robot Stuff */
+#define DO_NOTHING 0X00
+#define FORWARDS 0X01
+#define BACKWARDS 0x02
+#define STOP 0X03
+#define KICK 0X04
+#define QUIT 0X05
+#define FORWARDS_TRAVEL 0X06
+#define TRAVEL_BACKWARDS_SLIGHRLY 0X07
+#define TRAVEL_ARC 0X08
+#define ACCELERATE 0X09
+#define ROTATE 0X0A
+#define EACH_WHEEL_SPEED 0X0B
+#define STEER 0X0C
 
 #define WHEEL_RADIUS 0.04
 #define AXLE_LENGTH 0.2
@@ -89,6 +104,17 @@ double get_bearing_in_degrees() {
     bearing = bearing + 360.0;
   return bearing;
   }
+  /*
+static int byteArrayToInt(unsigned char b[4]) {
+  int value = 0;
+  int i = 0;
+  while (i < 4){
+    int shift = (4 - 1 - i) * 8;
+    value += (b[i] & 0x000000FF) << shift;
+    i++;
+    }
+  return value;
+	} */
 
 // Robot Actions
 static void do_nothing(){
@@ -115,7 +141,7 @@ static void kick(){
   }
   wb_servo_set_position(servo, 0);
   }
-  
+  /*
 static void turn(int angleDeg) {
   stop();
   wb_differential_wheels_enable_encoders(get_time_step());
@@ -155,7 +181,7 @@ static void turn_to(double angle) {
 	}
 	stop();
 	step();
-  }
+  }*/
 
 static void turn_comp(double angle) {
 	double current_orientation = get_bearing_in_degrees();
@@ -247,7 +273,7 @@ static void run()
     int n;
     int ret;
     int angle;
-    char buffer[256];
+    unsigned char buffer[5];
     struct timeval tv = { 0, 0 };
     int number;
 
@@ -268,37 +294,32 @@ static void run()
     }
 
     /* ...otherwise, there is data to read, so read & process. */
-    n = recv(fd, buffer, 256, 0);
+    n = recv(fd, buffer, 5, 0);
     if (n < 0) {
         printf("error reading from socket\n");
     }
     buffer[n] = '\0';
     printf("Received %d bytes: %s\n", n, buffer);
+    printf("%x, %x, %x, %x\n",buffer[0],buffer[1],buffer[2],buffer[3]);
+    if (buffer[3] == FORWARDS) {
+        go_forward();
 
-    if (buffer[0] == 'F') {
-        go_forward()   ;    
-        send(fd, "f\r\n", 3, 0);
-
-    } else if (buffer[0] == 'S') {
+    } else if (buffer[3] == STOP) {
         stop();
-        send(fd, "s\r\n", 3, 0);
 
-    } else if (buffer[0] == 'B') {
+    } else if (buffer[3] == BACKWARDS) {
         go_backward();
-        send(fd, "b\r\n", 3, 0);
 
-    } else if (buffer[0] == 'N') {
+    } else if (buffer[3] == DO_NOTHING) {
         do_nothing();
-        send(fd, "n\r\n", 3, 0);
         
-  } else if (buffer[0] == 'T') {
-        sscanf(buffer, "T,%d", &angle);
+  } else if (buffer[3] == ROTATE) {
+        angle = buffer[2];
         turn_comp(angle);
-        send(fd, "t\r\n", 3, 0);
+        send(fd, "f", 1, 0);
         
-  } else if (buffer[0] == 'K') {
+  } else if (buffer[3] == KICK) {
           kick();
-        send(fd, "k\r\n", 3, 0);
 
     } else if (strncmp(buffer, "exit", 4) == 0) {
         printf("connection closed\n");
