@@ -415,6 +415,7 @@ public class Runner extends Thread {
 				nxt.stop();	
 				break;
 			}
+			break;
 		}
 	}
 
@@ -569,7 +570,7 @@ public class Runner extends Thread {
 
 			getPitchInfo(true);
 			try {
-				Thread.sleep(200);
+				Thread.sleep(2000);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -659,7 +660,13 @@ public class Runner extends Thread {
 	}
 
 	private void penaltyAttack() {
-		int angle = -20 + (int)(Math.random()*20);
+		double weird = Math.random();
+		int angle;
+		if(weird > 0.5){
+			angle = 20;
+		} else {
+			angle = -5;
+		}
 		System.out.println("Angle for penalty: " + angle);
 		nxt.rotateRobot(angle);
 		nxt.kick();
@@ -854,7 +861,7 @@ public class Runner extends Thread {
 
 		if(findPath){
 			waypoints = planner.getOptimalPath(nxt.getCoors(), ball.getCoors(), otherRobot.getCoors());
-
+			System.out.println("WAYPOINTS SIZE:" + waypoints.size());
 			for (int s = 0; s < waypoints.size(); s++) {
 				int distBetweenWaypoint = Move.getDist(nxt, waypoints.get(s));
 				if(distBetweenWaypoint < 40) waypoints.remove(s);
