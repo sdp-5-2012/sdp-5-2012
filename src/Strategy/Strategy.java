@@ -144,17 +144,17 @@ public class Strategy extends Thread {
 		if (Position.sqrdEuclidDist(ourRobot.getCoors().getX(), ourRobot.getCoors().getY(), theirGoal.getX(), theirGoal.getY()) >
 		Position.sqrdEuclidDist(theirRobot.getCoors().getX(), theirRobot.getCoors().getY(), theirGoal.getX(), theirGoal.getY())) {
 
-			slopeThemGoal = (double) ((theirGoal.getY() - theirRobot.getCoors().getY()) / (theirGoal.getX() - theirRobot.getCoors().getX()));
-			slopeUsGoal = (double) ((theirGoal.getY() - ourRobot.getCoors().getY()) / (theirGoal.getX() - ourRobot.getCoors().getX()));
+			//slopeThemGoal = (double) ((theirGoal.getY() - theirRobot.getCoors().getY()) / (theirGoal.getX() - theirRobot.getCoors().getX()));
+			//slopeUsGoal = (double) ((theirGoal.getY() - ourRobot.getCoors().getY()) / (theirGoal.getX() - ourRobot.getCoors().getX()));
 
-			double theirAngle = Math.atan(slopeThemGoal);
-			double ourAngle = Math.atan(slopeUsGoal);
+			//double theirAngle = Math.atan(slopeThemGoal);
+			//double ourAngle = Math.atan(slopeUsGoal);
 
-			double difference = Math.abs(theirAngle - ourAngle);
+			//double difference = Math.abs(theirAngle - ourAngle);
 
-			if (difference < 0.27) {
+			//if (difference < 0.27) {
 				obstruction = true;
-			}
+			//}
 
 		}
 
@@ -171,17 +171,17 @@ public class Strategy extends Thread {
 		Position.sqrdEuclidDist(theirRobot.getCoors().getX(), theirRobot.getCoors().getY(), ball.getCoors().getX(), ball.getCoors().getY())) {
 
 
-			slopeThemBall = (double) ((ball.getCoors().getY() - theirRobot.getCoors().getY()) / (ball.getCoors().getX() - theirRobot.getCoors().getX()));
-			slopeUsBall = (double) ((ball.getCoors().getY() - ourRobot.getCoors().getY()) / (ball.getCoors().getX() - ourRobot.getCoors().getX()));
+			//slopeThemBall = (double) ((ball.getCoors().getY() - theirRobot.getCoors().getY()) / (ball.getCoors().getX() - theirRobot.getCoors().getX()));
+			//slopeUsBall = (double) ((ball.getCoors().getY() - ourRobot.getCoors().getY()) / (ball.getCoors().getX() - ourRobot.getCoors().getX()));
 
-			double theirAngle = Math.atan(slopeThemBall);
-			double ourAngle = Math.atan(slopeUsBall);
+			//double theirAngle = Math.atan(slopeThemBall);
+			//double ourAngle = Math.atan(slopeUsBall);
 
-			double difference = Math.abs(theirAngle - ourAngle);
+			//double difference = Math.abs(theirAngle - ourAngle);
 
-			if (difference < 0.27) {
+			//if (difference < 0.30) {
 				obstruction = true;
-			}
+			//}
 
 
 		}
