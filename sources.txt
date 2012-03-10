@@ -1,4 +1,5 @@
 ./src/JavaVision/ControlGUI.java
+./src/JavaVision/Vision.java
 ./src/JavaVision/Position.java
 ./src/JavaVision/RangeSliderUI.java
 ./src/JavaVision/ThresholdsState.java
@@ -6,7 +7,6 @@
 ./src/JavaVision/NoAngleException.java
 ./src/JavaVision/PitchConstants.java
 ./src/JavaVision/RangeSlider.java
-./src/JavaVision/Vision.java
 ./src/JavaVision/RunVision.java
 ./src/Planning/GraphPointComparator.java
 ./src/Planning/Ball.java
@@ -20,9 +20,13 @@
 ./src/Strategy/Strategy.java
 ./src/Strategy/StrategyX.java
 ./src/Communications/BluetoothCommunication.java
+./src/Communications/BluetoothCommunication.java
 ./src/Communications/CommunicationInterface.java
 ./src/NXT/NXT_class.java
 ./src/PC/ControlGUI.java
 ./src/GUI/MainGui.java
 ./src/GUI/OptionsPanel.java
 ./src/GUI/GuiLog.java
+
+./src/Strategy/Strategy.java
+./src/Strategy/StrategyX.java

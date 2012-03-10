@@ -130,18 +130,22 @@ public class NXT_class implements Runnable{
 						pilot.backward();
 						pilot.setTravelSpeed(speedBackward);
 						break;
-
+						
 					case ARE_WE_STUCK:
 						LCD.clear();
-						LCD.drawString("COUNT " +Motor.B.getTachoCount() + " " + Motor.C.getTachoCount(), 0, 4);
-							boolean areWeStuck = false;
-							if (Motor.B.getTachoCount() == 0 && Motor.C.getTachoCount() ==0){
-								areWeStuck = true;
-								os.write('S');
-								os.flush();
-								break;
-							} 
-
+						LCD.drawString("COUNT " + Motor.B.getTachoCount() + " " + Motor.C.getTachoCount(),0, 4);
+						LCD.refresh();
+						
+						int counterB = Motor.B.getTachoCount();
+						int counterC = Motor.C.getTachoCount();
+						
+						Thread.sleep(50);
+						if (!(Math.abs(Motor.B.getTachoCount()-counterB) > 0 && Math.abs(Motor.C.getTachoCount()-counterC)>0)){
+							os.write('S');
+							os.flush();
+							break;
+						}
+						
 					case ROTATE:	
 						int rotateAngle = n >> 8;
 
@@ -279,7 +283,6 @@ public class NXT_class implements Runnable{
 				LCD.drawString("EXCEPTION!", 0, 2);
 			}
 		}
-
 	}
 
 
@@ -342,4 +345,5 @@ public class NXT_class implements Runnable{
 
 		}
 	}
-}
+}						
+						

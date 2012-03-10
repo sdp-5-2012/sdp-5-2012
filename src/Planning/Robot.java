@@ -116,7 +116,6 @@ public class Robot extends ObjectDetails {
 	public void addCommand(int command)  {
 		while (commandList.size() > 3) {
 			commandList.remove();
-			System.out.println("<");
 		}
 		commandList.offer(command);
 		sendToRobot(command);
