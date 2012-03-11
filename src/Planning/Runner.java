@@ -209,7 +209,8 @@ public class Runner extends Thread {
 		ThresholdsState thresholdsState = new ThresholdsState();
 
 		/* Default to main pitch. */
-		PitchConstants pitchConstants = new PitchConstants(constantsLocation);
+		PitchConstants pitchConstants = new PitchConstants("/afs/inf.ed.ac.uk/user/s09/s0950134/git/sdp-5-2012/constants/pitch1");
+		// PitchConstants pitchConstants = new PitchConstants(constantsLocation);
 
 		control = new ControlGUI(thresholdsState, worldState, pitchConstants);
 		control.initGUI();
@@ -553,7 +554,7 @@ public class Runner extends Thread {
 			while ( Move.getDist(nxt, gotoBall) > 15 && stopFlag == false) { 
 				getPitchInfo(false);
 				Vision.plotPoints(waypoints);
-				dist = Move.getDist(nxt, gotoBall);
+//				dist = Move.getDist(nxt, gotoBall);
 				int n = Move.getAngleToPosition(nxt, gotoBall);
 
 				if ((Math.abs(n) > 20)) {
