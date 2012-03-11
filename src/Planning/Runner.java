@@ -116,19 +116,7 @@ public class Runner extends Thread {
 		getUserOptions();
 		setPositionInformation();
 		planner = new PathPlanner(attackLeft);
-		//		nxt.moveForward(25);
-		//		
-		//		while(true) {
-		//			System.out.println("WE ARE STUCK!");
-		//			nxt.askIfStuck();
-		//			if(nxt.isStuck()) {
-		//				nxt.stop();
-		//				nxt.backwardsSlightly();
-		//				nxt.rotateRobot(90);
-		//				break;
-		//			}
-		//		}
-		//		
+
 		try {
 			mainLoop();
 		} catch (InterruptedException e) {
@@ -316,7 +304,7 @@ public class Runner extends Thread {
 	 */
 	public void modeZero() throws InterruptedException {
 		System.out.println("MODE ZERO");
-		while (true && stopFlag == false) {
+		while (s.getCurrentMode() == 0 && stopFlag == false) {
 			getPitchInfo(false);
 			if (isScore) {
 				nxt.stop();	
@@ -338,7 +326,7 @@ public class Runner extends Thread {
 			//			Thread.sleep(1000);
 			//			amIMoving();			
 
-			while(dist > 40 && stopFlag == false) { // dist in pixels
+			while(dist > 40 && stopFlag == false && s.getCurrentMode() == 0) { // dist in pixels
 
 				getPitchInfo(false);
 				vision.drawPos(ballOffsetPosition);
