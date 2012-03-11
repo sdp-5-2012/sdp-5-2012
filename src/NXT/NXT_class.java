@@ -77,8 +77,10 @@ public class NXT_class implements Runnable{
 					byte[] byteBuffer = new byte[4];
 					is.read(byteBuffer);
 
-					n = byteArrayToInt(byteBuffer);
-					int opcode = ((n << 24) >> 24);
+					int param0 = byteBuffer[2];
+					int param1 = byteBuffer[1]; //bytesToInt(byteBuffer[0],byteBuffer[1]);
+					int param2 = byteBuffer[0];
+					int opcode = byteBuffer[3];
 
 					// LCD.drawString(String.valueOf(kicking), 0, 2);
 					// If everything is alright, LCD should read "falsected"
@@ -92,7 +94,7 @@ public class NXT_class implements Runnable{
 					switch (opcode) {
 
 					case FORWARDS:
-						int speedForward = n>>8;
+						int speedForward = param0;
 						LCD.clear();
 						LCD.drawString("move forwards", 0, 2);
 						//LCD.drawInt((int) pilot.getMaxTravelSpeed(), 0,4);
@@ -102,8 +104,8 @@ public class NXT_class implements Runnable{
 						break;
 
 					case FORWARDS_TRAVEL:
-						int speedForwards = n>>8;
-						int travelDistance= n >>8;
+						int speedForwards = param0;
+						int travelDistance= param1;
 						LCD.clear();
 						LCD.drawString("move forwards whith speed", 0, 2);
 						//LCD.drawInt((int) pilot.getMaxTravelSpeed(), 0,4);
@@ -121,7 +123,7 @@ public class NXT_class implements Runnable{
 						break;
 
 					case BACKWARDS:
-						int speedBackward = n>>8 ;
+						int speedBackward = param0;
 						LCD.clear();
 						LCD.drawString("move backwards", 0, 2);
 						//LCD.drawInt((int) pilot.getMaxTravelSpeed(), 0,4);
@@ -133,7 +135,7 @@ public class NXT_class implements Runnable{
 
 
 					case ROTATE:	
-						int rotateAngle = n >> 8;
+						int rotateAngle = param0;
 
 						LCD.clear();
 						LCD.drawString("start rotate", 0, 2);
@@ -186,8 +188,8 @@ public class NXT_class implements Runnable{
 						break;
 
 					case STEER:
-						int turnRate = n >> 8;
-						int angle = n >> 8;
+						int turnRate = param0;
+						int angle = param1;
 						if(angle >360){
 							angle = -(angle-360);
 						}
@@ -195,8 +197,10 @@ public class NXT_class implements Runnable{
 						break;
 
 					case TRAVEL_ARC:
-						int radius = n >> 8;
-						int distance = n >> 8;
+						int radius = param0;
+						int distance = param1;
+						int speed = param2;
+						pilot.setTravelSpeed(speed);
 						pilot.travelArc(radius, distance);
 						break;
 
@@ -277,13 +281,8 @@ public class NXT_class implements Runnable{
 	/**
 	 * Returns an integer from a byte array
 	 */
-	public static int byteArrayToInt(byte[] b) {
-		int value = 0;
-		for (int i = 0; i < 4; i++) {
-			int shift = (4 - 1 - i) * 8;
-			value += (b[i] & 0x000000FF) << shift;
-		}
-		return value;
+	public static int bytesToInt(byte a, byte b) {
+		return ((a & 0xFF) << 8) | (b & 0xFF);
 	}
 
 	/**

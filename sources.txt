@@ -12,8 +12,8 @@
 ./src/JavaVision/WorldState.java
 ./src/NXT/NXT_class.java
 ./src/PC/ControlGUI.java
-./src/Planning/Runner.java
 ./src/Planning/Move.java
+./src/Planning/Runner.java
 ./src/Planning/Robot.java
 ./src/Planning/Arc.java
 ./src/Planning/GraphPoint.java
