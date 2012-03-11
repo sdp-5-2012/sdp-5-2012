@@ -75,18 +75,16 @@ public class Runner extends Thread {
 
 	Position dest = new Position(0, 0);
 
-	public static final int DEFAULT_SPEED = 35; // used for move_forward method
-	// in Robot
-	public static final int EACH_WHEEL_SPEED = 900; // used for each_wheel_speed
-	// method in Robot
+	public static final int DEFAULT_SPEED = 35; // used for move_forward method in Robot
+	public static final int EACH_WHEEL_SPEED = 900; // used for each_wheel_speed method in Robot
+	
 	public static void main(String args[]) {
 		instance = new Runner();
 	}
 
 	/**
-	 * Instantiate objects and start the planning thread
+	 * start the planning thread
 	 */
-
 	public Runner() {
 		start();
 	}
@@ -119,30 +117,11 @@ public class Runner extends Thread {
 		setPositionInformation();
 		planner = new PathPlanner(attackLeft);
 
-//		nxt.moveForward(25);
 		try {
 			mainLoop();
-			Thread.sleep(1000);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
-		//		while(true) {
-		//			nxt.askIfStuck();
-		//			if(nxt.isStuck()) {
-		//				nxt.backwardsSlightly();
-		//				nxt.rotateRobot(90);
-		//				break;
-		//			}
-		//		}
-
-
-				try {
-					mainLoop();
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
 	}
 
 	/**
@@ -218,6 +197,7 @@ public class Runner extends Thread {
 		ThresholdsState thresholdsState = new ThresholdsState();
 
 		/* Default to main pitch. */
+//		PitchConstants pitchConstants = new PitchConstants("/afs/inf.ed.ac.uk/user/s09/s0950134/git/sdp-5-2012/constants/pitch1");
 		PitchConstants pitchConstants = new PitchConstants(constantsLocation);
 
 		control = new ControlGUI(thresholdsState, worldState, pitchConstants);
@@ -252,9 +232,8 @@ public class Runner extends Thread {
 		// initiate strategy thread
 		s = new Strategy(instance);
 		Thread strategy = new Thread(s);
-
 		strategy.start();
-		int i = 0;
+
 		while (true) {
 			if(!stopFlag) {		
 
@@ -262,53 +241,16 @@ public class Runner extends Thread {
 					penaltyAttack();
 				} else if (isPenaltyDefend) {
 					penaltyDefend();
-				System.out.println(i);
-				if (isPenaltyAttack) {
-					penaltyAttack();
-				} else if (isPenaltyDefend) {
-					penaltyDefend();
-				} else {
-					System.out.println("Choosing a Strategy!");
-					switch(s.getCurrentMode()) {
-					case(0):
-						System.out.println("Mode 0");
-						modeZero();	
-					break;
-					case(1): 
-						System.out.println("Mode 1");
-						modeOne();
-					break;
-					case(2):
-						System.out.println("Mode 2");
-						modeTwo();
-					break;
-					case(3):
-						System.out.println("Mode 3");
-						try {
-							modeThree();
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
-						break;
-					case(4):
-						System.out.println("Mode 4");
-						modeFour();
-					break;
-					case(5):
-						System.out.println("Mode 5");
-						modeFive();
-					break;
-					case(6):
-						System.out.println("Mode 6");
-						modeSix();
-					break;
-					default:
-						System.out.println("Mode default");
-						modeZero();
-						break;
-
 				}
-				}
+				switch(s.getCurrentMode()) {
+				case(0):
+					modeZero();	
+				break;
+				case(1): 
+					modeOne();
+				break;
+				case(2):
+					modeTwo();
 				break;
 				case(3):
 					try {
@@ -335,7 +277,6 @@ public class Runner extends Thread {
 			} else {
 				waitForNewInput();
 			}
-			i++;
 		}
 	}
 
@@ -363,7 +304,7 @@ public class Runner extends Thread {
 	 */
 	public void modeZero() throws InterruptedException {
 		System.out.println("MODE ZERO");
-		while (true) {
+		while (s.getCurrentMode() == 0 && stopFlag == false) {
 			getPitchInfo(false);
 			if (isScore) {
 				nxt.stop();	
@@ -386,13 +327,7 @@ public class Runner extends Thread {
 			//			amIMoving();			
 
 			while(dist > 40 && stopFlag == false && s.getCurrentMode() == 0) { // dist in pixels
-			nxt.moveForward(20);
 
-			Thread.sleep(1000);
-			//amIMoving();			
-
-			while(dist > 40 && stopFlag == false) { // dist in pixels
-				//			System.out.println("dist to ball: " + dist);
 				getPitchInfo(false);
 				vision.drawPos(ballOffsetPosition);
 				dist = Move.getDist(nxt, ballOffsetPosition);
@@ -407,9 +342,6 @@ public class Runner extends Thread {
 					nxt.moveForward(30);
 					//					Thread.sleep(1000);
 					//					amIMoving();
-					nxt.moveForward(20);
-					Thread.sleep(1000);
-					//amIMoving();
 				}
 			}
 
@@ -439,12 +371,8 @@ public class Runner extends Thread {
 				//				Thread.sleep(1000);
 				//
 				//				amIMoving();
-				nxt.moveForward(20);
-				Thread.sleep(1000);
-
-				//amIMoving();
 				try {
-					Thread.sleep(1000);
+					Thread.sleep(1100);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
@@ -458,21 +386,8 @@ public class Runner extends Thread {
 				nxt.stop();	
 				break;
 			}
-			break;
 		}
 	}
-
-
-	//	private void amIMoving() {
-	//		System.out.println("ARE WE MOVING?");
-	//			nxt.askIfStuck();
-	//			if(nxt.isStuck()){
-	//				System.out.println("STTTUUUUCCCKKK");
-	//				nxt.backOffBitch();
-	//				
-	//			}
-	//		
-	//	}
 
 	/**
 	 * Mode 1: kick wildly (at an angle - off the wall?)
@@ -480,7 +395,7 @@ public class Runner extends Thread {
 	 */
 	private void modeOne() {
 		System.out.println("Change to mode 1");
-		while(s.getCurrentMode() == 1) {
+		while(s.getCurrentMode() == 1 && stopFlag == false) {
 			int dist = (int) Position.sqrdEuclidDist(nxt.getCoors().getX(), nxt.getCoors().getY(), theirGoal.getX(), theirGoal.getY());
 			int angle;
 			Position wallPoint = new Position(dist/2, 80);
@@ -490,7 +405,6 @@ public class Runner extends Thread {
 			nxt.rotateRobot(angle);
 			nxt.kick();
 		}
-
 	}
 
 	/**
@@ -498,7 +412,7 @@ public class Runner extends Thread {
 	 */
 	private void modeTwo() {
 		System.out.println("Change to mode 2");
-		while(s.getCurrentMode() == 2) {
+		while(s.getCurrentMode() == 2 && stopFlag == false) {
 
 			getPitchInfo(false);
 
@@ -508,11 +422,9 @@ public class Runner extends Thread {
 			while((nxt.getCoors().getX() < pitchCentre.getX()) && s.getCurrentMode() == 2) {
 				nxt.moveForward(50);
 				//				amIMoving();
-				//amIMoving();
 			}
 			nxt.kick();
 		}
-
 	}
 
 	/**
@@ -522,7 +434,7 @@ public class Runner extends Thread {
 	private void modeThree() throws InterruptedException {
 		System.out.println("Change to mode 3");
 		ModeThreeLoop:
-			while(s.getCurrentMode() == 3) {
+			while(s.getCurrentMode() == 3 && stopFlag == false) {
 
 				Position inFrontOfGoal = new Position(0,0);
 				Position rotatePoint = new Position(0,0);
@@ -540,7 +452,6 @@ public class Runner extends Thread {
 					}
 					nxt.moveForward(50);
 					//					amIMoving();
-					//amIMoving();
 				}
 				nxt.stop();
 
@@ -550,15 +461,12 @@ public class Runner extends Thread {
 
 				nxt.moveForward(30);
 				//				amIMoving();
-				//amIMoving();
 				Thread.sleep(1000);
 				nxt.stop();
 				nxt.moveBackward(30);
-				Thread.sleep(200);
+				Thread.sleep(2000);
 				nxt.stop();
 				nxt.moveForward(30);
-
-				//amIMoving();
 				Thread.sleep(1000);
 			}
 	}
@@ -569,7 +477,7 @@ public class Runner extends Thread {
 	private void modeFour() {
 		System.out.println("MODE FOUr");
 		ModeFourLoop:
-			while(s.getCurrentMode() == 4) {
+			while(s.getCurrentMode() == 4 && stopFlag == false) {
 
 				// determine point ahead of enemy in direction of ball
 				int pointAheadX = ball.getCoors().getX() + (ball.getCoors().getX() - otherRobot.getCoors().getX());
@@ -588,8 +496,6 @@ public class Runner extends Thread {
 						break ModeFourLoop;
 					}
 					nxt.moveForward(50);
-
-					//amIMoving();
 				}
 				nxt.stop();
 
@@ -601,28 +507,13 @@ public class Runner extends Thread {
 	/**
 	 * Mode Five: Avoid enemy robot (uses Path planner)
 	 */
-
-
-	private void modeSix() {
-		System.out.println("MODE SIX");
-		while(s.getCurrentMode() == 6) {
-			nxt.rotateRobot(Move.getAngleToPosition(nxt, theirGoal));
-			nxt.moveForward(20);
-			//amIMoving();
-			nxt.kick();
-			nxt.stop();
-			getPitchInfo(false);
-		}
-	}
-
-
 	private void modeFive() {	
 		System.out.println("MODE FIVE");
-		while (Move.getDist(nxt, ball.getCoors()) > 50){
+		while (Move.getDist(nxt, ball.getCoors()) > 50 && stopFlag == false){
 
 			getPitchInfo(true);
 			try {
-				Thread.sleep(2000);
+				Thread.sleep(200);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -634,7 +525,7 @@ public class Runner extends Thread {
 			getPitchInfo(false);
 			int angleToBall = Move.getAngleToPosition(nxt, gotoBall);
 
-			int dist = Move.getDist(nxt, gotoBall);
+//			int dist = Move.getDist(nxt, gotoBall);
 
 			nxt.rotateRobot(angleToBall);
 
@@ -649,15 +540,10 @@ public class Runner extends Thread {
 			//		 }
 			nxt.moveForward(30);
 			while ( Move.getDist(nxt, gotoBall) > 15 && stopFlag == false) { 
-
-			nxt.moveForward(20);
-			//amIMoving();
-			while (dist > 50) { 
 				getPitchInfo(false);
 				Vision.plotPoints(waypoints);
-				dist = Move.getDist(nxt, gotoBall);
+//				dist = Move.getDist(nxt, gotoBall);
 				int n = Move.getAngleToPosition(nxt, gotoBall);
-
 
 				if ((Math.abs(n) > 20)) {
 					nxt.rotateRobot(n);
@@ -667,17 +553,25 @@ public class Runner extends Thread {
 						e.printStackTrace();
 					}
 					getPitchInfo(false);
-					dist = Move.getDist(nxt, gotoBall);
+//					dist = Move.getDist(nxt, gotoBall);
 					nxt.moveForward(20);
-
-					//amIMoving();
 				}
 			}
 		}
 	}
 
-
-
+	/**
+	 *  Mode Six: kicker up and move back (we may be hiding the ball)
+	 */
+	private void modeSix() {
+		System.out.println("MODE SIX");
+		while(s.getCurrentMode() == 6 && stopFlag == false) {
+			nxt.rotateRobot(Move.getAngleToPosition(nxt, theirGoal));
+			nxt.moveForward(30);
+			nxt.kick();
+			nxt.stop();
+			getPitchInfo(false);
+		}
 	}
 
 	private void penaltyDefend() throws InterruptedException {
@@ -687,8 +581,8 @@ public class Runner extends Thread {
 		int difference;
 		long time = System.currentTimeMillis();
 		penaltyLoop:
-			while(true) {
-				while(System.currentTimeMillis() - time < 30000) {
+			while(true && stopFlag == false) {
+				while(System.currentTimeMillis() - time < 30000 && stopFlag == false) {
 					getPitchInfo(false);
 					dist = (int) Position.sqrdEuclidDist(ball.getCoors().getX(), ball.getCoors().getY(), ballInitial.getX(), ballInitial.getY());
 					if (dist > 10) {
@@ -696,8 +590,6 @@ public class Runner extends Thread {
 						if (Math.abs(difference) > 5 ) {
 							if (difference > 0) { 
 								nxt.moveForward(35);
-
-								//amIMoving();
 								Thread.sleep(1000);
 								nxt.stop();
 							} else if(difference < 0) { 
@@ -717,18 +609,12 @@ public class Runner extends Thread {
 	}
 
 	private void penaltyAttack() {
-		double weird = Math.random();
-		int angle;
-		if(weird > 0.5){
-			angle = 20;
-		} else {
-			angle = -5;
-		}
+		int angle = -20 + (int)(Math.random()*20);
 		System.out.println("Angle for penalty: " + angle);
 		nxt.rotateRobot(angle);
 		nxt.kick();
 	}
-
+	
 
 	private void amIMoving() {
 		System.out.println("ARE WE MOVING?");
@@ -929,12 +815,13 @@ public class Runner extends Thread {
 
 		if(findPath){
 			waypoints = planner.getOptimalPath(nxt.getCoors(), ball.getCoors(), otherRobot.getCoors());
-			System.out.println("WAYPOINTS SIZE:" + waypoints.size());
+
 			for (int s = 0; s < waypoints.size(); s++) {
 				int distBetweenWaypoint = Move.getDist(nxt, waypoints.get(s));
 				if(distBetweenWaypoint < 40) waypoints.remove(s);
 			}
 			bla.setCoors(waypoints.get(0).getX(),waypoints.get(0).getY());
+			gotoBall.setCoors(waypoints.get(0).getX(),waypoints.get(0).getY());
 		}
 	}
 
