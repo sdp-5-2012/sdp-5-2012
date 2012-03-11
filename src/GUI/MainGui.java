@@ -12,6 +12,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import JavaVision.Position;
+import Planning.Intercept;
 import Planning.Runner;
 
 public class MainGui extends JFrame {
@@ -23,7 +24,7 @@ public class MainGui extends JFrame {
 	File constantsFile;
 	//	volatile boolean applyClicked = false;
 	//	volatile boolean isYellow = true;
-	Runner runner;
+	Intercept runner;
 
 	// values Runner needs
 	boolean attackLeft = true;
@@ -36,7 +37,7 @@ public class MainGui extends JFrame {
 	boolean isModeAvoid = true;
 
 
-	public MainGui(Runner runner) {
+	public MainGui(Intercept runner) {
 		this.runner = runner;
 	
 		// default constants is pitch0
@@ -119,7 +120,7 @@ public class MainGui extends JFrame {
 				runner.setRobotColour();
 
 				// Repeatedly try and make connection
-				while (!Runner.nxt.startCommunications()) {
+				while (!Intercept.nxt.startCommunications()) {
 					log.setIsConnected(false);
 				}
 

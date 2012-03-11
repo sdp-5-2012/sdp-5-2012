@@ -15,6 +15,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 
 import Planning.Ball;
+import Planning.Line;
 import au.edu.jcu.v4l4j.CaptureCallback;
 import au.edu.jcu.v4l4j.Control;
 import au.edu.jcu.v4l4j.DeviceInfo;
@@ -1448,6 +1449,13 @@ public class Vision extends WindowAdapter {
 		Graphics g = frameImage.getGraphics();
 		g.setColor(Color.RED);
 		g.fillOval(pos.getX(), pos.getY(), 3, 3);
+	}
+	
+	public void drawLine(Line line) {
+		Graphics g = frameImage.getGraphics();
+		g.setColor(Color.ORANGE);
+		g.drawLine(line.getP1().getX(), line.getP1().getY(), line.getP2().getX(), line.getP2().getY());
+		// g.drawLine(50, 50, 300, 300);
 	}
 
 	/* Doesn't work */
