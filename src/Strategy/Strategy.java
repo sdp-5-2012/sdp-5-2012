@@ -26,7 +26,7 @@ public class Strategy extends Thread {
 	public void run() {		
 
 		while(true) {
-			
+
 			instance.getPitchInfo(false);
 			currentMode = whatToDo(instance.getOurRobot(), instance.getTheirRobot(), instance.getBall(),
 					instance.getOurGoal(), instance.getTheirGoal(), instance.getPitchCentre());
@@ -51,59 +51,58 @@ public class Strategy extends Thread {
 		int mode = 0;
 
 		if(!(ball.getCoors().getX()==0) && !(ball.getCoors().getY()==0)){
-	//		if(ballInGoal(ball)){
-		//		System.out.println("BALL IN GOOOAL");
-		//		Runner.nxt.stop();
-	//		} else {
+			//		if(ballInGoal(ball)){
+			//		System.out.println("BALL IN GOOOAL");
+			//		Runner.nxt.stop();
+			//		} else {
 
-				if (doWeHaveTheBall(ourRobot, ball)) {
-					if (areWeInOurHalf(ourRobot, ourGoal, theirGoal)) {
-						if (areTheyInOurHalf(theirRobot, ourGoal, theirGoal)) {
-
-							// mode 1 - kick wildly! (planning should work out an optimal angle)
-							mode = 1;
-
-							// else they're in their half
-						} else {
-
-							// mode 2 - dribble the ball towards (and into) their half
-							mode = 2;
-						}
-
-						// else we're in their half
-					} else {
-						if (goalObstructed(ourRobot, theirRobot, theirGoal)) {
-							// planning will work out an angle to bounce the ball off the wall
-							mode = 1;
-							// else it's UNOBSTRUCTED - Runner's main loop will just aim/shoot as normal
-						}
-					}
-
-				} else if (doTheyHaveTheBall(theirRobot, ball)) {
+			if (doWeHaveTheBall(ourRobot, ball)) {
+				if (areWeInOurHalf(ourRobot, ourGoal, theirGoal)) {
 					if (areTheyInOurHalf(theirRobot, ourGoal, theirGoal)) {
-						mode = 3;
+
+						// mode 1 - kick wildly! (planning should work out an optimal angle)
+						mode = 1;
+
+						// else they're in their half
 					} else {
-						if (!areWeInOurHalf(ourRobot, ourGoal, theirGoal)) {
-							mode = 4;
-						}
+
+						// mode 2 - dribble the ball towards (and into) their half
+						mode = 2;
+					}
+
+					// else we're in their half
+				} else {
+					if (goalObstructed(ourRobot, theirRobot, theirGoal)) {
+						// planning will work out an angle to bounce the ball off the wall
+						mode = 1;
+						// else it's UNOBSTRUCTED - Runner's main loop will just aim/shoot as normal
 					}
 				}
 
-				// POSSIBLY OBSOLETE DUE TO PATHFINDING ALGORITHM AVOIDING OTHER ROBOT ANYWAY
-				if (ballObstructed(ourRobot, theirRobot, ball)) {
-					mode = 5;
-					
+			} else if (doTheyHaveTheBall(theirRobot, ball)) {
+				if (areTheyInOurHalf(theirRobot, ourGoal, theirGoal)) {
+					mode = 3;
+				} else {
+					if (!areWeInOurHalf(ourRobot, ourGoal, theirGoal)) {
+						mode = 4;
+					}
 				}
+			}
 
-//			}
+			// POSSIBLY OBSOLETE DUE TO PATHFINDING ALGORITHM AVOIDING OTHER ROBOT ANYWAY
+			if (ballObstructed(ourRobot, theirRobot, ball)) {
+				mode = 5;
+
+			}
+
+			//			}
 		} else {
 			mode = 6;
 		}
 
 		return mode;
-
 	}
-
+	
 	// Returns true if our robot has possession of the ball
 	public static boolean doWeHaveTheBall(Robot ourRobot, Ball ball) {
 		boolean ourBall = Move.getDist(ourRobot, ball.getCoors()) < 75;
@@ -153,7 +152,7 @@ public class Strategy extends Thread {
 			double difference = Math.abs(theirAngle - ourAngle);
 
 			if (difference < 0.27) {
-				obstruction = true;
+			obstruction = true;
 			}
 
 		}
@@ -170,17 +169,27 @@ public class Strategy extends Thread {
 		if (Position.sqrdEuclidDist(ourRobot.getCoors().getX(), ourRobot.getCoors().getY(), ball.getCoors().getX(), ball.getCoors().getY()) >
 		Position.sqrdEuclidDist(theirRobot.getCoors().getX(), theirRobot.getCoors().getY(), ball.getCoors().getX(), ball.getCoors().getY())) {
 
-
-			slopeThemBall = (double) ((ball.getCoors().getY() - theirRobot.getCoors().getY()) / (ball.getCoors().getX() - theirRobot.getCoors().getX()));
-			slopeUsBall = (double) ((ball.getCoors().getY() - ourRobot.getCoors().getY()) / (ball.getCoors().getX() - ourRobot.getCoors().getX()));
+			if((ball.getCoors().getX() != theirRobot.getCoors().getX()) && (ball.getCoors().getX() != ourRobot.getCoors().getX()) ){
+				slopeThemBall = (double) ((ball.getCoors().getY() - theirRobot.getCoors().getY()) / (ball.getCoors().getX() - theirRobot.getCoors().getX()));
+				slopeUsBall = (double) ((ball.getCoors().getY() - ourRobot.getCoors().getY()) / (ball.getCoors().getX() - ourRobot.getCoors().getX()));
+	
+			} else if(ball.getCoors().getX() == theirRobot.getCoors().getX()){
+				slopeThemBall = 0;
+				slopeUsBall = (double) ((ball.getCoors().getY() - ourRobot.getCoors().getY()) / (ball.getCoors().getX() - ourRobot.getCoors().getX()));
+	
+			} else if(ball.getCoors().getX() == ourRobot.getCoors().getX()){
+				slopeThemBall = (double) ((ball.getCoors().getY() - theirRobot.getCoors().getY()) / (ball.getCoors().getX() - theirRobot.getCoors().getX()));
+				slopeUsBall = 0;
+	
+			}
 
 			double theirAngle = Math.atan(slopeThemBall);
 			double ourAngle = Math.atan(slopeUsBall);
 
 			double difference = Math.abs(theirAngle - ourAngle);
 
-			if (difference < 0.27) {
-				obstruction = true;
+			if (difference < 0.30) {
+			obstruction = true;
 			}
 
 
