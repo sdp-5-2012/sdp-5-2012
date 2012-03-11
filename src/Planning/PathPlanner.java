@@ -17,7 +17,7 @@ public class PathPlanner {
 	public static int gridSize = 10;// size of a square on the map
 	public static int gridX = (int) Math.ceil(pitchX / gridSize);
 	public static int gridY = (int) Math.ceil(pitchY / gridSize);
-	int correction = 60;
+	int correction = 40;
 	public static ArrayList<GraphPoint> path;
 	public static ArrayList<GraphPoint> occupied = new ArrayList<GraphPoint>();
 	public static ArrayList<GraphPoint> checked;
@@ -232,7 +232,9 @@ public class PathPlanner {
 		}
 		// System.out.println(wayPositions.get(0));
 		// System.out.println(wayPositions.size());
-		 System.out.println(wayPositions);
+		for (int i = 0; i < wayPositions.size(); i++) {
+			System.out.println("(" + wayPositions.get(i).getX() + ", " + wayPositions.get(i).getY() + ") ");
+		} 
 		 int a = goalPositionCoor.getX()+displacementX;
 		 int b = goalPositionCoor.getY()+displacementY;
 		 goalPositionCoor.setX(a);

@@ -83,9 +83,8 @@ public class Runner extends Thread {
 	}
 
 	/**
-	 * Instantiate objects and start the planning thread
+	 * start the planning thread
 	 */
-
 	public Runner() {
 		start();
 	}
@@ -130,7 +129,6 @@ public class Runner extends Thread {
 		//			}
 		//		}
 		//		
-
 		try {
 			mainLoop();
 		} catch (InterruptedException e) {
@@ -246,7 +244,7 @@ public class Runner extends Thread {
 		s = new Strategy(instance);
 		Thread strategy = new Thread(s);
 		strategy.start();
-		
+
 		while (true) {
 			if(!stopFlag) {		
 
@@ -418,7 +416,6 @@ public class Runner extends Thread {
 			nxt.rotateRobot(angle);
 			nxt.kick();
 		}
-
 	}
 
 	/**
@@ -439,7 +436,6 @@ public class Runner extends Thread {
 			}
 			nxt.kick();
 		}
-
 	}
 
 	/**
@@ -532,7 +528,6 @@ public class Runner extends Thread {
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-			System.out.println(waypoints.size());
 
 			int avgAngle = getAverageAngle();
 
@@ -541,7 +536,7 @@ public class Runner extends Thread {
 			getPitchInfo(false);
 			int angleToBall = Move.getAngleToPosition(nxt, gotoBall);
 
-			int dist = Move.getDist(nxt, gotoBall);
+//			int dist = Move.getDist(nxt, gotoBall);
 
 			nxt.rotateRobot(angleToBall);
 
@@ -554,12 +549,11 @@ public class Runner extends Thread {
 			//		 while(true){
 			//		 Vision.plotPoints(goals);
 			//		 }
-
 			nxt.moveForward(30);
-			while (Move.getDist(nxt, gotoBall) > 50 && stopFlag == false) { 
+			while ( Move.getDist(nxt, gotoBall) > 15 && stopFlag == false) { 
 				getPitchInfo(false);
 				Vision.plotPoints(waypoints);
-			//	dist = Move.getDist(nxt, gotoBall);
+				dist = Move.getDist(nxt, gotoBall);
 				int n = Move.getAngleToPosition(nxt, gotoBall);
 
 				if ((Math.abs(n) > 20)) {
@@ -570,7 +564,7 @@ public class Runner extends Thread {
 						e.printStackTrace();
 					}
 					getPitchInfo(false);
-				//	dist = Move.getDist(nxt, gotoBall);
+//					dist = Move.getDist(nxt, gotoBall);
 					nxt.moveForward(20);
 				}
 			}
@@ -641,7 +635,6 @@ public class Runner extends Thread {
 			nxt.backOffBitch();
 
 		}
-
 	}
 
 	private int getAverageAngle() {
