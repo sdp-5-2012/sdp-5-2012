@@ -1,12 +1,12 @@
 ./src/JavaVision/ControlGUI.java
+./src/JavaVision/Vision.java
+./src/JavaVision/Position.java
 ./src/JavaVision/RangeSliderUI.java
 ./src/JavaVision/ThresholdsState.java
-./src/JavaVision/Position.java
 ./src/JavaVision/WorldState.java
 ./src/JavaVision/NoAngleException.java
 ./src/JavaVision/PitchConstants.java
 ./src/JavaVision/RangeSlider.java
-./src/JavaVision/Vision.java
 ./src/JavaVision/RunVision.java
 ./src/Planning/GraphPointComparator.java
 ./src/Planning/Ball.java
