@@ -255,7 +255,6 @@ public class Intercept extends Thread {
 		}
 		nxt.stop();
 		
-		
 	}
 
 	/**
