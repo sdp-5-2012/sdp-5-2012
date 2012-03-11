@@ -85,7 +85,7 @@ public class MainGui extends JFrame {
 				// Create a file chooser and default to constants folder
 				constantsLocation = getClass().getClassLoader().getResource(".").getPath();
 				String src = constantsLocation.substring(0, constantsLocation.length()-4);
-				src = src + "src/JavaVision/constants";
+				src = src + "constants";
 				constantsLocation = src;
 
 				JFileChooser fc = new JFileChooser(new File(src));
@@ -94,10 +94,8 @@ public class MainGui extends JFrame {
 				constantsFile = fc.getSelectedFile();
 				constantsLocation += "/" + constantsFile.getName();
 
-				//				int pitchNumber = (constantsFile.getName() == "pitch0") ? 0 : 1;
-				//				controls.setNewConstants(constantsLocation, pitchNumber);
-
 				log.setCurrentPitchConstants(constantsFile.getName());
+				System.out.println(constantsLocation);
 			}
 		});        
 	}

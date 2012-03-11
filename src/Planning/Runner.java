@@ -197,8 +197,8 @@ public class Runner extends Thread {
 		ThresholdsState thresholdsState = new ThresholdsState();
 
 		/* Default to main pitch. */
-		PitchConstants pitchConstants = new PitchConstants("/afs/inf.ed.ac.uk/user/s09/s0950134/git/sdp-5-2012/constants/pitch1");
-		// PitchConstants pitchConstants = new PitchConstants(constantsLocation);
+//		PitchConstants pitchConstants = new PitchConstants("/afs/inf.ed.ac.uk/user/s09/s0950134/git/sdp-5-2012/constants/pitch1");
+		PitchConstants pitchConstants = new PitchConstants(constantsLocation);
 
 		control = new ControlGUI(thresholdsState, worldState, pitchConstants);
 		control.initGUI();
