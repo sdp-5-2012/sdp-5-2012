@@ -12,7 +12,7 @@ public class Strategy extends Thread {
 	 * 2 - dribble towards enemy half
 	 * 3 - retreat to own goal, defend
 	 * 4 - attack hard
-	 * OBSOLETE 5 - default "go to ball, aim, kick" but go to the ball in an arc because the other robot's in the way!
+	 * 5 - default "go to ball, aim, kick" but go to the ball in an arc because the other robot's in the way!
 	 * 6 - kicker up and move back (we may be hiding the ball)
 	 *
 	 */

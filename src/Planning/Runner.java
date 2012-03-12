@@ -445,13 +445,25 @@ public class Runner extends Thread {
 				}
 
 				int angle = Move.getAngleToPosition(nxt, inFrontOfGoal);
-				nxt.rotateRobot(angle);
+				
 				while((Move.getDist(nxt, inFrontOfGoal) > 5)) {
+					
 					if (s.getCurrentMode() != 3) {
 						break ModeThreeLoop;
 					}
-					nxt.moveForward(50);
+					
+					//checks if the ball is closer to our goal than us AND we're far enough from the ball to
+					//not score an own goal
+					while(((Move.getDist(nxt, ball.getCoors()))>20) && ((Move.getDist(nxt, ourGoal)>(Position.sqrdEuclidDist(ball.getCoors().getX(), ball.getCoors().getY(), ourGoal.getX(), ourGoal.getY()))))){
+						nxt.rotateRobot(angle);
+						nxt.moveForward(50);
 					//					amIMoving();
+					}
+					
+					while((Move.getDist(nxt, ball.getCoors()))<20){
+						nxt.rotateRobot(90);
+						nxt.moveForward(30);
+					}
 				}
 				nxt.stop();
 
@@ -475,7 +487,7 @@ public class Runner extends Thread {
 	 * Method 4: attack hard
 	 */
 	private void modeFour() {
-		System.out.println("MODE FOUr");
+		System.out.println("MODE FOUR");
 		ModeFourLoop:
 			while(s.getCurrentMode() == 4 && stopFlag == false) {
 
