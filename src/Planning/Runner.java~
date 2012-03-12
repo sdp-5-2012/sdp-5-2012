@@ -1,132 +1,209 @@
 package Planning;
 
 import java.awt.Point;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import au.edu.jcu.v4l4j.V4L4JConstants;
 import au.edu.jcu.v4l4j.exceptions.V4L4JException;
 import Planning.Move;
 import GUI.MainGui;
 import JavaVision.*;
-import Planning.PathPlanner;
+import Strategy.*;
 
-
-public class Runner extends Thread { //implements ActionListener {
-
+public class Runner extends Thread {
+	public Position bla = new Position(0,0);
+	public Position gotoBall = new Position(0,0);
+//	public ArrayList<Position> waypoints = new ArrayList<Position>();
+	public ArrayList<Position> waypoints = new ArrayList<Position>();
+	Position ballOffsetPosition;
+	
 	// Objects
 	public static Ball ball;
 	public static Robot nxt;
+	public static Robot otherRobot;
 	static Robot blueRobot;
-	static Robot yellowRobot;	
+	static Robot yellowRobot;
 	static WorldState state;
+	ControlGUI control;
 	static Runner instance = null;
 	boolean usingSimulator = false;
-	private static ControlGUI thresholdsGUI;
 	Vision vision;
-	PathPlanner planner = new PathPlanner();
-	MainGui gui;
-
+	PathPlanner planner;
+	static MainGui gui;
+	Strategy s;
+	boolean stopFlag = false;
+	
 	Point ourNXT = new Point();
 	Point otherNXT = new Point();
 	Point ballPoint = new Point();
 
 	// game flags
-	boolean teamYellow = true;
+	boolean teamYellow = false;
 	boolean attackLeft = false;
-	int mode = 0;
+	boolean isPenaltyAttack = false;
+	boolean isPenaltyDefend = false;
 	boolean applyClicked = false;
+	boolean isMainPitch = false;
+	String constantsLocation;
+	boolean initialVision = false;
+	boolean isScore = false;
+	boolean extremeStrip = false;
 
-	public static final int DEFAULT_SPEED = 35;		// used for move_forward method in Robot
-	public static final int EACH_WHEEL_SPEED = 900; // used for each_wheel_speed method in Robot
+	// Positions
+	Position pitchCentre = null;
+	Position ourGoal = null;
+	Position theirGoal = null;
+	Position leftGoalMain = new Position(40, 250);
+	Position leftGoalSide = new Position(62, 233);
+	Position rightGoalMain = new Position(608, 242);
+	Position rightGoalSide = new Position(567, 238);
+	Position centreMain = new Position(284, 246);
+	Position centreSide = new Position(253, 236);
 
+	int topY = 0;
+	int lowY = 0;
+	int leftX = 0;
+	int rightX = 0;
+
+	int mainTopY = 80;
+	int mainLowY = 392;
+	int mainLeftX = 40;
+	int mainRightX = 608;
+
+	int sideTopY = 92;
+	int sideLowY = 369;
+	int sideLeftX = 62;
+	int sideRightX = 567;
+
+	Position dest = new Position(0, 0);
+
+	public static final int DEFAULT_SPEED = 35; // used for move_forward method
+	// in Robot
+	public static final int EACH_WHEEL_SPEED = 900; // used for each_wheel_speed
+	// method in Robot
 	public static void main(String args[]) {
-
 		instance = new Runner();
-
 	}
 
 	/**
 	 * Instantiate objects and start the planning thread
 	 */
+
 	public Runner() {
-
-		blueRobot = new Robot();
-		yellowRobot = new Robot();
-
-		ball = new Ball();	
-
 		start();
 	}
 
 	/**
 	 * Planning thread which begins planning loop
 	 */
-	public void run() {		
-		
+	public void run() {
+		blueRobot = new Robot();
+		yellowRobot = new Robot();
+		ball = new Ball();
+		ballOffsetPosition = new Position(0,0);
+
 		javax.swing.SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				createAndShowGui();
-			}			
+			}
 		});
-		
-		// Planning sleeps until Gui notifies
+
+		// Planning sleeps until GUI notifies
 		synchronized (instance) {
 			try {
 				instance.wait();
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
-		
+
 		getUserOptions();
-	
-		if (teamYellow) {
-			nxt = yellowRobot;
+		setPositionInformation();
+		planner = new PathPlanner(attackLeft);
+
+		try {
+			mainLoop();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * Method to set centres and goals based on pitch choice and shooting
+	 * direction
+	 */
+	private void setPositionInformation() {
+
+		if (isMainPitch) {
+			pitchCentre = centreMain;
+			topY = mainTopY;
+			lowY = mainLowY;
+			leftX = mainLeftX;
+			rightX = mainRightX;
 		} else {
-			nxt = blueRobot;
+			pitchCentre = centreSide;
+			topY = sideTopY;
+			lowY = sideLowY;
+			leftX = sideLeftX;
+			rightX = sideRightX;
 		}
 
-		//	startVision();
-
-		// start communications with our robot
-		//	nxt.startCommunications();
-
-		//	mainLoop();	
+		if (attackLeft) {
+			if (isMainPitch) {
+				ourGoal = rightGoalMain;
+				theirGoal = leftGoalMain;
+			} else {
+				ourGoal = rightGoalSide;
+				theirGoal = leftGoalSide;
+			}
+		} else {
+			if (isMainPitch) {
+				ourGoal = leftGoalMain;
+				theirGoal = rightGoalMain;
+			} else {
+				ourGoal = leftGoalSide;
+				theirGoal = rightGoalSide;
+			}
+		}
 	}
 
 	private void getUserOptions() {
 		teamYellow = gui.getTeam();
 		attackLeft = gui.getAttackLeft();
-		mode = gui.getMode();		
+		isPenaltyAttack = gui.getIsPenaltyAttack();
+		isPenaltyDefend = gui.getIsPenaltyDefend();
+		isMainPitch = gui.getIsMainPitch();
 	}
 
 	private void createAndShowGui() {
 		// Set the the control gui
 		gui = new MainGui(instance);
-		gui.setSize(600,400);
-		gui.setLocation(250, 250);
+		gui.setSize(600, 400);
+		gui.setLocation(500, 500);
 		gui.setTitle("N.U.K.E Control Panel");
-		gui.setResizable(true);
+		gui.setResizable(false);
 		gui.setVisible(true);
 	}
 
 	/**
 	 * Method to initiate the vision
 	 */
-	private void startVision() {	    
+	public void startVision() {
 		/**
-		 * Creates the control
-		 * GUI, and initialises the image processing.
+		 * Creates the control GUI, and initialises the image processing.
 		 * 
-		 * @param args        Program arguments. Not used.
+		 * @param args
+		 *            Program arguments. Not used.
 		 */
+		// Get constants location from gui
+		constantsLocation = gui.getConstantsFileLocation();
 		WorldState worldState = new WorldState();
 		ThresholdsState thresholdsState = new ThresholdsState();
 
 		/* Default to main pitch. */
-		PitchConstants pitchConstants = new PitchConstants(0);
+		PitchConstants pitchConstants = new PitchConstants(constantsLocation);
+
+		control = new ControlGUI(thresholdsState, worldState, pitchConstants);
+		control.initGUI();
 
 		/* Default values for the main vision window. */
 		String videoDevice = "/dev/video0";
@@ -138,12 +215,9 @@ public class Runner extends Thread { //implements ActionListener {
 
 		try {
 			/* Create a new Vision object to serve the main vision window. */
-			vision = new Vision(videoDevice, width, height, channel, videoStandard,
-					compressionQuality, worldState, thresholdsState, pitchConstants);
-
-			/* Create the Control GUI for threshold setting/etc. */
-			thresholdsGUI = new ControlGUI(thresholdsState, worldState, pitchConstants);
-			thresholdsGUI.initGUI();
+			vision = new Vision(videoDevice, width, height, channel,
+					videoStandard, compressionQuality, worldState,
+					thresholdsState, pitchConstants);
 
 		} catch (V4L4JException e) {
 			e.printStackTrace();
@@ -152,174 +226,266 @@ public class Runner extends Thread { //implements ActionListener {
 		}
 	}
 
+	private void mainLoop() throws InterruptedException {
+		bla.setCoors(100, 100);
 
-	private void mainLoop() {
+		getPitchInfo(false);
+		// s = new Strategy(instance);
+		// Thread strategy = new Thread(s);
 
-		Point goal = new Point();
-		getPitchInfo();
-		goal = planner.getOptimalPath(ourNXT, ballPoint, otherNXT, 0);
+		// strategy.start();
+		ModeAvoid();
+// 		if (!stopFlag) {
+// 			if(gui.isModeAvoid()) {
+// 				ModeAvoid();
+// 			} else {
+// 				modeScore();
+// 			}
+// 		} else {
+// 			nxt.stop();
+// 			waitForNewInput();
+// 		}
+	}
 
-		Ball goalBall = new Ball();
-		goalBall.setCoors(new Position(goal.x,goal.y));
+	/**
+	 * Method stops robot and waits for new input from GUI
+	 */
+	private void waitForNewInput() {
+		// Planning sleeps until Gui notifies
+		synchronized (instance) {
+			try {
+				instance.wait();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
 
+		getUserOptions();
+		setPositionInformation();
+		setRobotColour();
+	}
+
+	public void applyChanges() {
+		// Planning sleeps until GUI notifies
+		getUserOptions();
+		setPositionInformation();
+		setRobotColour();
+	}
+
+	/**
+	 * Mode 0: Default "go to ball, aim, kick"
+	 * @throws InterruptedException
+	 */
+	public void modeScore() throws InterruptedException {
+		while (true) {
+			getPitchInfo(false);
+			if (isScore) {
+				nxt.stop();	
+				break;
+			}
+			int angle = 0;
+			int dist;
+
+			angle = getAverageAngle();
+
+			dist = Move.getDist(nxt, ballOffsetPosition);
+
+			// Initial robot rotation
+			nxt.rotateRobot(angle);
+			System.out.println("Initial angle " + angle);
+
+			nxt.moveForward(20);
+
+			while(dist > 40 && stopFlag == false) { // dist in pixels
+				//			System.out.println("dist to ball: " + dist);
+				getPitchInfo(false);
+				vision.drawPos(ballOffsetPosition);
+				dist = Move.getDist(nxt, ballOffsetPosition);
+				int n = Move.getAngleToPosition(nxt, ballOffsetPosition);
+				//			System.out.println("angle to offset ball: " + n);
+
+				if((Math.abs(n) > 20)) {
+					nxt.rotateRobot(n);
+					getPitchInfo(false);
+					dist = Move.getDist(nxt, ballOffsetPosition);
+
+					nxt.moveForward(20);
+				}
+			}
+
+			if (stopFlag == false) {
+				nxt.stop();
+				//	dist = Move.getDist(nxt, ball);
+
+				if (!extremeStrip) {
+					Position goalLocation = new Position(0, 0);
+					if (attackLeft) {
+						goalLocation = leftGoalSide;
+					} else {
+						goalLocation = rightGoalSide;
+					}
+					angle = Move.getAngleToPosition(nxt, goalLocation);
+				} else {
+					angle = Move.getAngleToPosition(nxt, ball.getCoors());
+				}
+				getPitchInfo(false);
+				if (isScore) {
+					nxt.stop();	
+					break;
+				}
+
+				nxt.rotateRobot(angle);
+				nxt.moveForward(20);
+				try {
+					Thread.sleep(1100);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				nxt.kick();
+				nxt.stop();
+
+				System.out.println("Ball coordinates!!" + ball.getCoors().getX());
+			}
+			getPitchInfo(false);
+			if (isScore) {
+				nxt.stop();	
+				break;
+			}
+		}
+	}
+
+	private void ModeAvoid() {		
+		while (Move.getDist(nxt, ball.getCoors()) > 50){
+
+			getPitchInfo(false);
+			//getPitchInfo(true);
+			try {
+				Thread.sleep(200);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+
+			int avgAngle = getAverageAngle();
+
+			nxt.setAngle(avgAngle);
+
+			getPitchInfo(false);
+			int angleToBall = Move.getAngleToPosition(nxt, ball);
+			System.out.println("angle: " + angleToBall);
+			int dist = Move.getDist(nxt, ball);
+			System.out.println("dist: " + dist);
+			//nxt.rotateRobot(angleToBall);
+			int radius = dist/(2*Math.sin(angleToBall));
+			System.out.println("radius: " + radius);
+			nxt.travelArc(radius, dist, 20);
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+
+			//		 while(true){
+			//		 Vision.plotPoints(goals);
+			//		 }
+
+			//nxt.moveForward(20);
+			//while (dist > 50) { 
+				//getPitchInfo(false);
+				//Vision.plotPoints(waypoints);
+				//dist = Move.getDist(nxt, gotoBall);
+				//int n = Move.getAngleToPosition(nxt, gotoBall);
+
+
+// 				if ((Math.abs(n) > 20)) {
+// 					nxt.rotateRobot(n);
+// 					try {
+// 						Thread.sleep(200);
+// 					} catch (InterruptedException e) {
+// 						e.printStackTrace();
+// 					}
+// 					getPitchInfo(false);
+// 					dist = Move.getDist(nxt, gotoBall);
+// 					nxt.moveForward(20);
+// 				}
+			}
+		}
+		
+//		getPitchInfo(false);
+//		Ball goal = new Ball();
+//		if(attackLeft) {
+//			goal.setCoors(leftGoalSide);
+//		} else {
+//			goal.setCoors(rightGoalSide);
+//		}
+//		int angle = Move.getAngleToPosition(nxt, goal.getCoors());
+//		nxt.rotateRobot(angle);
+//		nxt.moveForward(30);
+//		try {
+//			Thread.sleep(1100);
+//		} catch (InterruptedException e) {
+//			e.printStackTrace();
+//		}
+//		nxt.kick();
+//		
+//		nxt.stop();
+
+	}
+
+
+	private int getAverageAngle() {
 		int angle = 0;
 		int[] prevResults = new int[10];
 		ArrayList<Integer> goodAngles = new ArrayList<Integer>();
 
 		// Sum 10 angles from Vision
-		for(int i = 1; i <= 10; i++) {
-			getPitchInfo();
-
+		for (int i = 1; i <= 10; i++) {
+			getPitchInfo(false);
 			try {
 				Thread.sleep(50);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 
-			int m = Move.getAngleToBall(nxt, goalBall);
+			int m = (int) Runner.nxt.getAngle();
 
-			if (i < 11) {
-				prevResults[i-1] = m;
-			}
+			prevResults[i - 1] = m;
+
 		}
-		// Remove outliers
-		goodAngles = removeVal(prevResults);
 
+		// Remove outliers
+
+		goodAngles = removeVal(prevResults);
 		for (int j = 0; j < goodAngles.size(); j++) {
 			angle += goodAngles.get(j);
+			System.out.println(goodAngles.get(j));
 		}
 
 		// Get the average angle
+
 		angle /= goodAngles.size();
-
-		System.out.println("First angle(avg) calculated: " + (angle));
-
-		// Initial robot rotation
-		nxt.rotateRobot(angle);
-		nxt.moveForward(25);
-
-		int dist = Move.getDist(nxt, goalBall);
-
-		while(dist > 35) { // dist in pixels
-			System.out.println("Distance: " + dist);
-			getPitchInfo();
-			dist = Move.getDist(nxt, goalBall);
-			int n = Move.getAngleToBall(nxt, goalBall);
-
-			if((Math.abs(n) > 20)) {
-				nxt.stop();
-				nxt.rotateRobot(n);
-
-
-				getPitchInfo();
-
-				dist = Move.getDist(nxt, goalBall);
-
-				nxt.moveForward(20);
-
-			} else {
-				getPitchInfo();
-				dist = Move.getDist(nxt, goalBall);
-
-			}
-		}
-
-		nxt.stop();
-
-
-		//		int angle = 0;
-		//		int[] prevResults = new int[10];
-		//		ArrayList<Integer> goodAngles = new ArrayList<Integer>();
-		//
-		//		// Sum 10 angles from Vision
-		//		for(int i = 1; i <= 10; i++) {
-		//			getPitchInfo();
-		//
-		//			try {
-		//				Thread.sleep(50);
-		//			} catch (InterruptedException e) {
-		//				e.printStackTrace();
-		//			}
-		//
-		//			int m = Move.getAngleToBall(nxt, ball);
-		//
-		//			if (i < 11) {
-		//				prevResults[i-1] = m;
-		//			}
-		//		}
-		//		// Remove outliers
-		//		goodAngles = removeVal(prevResults);
-		//
-		//		for (int j = 0; j < goodAngles.size(); j++) {
-		//			angle += goodAngles.get(j);
-		//		}
-		//
-		//		// Get the average angle
-		//		angle /= goodAngles.size();
-		//
-		//		System.out.println("First angle(avg) calculated: " + (angle));
-		//
-		//		int dist = Move.getDist(nxt, ball);
-		//
-		//		// Initial robot rotation
-		//		nxt.rotateRobot(angle);
-		//
-		//		System.out.println("finished first rotation");
-		//
-		//		nxt.moveForward(20);
-		//
-		//		while(dist > 35) { // dist in pixels
-		//			System.out.println("Distance: " + dist);
-		//				getPitchInfo();
-		//				dist = Move.getDist(nxt, ball);
-		//				int n = Move.getAngleToBall(nxt, ball);
-		//
-		//				if((Math.abs(n) > 20)) {
-		//					nxt.stop();
-		//					nxt.rotateRobot(n);
-		//
-		//					getPitchInfo();
-		//					dist = Move.getDist(nxt, ball);
-		//
-		//					nxt.moveForward(20);
-		//
-		//				} else {
-		//					getPitchInfo();
-		//					dist = Move.getDist(nxt, ball);
-		//					
-		//				}
-		//		}
-		//		
-		//		getPitchInfo();
-		//		nxt.stop();	
-		//		nxt.rotateRobot(Move.getAngleToBall(nxt, ball));
-		//		nxt.kick();
-
-
+		System.out.println("return from avg angle " + angle);
+		return angle;
 	}
 
-
 	/*
-	 * Compare the first element with all other elements.
-	 * If difference > 40 then place in 2nd array
-	 * Compare lengths of arrays, bigger array has more similar elements
-	 * Repeat the comparison step on the bigger array
-	 * to make sure that the array only contains similar elements
+	 * Compare the first element with all other elements. If difference > 40
+	 * then place in 2nd array Compare lengths of arrays, bigger array has more
+	 * similar elements Repeat the comparison step on the bigger array to make
+	 * sure that the array only contains similar elements
 	 */
-
-	static ArrayList<Integer> removeVal(int[] nums) {
-
+	private ArrayList<Integer> removeVal(int[] nums) {
 		ArrayList<Integer> array1 = new ArrayList<Integer>();
 		ArrayList<Integer> array2 = new ArrayList<Integer>();
-		ArrayList<Integer> array3 = new ArrayList<Integer>(); array1.add(nums[0]);
+		ArrayList<Integer> array3 = new ArrayList<Integer>();
+		array1.add(nums[0]);
 
 		/*
 		 * if i-th element in the array differs by more than 40 from the first
 		 * element, add to 2nd array instead of 1st array
 		 */
 
-		for (int i = 1; i < nums.length; i++ ) {
-			if ((nums[i]-nums[0] >= -20) && (nums[i]-nums[0] <= 20)) {
+		for (int i = 1; i < nums.length; i++) {
+			if ((nums[i] - nums[0] >= -20) && (nums[i] - nums[0] <= 20)) {
 				array1.add(nums[i]);
 			} else {
 				array2.add(nums[i]);
@@ -333,14 +499,17 @@ public class Runner extends Thread { //implements ActionListener {
 		if (array2.size() > array1.size()) {
 			array1 = (ArrayList<Integer>) array2.clone();
 		}
+
 		array2.clear();
 		array2.add(array1.get(0));
 
 		/*
-		 * same as previous for loop, but compare elements in the newly made array
+		 * same as previous for loop, but compare elements in the newly made
+		 * array
 		 */
 		for (int i = 1; i < array1.size(); i++) {
-			if ((array1.get(i)-array1.get(0) >= -20) && (array1.get(i)-array1.get(0) <= 20)) {
+			if ((array1.get(i) - array1.get(0) >= -20)
+					&& (array1.get(i) - array1.get(0) <= 20)) {
 				array2.add(array1.get(i));
 			} else {
 				array3.add(array1.get(i));
@@ -360,76 +529,161 @@ public class Runner extends Thread { //implements ActionListener {
 	/**
 	 * Get the most recent information from vision
 	 */
-	public void getPitchInfo() {
-
+	public void getPitchInfo(boolean findPath) {
 
 		// Get pitch information from vision
+		int i = 0;
 		state = vision.getWorldState();
-		//		System.out.println("______________new pitch info_______________________");
+		// while not receiving correct info from Vision
 
-		ball.setCoors(new Position(state.getBallX(), state.getBallY()));	
-		ballPoint.x = ball.getCoors().getX();
-		ballPoint.y = ball.getCoors().getY();
+		while (state.getBlueX() == 0) {
+			state = vision.getWorldState();
+			i++;
+		}
 
-		if(teamYellow) {
+		ball.setCoors(new Position(state.getBallX(), state.getBallY()));
+
+		gotoBall.setCoors(bla.getX(), bla.getY());
+		extremeStrip = false;
+		// set the coordinates of offset ball based on location of ball
+		if(attackLeft){
+			// Extreme top Strip attacking left
+			if(ball.getCoors().getY() <130){
+				// when moving to this one, no rotation to goal required
+				ballOffsetPosition.setCoors(ball.getCoors().getX()+50, ball.getCoors().getY()+30);
+				extremeStrip = true;
+				// Normal top strip 
+			} else 	if(ball.getCoors().getY() <187){
+				ballOffsetPosition.setCoors(ball.getCoors().getX()+50, ball.getCoors().getY()-30);
+				// Extreme bottom strip
+			} else if (ball.getCoors().getY() >350){
+				// when moving to this one, no rotation to goal required
+				ballOffsetPosition.setCoors(ball.getCoors().getX()+50, ball.getCoors().getY()-30);
+				extremeStrip = true;
+				// Normal bottom strip
+			} else if (ball.getCoors().getY() >281){
+				ballOffsetPosition.setCoors(ball.getCoors().getX()+50, ball.getCoors().getY()+30);
+				// Upper Middle strip
+			} else if (187<= ball.getCoors().getY() && ball.getCoors().getY() <= 280 ){
+				ballOffsetPosition.setCoors(ball.getCoors().getX()+50, ball.getCoors().getY()-5);
+			}
+			// Lower Middle strip
+			else {
+				ballOffsetPosition.setCoors(ball.getCoors().getX()+50, ball.getCoors().getY()+5);
+			}
+		} else {
+			// Extreme top Strip attacking right
+			if(ball.getCoors().getY() <130){
+				// when moving to this one, no rotation to goal required
+				ballOffsetPosition.setCoors(ball.getCoors().getX()-50, ball.getCoors().getY()+30);
+				extremeStrip = true;
+			} else if(ball.getCoors().getY() <187){
+				ballOffsetPosition.setCoors(ball.getCoors().getX()-50, ball.getCoors().getY()-30);
+				// Extreme bottom strip
+			} else if (ball.getCoors().getY() >350){
+				// when moving to this one, no rotation to goal required
+				ballOffsetPosition.setCoors(ball.getCoors().getX()-50, ball.getCoors().getY()-30);
+				extremeStrip = true;
+				// Normal bottom strip
+			} else if (ball.getCoors().getY() >281){
+				ballOffsetPosition.setCoors(ball.getCoors().getX()-50, ball.getCoors().getY()+30);
+				// Upper Middle strip
+			} else if (187<= ball.getCoors().getY() && ball.getCoors().getY() <= 229 ){
+				ballOffsetPosition.setCoors(ball.getCoors().getX()-50, ball.getCoors().getY()-5);
+			}
+			// Lower Middle Strip
+			else {
+				ballOffsetPosition.setCoors(ball.getCoors().getX()-50, ball.getCoors().getY()+5);
+			}
+		}
+
+		if (ball.getCoors().getX() < 70 || ball.getCoors().getX() > 560) {
+			isScore = true;
+		} else {
+			isScore = false;
+		}
+		if (teamYellow) {
 			nxt.setAngle(state.getYellowOrientation());
 			nxt.setCoors(new Position(state.getYellowX(), state.getYellowY()));
 
-			ourNXT.x  = state.getYellowX();
-			ourNXT.y = state.getYellowY();
+			otherRobot.setAngle(state.getBlueOrientation());
+			otherRobot.setCoors(new Position(state.getBlueX(), state.getBlueY()));
 
-			//			System.out.println("Y: " + Math.toDegrees(yellowRobot.angle));
-
-			blueRobot.setAngle(state.getBlueOrientation());
-			blueRobot.setCoors(new Position(state.getBlueX(), state.getBlueY()));
-			otherNXT.x = state.getBlueX();
-			otherNXT.y = state.getBlueY();
-			//			System.out.println(blueRobot.coors.getX() + " " + blueRobot.coors.getY() +" "+ blueRobot.angle);
 		} else {
 			nxt.setAngle(state.getBlueOrientation());
 			nxt.setCoors(new Position(state.getBlueX(), state.getBlueY()));
-			ourNXT.x  = state.getBlueX();
-			ourNXT.y = state.getBlueY();
-			//			System.out.println("B: " + yellowRobot.coors.getX() + " " + yellowRobot.coors.getY() +" "+ yellowRobot.angle);
 
-			//			System.out.println(blueRobot.coors.getX() + " " + blueRobot.coors.getY() +" "+ blueRobot.angle);
-			yellowRobot.setAngle(state.getYellowOrientation());
-			yellowRobot.setCoors(new Position(state.getYellowX(), state.getYellowY()));
-			otherNXT.x = state.getYellowX();
-			otherNXT.y = state.getYellowY();
+			otherRobot.setAngle(state.getYellowOrientation());
+			otherRobot.setCoors(new Position(state.getYellowX(), state
+					.getYellowY()));
+
 		}
+		gui.setCoordinateLabels(nxt.getCoors(), otherRobot.getCoors(), ball.getCoors());
 
+		if(findPath){
+			waypoints = planner.getOptimalPath(nxt.getCoors(), ball.getCoors(), otherRobot.getCoors());
+
+			for (int s = 0; s < waypoints.size(); s++) {
+				int distBetweenWaypoint = Move.getDist(nxt, waypoints.get(s));
+				if(distBetweenWaypoint < 40) waypoints.remove(s);
+			}
+			bla.setCoors(waypoints.get(0).getX(),waypoints.get(0).getY());
+		}
 	}
 
-//	@Override
-//	public void actionPerformed(ActionEvent arg0) {
-//		// Case for colour options
-//		if(gui.options.yellowRobotButton.isSelected()) {
-//			gui.log.setCurrentColour("Yellow");
-//			System.out.println("Yellow");
-//			teamYellow = true;
-//		} else if(gui.options.blueRobotButton.isSelected()) {
-//			gui.log.setCurrentColour("Blue");
-//			teamYellow = false;
-//		} 
-//
-//		// Case for attack options
-//		if(gui.options.attackLeft.isSelected()) {
-//			gui.log.setCurrentAttackGoal("Left");
-//		} else if(gui.options.attackRight.isSelected()) {
-//			gui.log.setCurrentAttackGoal("Right");
-//		} 
-//
-//		// Case for mode options
-//		if(gui.options.penaltyAttack.isSelected()) {
-//			gui.log.setCurrentMode("Penalty Attack");
-//		} else if(gui.options.penaltyDefend.isSelected()) {
-//			gui.log.setCurrentMode("Penalty Defend");
-//		} else if (gui.options.normal.isSelected()) {
-//			gui.log.setCurrentMode("Normal");
-//		}
-//		System.out.println("Apply Clicked");
-//		applyClicked = true;
-//		
-//	}
+	//	public ArrayList<Ball> getPath() {
+	//		waypoints = planner.getOptimalPath(nxt.getCoors(), ball.getCoors(),	otherRobot.getCoors());
+	//		for (int f = 0; f < waypoints.size(); f++) {
+	//			Ball a = new Ball();
+	//			a.setCoors(waypoints.get(f));
+	//			goals.add(a);
+	//		}
+	//		System.out.println("PLANNER IN BALLS: "
+	//				+ goals.get(goals.size() - 1).getCoors().getX() + " "
+	//				+ goals.get(goals.size() - 1).getCoors().getY());
+	//		return goals;
+	//	}
+
+	public void setRobotColour() {
+		if (teamYellow) {
+			nxt = yellowRobot;
+			otherRobot = blueRobot;
+
+		} else {
+			nxt = blueRobot;
+			otherRobot = yellowRobot;
+		}
+	}
+
+	public void setTeamYellow(boolean team) {
+		teamYellow = team;
+	}
+
+	public Robot getOurRobot() {
+		return nxt;
+	}
+
+	public Robot getTheirRobot() {
+		return otherRobot;
+	}
+
+	public Ball getBall() {
+		return ball;
+	}
+
+	public Position getOurGoal() {
+		return ourGoal;
+	}
+
+	public Position getTheirGoal() {
+		return theirGoal;
+	}
+
+	public Position getPitchCentre() {
+		return pitchCentre;
+	}
+
+	public void setStopFlag(boolean flag) {
+		stopFlag = flag;
+	}
 }

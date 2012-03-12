@@ -234,17 +234,17 @@ public class Runner extends Thread {
 		// Thread strategy = new Thread(s);
 
 		// strategy.start();
-
-		if (!stopFlag) {
-			if(gui.isModeAvoid()) {
-				ModeAvoid();
-			} else {
-				modeScore();
-			}
-		} else {
-			nxt.stop();
-			waitForNewInput();
-		}
+		ModeAvoid();
+// 		if (!stopFlag) {
+// 			if(gui.isModeAvoid()) {
+// 				ModeAvoid();
+// 			} else {
+// 				modeScore();
+// 			}
+// 		} else {
+// 			nxt.stop();
+// 			waitForNewInput();
+// 		}
 	}
 
 	/**
@@ -357,7 +357,8 @@ public class Runner extends Thread {
 	private void ModeAvoid() {		
 		while (Move.getDist(nxt, ball.getCoors()) > 50){
 
-			getPitchInfo(true);
+			getPitchInfo(false);
+			//getPitchInfo(true);
 			try {
 				Thread.sleep(200);
 			} catch (InterruptedException e) {
@@ -369,12 +370,14 @@ public class Runner extends Thread {
 			nxt.setAngle(avgAngle);
 
 			getPitchInfo(false);
-			int angleToBall = Move.getAngleToPosition(nxt, gotoBall);
-
-			int dist = Move.getDist(nxt, gotoBall);
-
-			nxt.rotateRobot(angleToBall);
-
+			int angleToBall = Move.getAngleToPosition(nxt, ball);
+			System.out.println("angle: " + angleToBall);
+			int dist = Move.getDist(nxt, ball);
+			System.out.println("dist: " + dist);
+			//nxt.rotateRobot(angleToBall);
+			int radius = dist/(2*Math.sin(angleToBall));
+			System.out.println("radius: " + radius);
+			nxt.travelArc(radius, dist, 20);
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
@@ -385,25 +388,25 @@ public class Runner extends Thread {
 			//		 Vision.plotPoints(goals);
 			//		 }
 
-			nxt.moveForward(20);
-			while (dist > 50) { 
-				getPitchInfo(false);
-				Vision.plotPoints(waypoints);
-				dist = Move.getDist(nxt, gotoBall);
-				int n = Move.getAngleToPosition(nxt, gotoBall);
+			//nxt.moveForward(20);
+			//while (dist > 50) { 
+				//getPitchInfo(false);
+				//Vision.plotPoints(waypoints);
+				//dist = Move.getDist(nxt, gotoBall);
+				//int n = Move.getAngleToPosition(nxt, gotoBall);
 
 
-				if ((Math.abs(n) > 20)) {
-					nxt.rotateRobot(n);
-					try {
-						Thread.sleep(200);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-					getPitchInfo(false);
-					dist = Move.getDist(nxt, gotoBall);
-					nxt.moveForward(20);
-				}
+// 				if ((Math.abs(n) > 20)) {
+// 					nxt.rotateRobot(n);
+// 					try {
+// 						Thread.sleep(200);
+// 					} catch (InterruptedException e) {
+// 						e.printStackTrace();
+// 					}
+// 					getPitchInfo(false);
+// 					dist = Move.getDist(nxt, gotoBall);
+// 					nxt.moveForward(20);
+// 				}
 			}
 		}
 		
@@ -617,15 +620,15 @@ public class Runner extends Thread {
 		}
 		gui.setCoordinateLabels(nxt.getCoors(), otherRobot.getCoors(), ball.getCoors());
 
-		if(findPath){
-			waypoints = planner.getOptimalPath(nxt.getCoors(), ball.getCoors(), otherRobot.getCoors());
-
-			for (int s = 0; s < waypoints.size(); s++) {
-				int distBetweenWaypoint = Move.getDist(nxt, waypoints.get(s));
-				if(distBetweenWaypoint < 40) waypoints.remove(s);
-			}
-			bla.setCoors(waypoints.get(0).getX(),waypoints.get(0).getY());
-		}
+// 		if(findPath){
+// 			waypoints = planner.getOptimalPath(nxt.getCoors(), ball.getCoors(), otherRobot.getCoors());
+// 
+// 			for (int s = 0; s < waypoints.size(); s++) {
+// 				int distBetweenWaypoint = Move.getDist(nxt, waypoints.get(s));
+// 				if(distBetweenWaypoint < 40) waypoints.remove(s);
+// 			}
+// 			bla.setCoors(waypoints.get(0).getX(),waypoints.get(0).getY());
+// 		}
 	}
 
 	//	public ArrayList<Ball> getPath() {
