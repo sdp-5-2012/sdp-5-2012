@@ -61,14 +61,6 @@ public class Position {
 		this.y = y;
 	}
 	
-	/**
-	 * set both coordinates
-	 */
-	public void setCoors(int x, int y) {
-		this.x = x;
-		this.y = y;
-	}
-	
 	
 	/**
 	 * Compares the current x and y co-ordinates to another set
@@ -150,8 +142,8 @@ public class Position {
     }
     
     
-    public static ArrayList<Point> removeOutliers(ArrayList<Integer> xs, ArrayList<Integer> ys, Point centroid){
-    	ArrayList<Point> goodPoints = new ArrayList<Point>();
+    public static ArrayList<Position> removeOutliers(ArrayList<Integer> xs, ArrayList<Integer> ys, Position centroid){
+    	ArrayList<Position> goodPoints = new ArrayList<Position>();
 	if (xs.size() > 0) {
     		
 	    	int stdev = 0;
@@ -170,7 +162,7 @@ public class Position {
 	    		int x = xs.get(i);
 	    		int y = ys.get(i);
 	    		if (Math.abs(x - centroid.getX()) < stdev*1 && Math.abs(y - centroid.getY()) < stdev*1) {
-	    			Point p = new Point(x, y);
+	    			Position p = new Position(x, y);
 	    			goodPoints.add(p);
 	    		}
 	    	}
