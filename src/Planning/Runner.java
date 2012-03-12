@@ -77,7 +77,7 @@ public class Runner extends Thread {
 
 	public static final int DEFAULT_SPEED = 35; // used for move_forward method in Robot
 	public static final int EACH_WHEEL_SPEED = 900; // used for each_wheel_speed method in Robot
-	
+
 	public static void main(String args[]) {
 		instance = new Runner();
 	}
@@ -197,7 +197,7 @@ public class Runner extends Thread {
 		ThresholdsState thresholdsState = new ThresholdsState();
 
 		/* Default to main pitch. */
-//		PitchConstants pitchConstants = new PitchConstants("/afs/inf.ed.ac.uk/user/s09/s0950134/git/sdp-5-2012/constants/pitch1");
+		//		PitchConstants pitchConstants = new PitchConstants("/afs/inf.ed.ac.uk/user/s09/s0950134/git/sdp-5-2012/constants/pitch1");
 		PitchConstants pitchConstants = new PitchConstants(constantsLocation);
 
 		control = new ControlGUI(thresholdsState, worldState, pitchConstants);
@@ -525,7 +525,7 @@ public class Runner extends Thread {
 			getPitchInfo(false);
 			int angleToBall = Move.getAngleToPosition(nxt, gotoBall);
 
-//			int dist = Move.getDist(nxt, gotoBall);
+			//			int dist = Move.getDist(nxt, gotoBall);
 
 			nxt.rotateRobot(angleToBall);
 
@@ -542,7 +542,7 @@ public class Runner extends Thread {
 			while (s.getCurrentMode() == 5 && Move.getDist(nxt, gotoBall) > 15 && stopFlag == false) { 
 				getPitchInfo(false);
 				Vision.plotPoints(waypoints);
-//				dist = Move.getDist(nxt, gotoBall);
+				//				dist = Move.getDist(nxt, gotoBall);
 				int n = Move.getAngleToPosition(nxt, gotoBall);
 
 				if ((Math.abs(n) > 20)) {
@@ -553,7 +553,7 @@ public class Runner extends Thread {
 						e.printStackTrace();
 					}
 					getPitchInfo(false);
-//					dist = Move.getDist(nxt, gotoBall);
+					//					dist = Move.getDist(nxt, gotoBall);
 					nxt.moveForward(20);
 				}
 			}
@@ -614,7 +614,7 @@ public class Runner extends Thread {
 		nxt.rotateRobot(angle);
 		nxt.kick();
 	}
-	
+
 
 	private void amIMoving() {
 		System.out.println("ARE WE MOVING?");
@@ -739,6 +739,75 @@ public class Runner extends Thread {
 		gotoBall.setCoors(bla.getX(), bla.getY());
 		extremeStrip = false;
 		// set the coordinates of offset ball based on location of ball
+
+		int ballsX = ball.getCoors().getX();
+		int ballsY = ball.getCoors().getY();
+
+		if (isMainPitch) {
+			if (attackLeft) {
+				// Upper Right Box
+				if (ballsX > 510 && ballsY < 164) {
+					ballOffsetPosition.setCoors(556, 190);
+				// Lower Right Box
+				} else if (ballsX > 510 && ballsY > 328) {
+					ballOffsetPosition.setCoors(556, 303);
+				// Top strip (extreme)
+				} else if (ballsX <= 142) {
+					ballOffsetPosition.setCoors(ballsX + 50, ballsY  + 30);
+					extremeStrip = true;
+				// Top strip (normal)
+				} else if (ballsX <= 184) {
+					ballOffsetPosition.setCoors(ballsX + 50, ballsY - 20);
+				// Mid-Upper Strip
+				} else if (ballsX <= 224) {
+					ballOffsetPosition.setCoors(ballsX + 50, ballsY - 10);
+				// Middle Strip
+				} else if (ballsX <= 265) {
+					ballOffsetPosition.setCoors(ballsX + 50, ballsY);
+				// Mid-Lower Strip
+				} else if (ballsX <= 305) {
+					ballOffsetPosition.setCoors(ballsX + 50, ballsY + 10);
+				// Bottom strip (normal)
+				} else if (ballsX <= 345) {
+					ballOffsetPosition.setCoors(ballsX + 50, ballsY + 20);
+				// Bottom strip (extreme)
+				} else if (ballsX > 345) {
+					ballOffsetPosition.setCoors(ballsX + 50, ballsY - 30);
+				}
+			} else if (!attackLeft) {
+				if (ballsX < 111 && ballsY < 164) {
+					ballOffsetPosition.setCoors(75, 190);
+				} else if (ballsX < 110 && ballsY > 328) {
+					ballOffsetPosition.setCoors(75,303);
+					// Top strip (extreme)
+				} else if (ballsX <= 142) {
+					ballOffsetPosition.setCoors(ballsX - 50, ballsY  + 30);
+					extremeStrip = true;
+				// Top strip (normal)
+				} else if (ballsX <= 184) {
+					ballOffsetPosition.setCoors(ballsX - 50, ballsY - 20);
+				// Mid-Upper Strip
+				} else if (ballsX <= 224) {
+					ballOffsetPosition.setCoors(ballsX - 50, ballsY - 10);
+				// Middle Strip
+				} else if (ballsX <= 265) {
+					ballOffsetPosition.setCoors(ballsX - 50, ballsY);
+				// Mid-Lower Strip
+				} else if (ballsX <= 305) {
+					ballOffsetPosition.setCoors(ballsX - 50, ballsY + 10);
+				// Bottom strip (normal)
+				} else if (ballsX <= 345) {
+					ballOffsetPosition.setCoors(ballsX - 50, ballsY + 20);
+				// Bottom strip (extreme)
+				} else if (ballsX > 345) {
+					ballOffsetPosition.setCoors(ballsX - 50, ballsY - 30);
+				}
+			}
+		} else if (!isMainPitch) {
+			
+		}
+		
+		/*
 		if(attackLeft){
 			// Extreme top Strip attacking left
 			if(ball.getCoors().getY() <130){
@@ -789,95 +858,95 @@ public class Runner extends Thread {
 				ballOffsetPosition.setCoors(ball.getCoors().getX()-50, ball.getCoors().getY()+5);
 			}
 		}
-
-		if (ball.getCoors().getX() < 70 || ball.getCoors().getX() > 560) {
-			isScore = true;
-		} else {
-			isScore = false;
-		}
-		if (teamYellow) {
-			nxt.setAngle(state.getYellowOrientation());
-			nxt.setCoors(new Position(state.getYellowX(), state.getYellowY()));
-
-			otherRobot.setAngle(state.getBlueOrientation());
-			otherRobot.setCoors(new Position(state.getBlueX(), state.getBlueY()));
-
-		} else {
-			nxt.setAngle(state.getBlueOrientation());
-			nxt.setCoors(new Position(state.getBlueX(), state.getBlueY()));
-
-			otherRobot.setAngle(state.getYellowOrientation());
-			otherRobot.setCoors(new Position(state.getYellowX(), state
-					.getYellowY()));
-
-		}
-		gui.setCoordinateLabels(nxt.getCoors(), otherRobot.getCoors(), ball.getCoors());
-
-		if(findPath){
-			waypoints = planner.getOptimalPath(nxt.getCoors(), ball.getCoors(), otherRobot.getCoors());
-
-			for (int s = 0; s < waypoints.size(); s++) {
-				int distBetweenWaypoint = Move.getDist(nxt, waypoints.get(s));
-				if(distBetweenWaypoint < 40) waypoints.remove(s);
+			 */
+			if (ball.getCoors().getX() < 70 || ball.getCoors().getX() > 560) {
+				isScore = true;
+			} else {
+				isScore = false;
 			}
-			bla.setCoors(waypoints.get(0).getX(),waypoints.get(0).getY());
-			gotoBall.setCoors(waypoints.get(0).getX(),waypoints.get(0).getY());
+			if (teamYellow) {
+				nxt.setAngle(state.getYellowOrientation());
+				nxt.setCoors(new Position(state.getYellowX(), state.getYellowY()));
+
+				otherRobot.setAngle(state.getBlueOrientation());
+				otherRobot.setCoors(new Position(state.getBlueX(), state.getBlueY()));
+
+			} else {
+				nxt.setAngle(state.getBlueOrientation());
+				nxt.setCoors(new Position(state.getBlueX(), state.getBlueY()));
+
+				otherRobot.setAngle(state.getYellowOrientation());
+				otherRobot.setCoors(new Position(state.getYellowX(), state
+						.getYellowY()));
+
+			}
+			gui.setCoordinateLabels(nxt.getCoors(), otherRobot.getCoors(), ball.getCoors());
+
+			if(findPath){
+				waypoints = planner.getOptimalPath(nxt.getCoors(), ball.getCoors(), otherRobot.getCoors());
+
+				for (int s = 0; s < waypoints.size(); s++) {
+					int distBetweenWaypoint = Move.getDist(nxt, waypoints.get(s));
+					if(distBetweenWaypoint < 40) waypoints.remove(s);
+				}
+				bla.setCoors(waypoints.get(0).getX(),waypoints.get(0).getY());
+				gotoBall.setCoors(waypoints.get(0).getX(),waypoints.get(0).getY());
+			}
+		}
+
+		//	public ArrayList<Ball> getPath() {
+		//		waypoints = planner.getOptimalPath(nxt.getCoors(), ball.getCoors(),	otherRobot.getCoors());
+		//		for (int f = 0; f < waypoints.size(); f++) {
+		//			Ball a = new Ball();
+		//			a.setCoors(waypoints.get(f));
+		//			goals.add(a);
+		//		}
+		//		System.out.println("PLANNER IN BALLS: "
+		//				+ goals.get(goals.size() - 1).getCoors().getX() + " "
+		//				+ goals.get(goals.size() - 1).getCoors().getY());
+		//		return goals;
+		//	}
+
+		public void setRobotColour() {
+			if (teamYellow) {
+				nxt = yellowRobot;
+				otherRobot = blueRobot;
+
+			} else {
+				nxt = blueRobot;
+				otherRobot = yellowRobot;
+			}
+		}
+
+		public void setTeamYellow(boolean team) {
+			teamYellow = team;
+		}
+
+		public Robot getOurRobot() {
+			return nxt;
+		}
+
+		public Robot getTheirRobot() {
+			return otherRobot;
+		}
+
+		public Ball getBall() {
+			return ball;
+		}
+
+		public Position getOurGoal() {
+			return ourGoal;
+		}
+
+		public Position getTheirGoal() {
+			return theirGoal;
+		}
+
+		public Position getPitchCentre() {
+			return pitchCentre;
+		}
+
+		public void setStopFlag(boolean flag) {
+			stopFlag = flag;
 		}
 	}
-
-	//	public ArrayList<Ball> getPath() {
-	//		waypoints = planner.getOptimalPath(nxt.getCoors(), ball.getCoors(),	otherRobot.getCoors());
-	//		for (int f = 0; f < waypoints.size(); f++) {
-	//			Ball a = new Ball();
-	//			a.setCoors(waypoints.get(f));
-	//			goals.add(a);
-	//		}
-	//		System.out.println("PLANNER IN BALLS: "
-	//				+ goals.get(goals.size() - 1).getCoors().getX() + " "
-	//				+ goals.get(goals.size() - 1).getCoors().getY());
-	//		return goals;
-	//	}
-
-	public void setRobotColour() {
-		if (teamYellow) {
-			nxt = yellowRobot;
-			otherRobot = blueRobot;
-
-		} else {
-			nxt = blueRobot;
-			otherRobot = yellowRobot;
-		}
-	}
-
-	public void setTeamYellow(boolean team) {
-		teamYellow = team;
-	}
-
-	public Robot getOurRobot() {
-		return nxt;
-	}
-
-	public Robot getTheirRobot() {
-		return otherRobot;
-	}
-
-	public Ball getBall() {
-		return ball;
-	}
-
-	public Position getOurGoal() {
-		return ourGoal;
-	}
-
-	public Position getTheirGoal() {
-		return theirGoal;
-	}
-
-	public Position getPitchCentre() {
-		return pitchCentre;
-	}
-
-	public void setStopFlag(boolean flag) {
-		stopFlag = flag;
-	}
-}
