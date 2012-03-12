@@ -1,10 +1,5 @@
 package GUI;
-import java.awt.Component;
-import java.awt.FlowLayout;
-import java.awt.GridBagLayout;
 import java.awt.GridLayout;
-
-import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -18,7 +13,7 @@ public class OptionsPanel extends JPanel {
 	JLabel attackGoal = new JLabel("Goal to attack:");
 	JLabel mode = new JLabel("Mode:");
 	JLabel pitchChoice = new JLabel("Pitch Choice:");
-	
+		
 	// Radio buttons
 	public JRadioButton yellowRobotButton;
 	public JRadioButton blueRobotButton;
@@ -84,8 +79,7 @@ public class OptionsPanel extends JPanel {
 		pitchChoiceGroup.add(pitchSide);
 		
 		pitchMain.setSelected(true);
-		
-		
+				
 		// Add all components
 		add(robotColour);
 		add(yellowRobotButton);

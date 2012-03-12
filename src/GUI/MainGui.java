@@ -1,28 +1,18 @@
 package GUI;
-
 import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-
-import javax.swing.Action;
-import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
-import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
-
+import JavaVision.Position;
 import Planning.Runner;
-
 
 public class MainGui extends JFrame {
 	public GuiLog log;
@@ -31,10 +21,10 @@ public class MainGui extends JFrame {
 	String fileDir = new String("");
 	JFileChooser chooser;
 	File constantsFile;
-//	volatile boolean applyClicked = false;
-//	volatile boolean isYellow = true;
+	//	volatile boolean applyClicked = false;
+	//	volatile boolean isYellow = true;
 	Runner runner;
-	
+
 	// values Runner needs
 	boolean attackLeft = true;
 	boolean isYellow = true;
@@ -43,10 +33,15 @@ public class MainGui extends JFrame {
 	boolean isPenaltyDefend = false;
 	String constantsLocation;
 	boolean isMainPitch = false;
-	
-	
+
 	public MainGui(Runner runner) {
 		this.runner = runner;
+
+		// default constants is pitch0
+		constantsLocation = getClass().getClassLoader().getResource(".").getPath();
+		String src = constantsLocation.substring(0, constantsLocation.length()-4);
+		src = src + "src/JavaVision/constants/pitch0";
+		constantsLocation = src;
 
 		getContentPane().setLayout(new BorderLayout());
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -62,13 +57,9 @@ public class MainGui extends JFrame {
 		splitPane.setDividerLocation(200);
 
 		addListeners();
-		
-		// default constants is pitch0
-		constantsLocation = getClass().getClassLoader().getResource(".").getPath();
-		String src = constantsLocation.substring(0, constantsLocation.length()-4);
-		src = src + "src/JavaVision/constants/pitch0";
-		constantsLocation = src;
 		log.setCurrentPitchConstants("pitch0");
+
+		pack();
 	}
 
 	private void addMenu() {
@@ -90,49 +81,76 @@ public class MainGui extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				JFrame frame = new JFrame();
-
+				constantsLocation = "";
 				// Create a file chooser and default to constants folder
 				constantsLocation = getClass().getClassLoader().getResource(".").getPath();
 				String src = constantsLocation.substring(0, constantsLocation.length()-4);
-				System.out.println(src);
-				src = src + "src/JavaVision/constants";
+				src = src + "constants";
 				constantsLocation = src;
 
 				JFileChooser fc = new JFileChooser(new File(src));
 				// Create the actions				
 				fc.showOpenDialog(frame);
 				constantsFile = fc.getSelectedFile();
+				constantsLocation += "/" + constantsFile.getName();
+
 				log.setCurrentPitchConstants(constantsFile.getName());
-
-
+				System.out.println(constantsLocation);
 			}
 		});        
 	}
 
 	public void addListeners() {
-		// Start Vision Listener
-		log.start.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				log.start.setEnabled(false);
-				log.apply.setEnabled(true);
-				updateButtons();
-				// Wake runner
-				synchronized (runner) {
-					runner.notify();
-				}		
-			}
-		});
-		
-		log.apply.addActionListener(new ActionListener() {
+		// Connect Listener
+		log.connect.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				updateButtons();
+				if (options.yellowRobotButton.isSelected()) {
+					runner.setTeamYellow(true);
+				} else {
+					runner.setTeamYellow(false);
+				}
+
+				runner.setRobotColour();
+
+				// Repeatedly try and make connection
+				while (!Runner.nxt.startCommunications()) {
+					log.setIsConnected(false);
+				}
+
+				log.setIsConnected(true);
+				// Start vision
+				runner.startVision();
+				log.startStop.setEnabled(true);
+				log.connect.setEnabled(false);
+			}
+		});
+
+		// Start Listener
+		log.startStop.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (log.startStop.getText() == "Start") {
+					log.startStop.setText("Stop");
+					updateButtons();
+					runner.setStopFlag(false);
+					// Wake runner
+					synchronized (runner) {
+						runner.notify();
+					}
+				} else if(log.startStop.getText() == "Stop") {
+					runner.setStopFlag(true);
+					log.startStop.setText("Start");
+					//			Runner.nxt.stop();
+				}
 			}
 		});
 	}
-	
+
+	/**
+	 * Method to update game values based on values in GUI
+	 */
 	void updateButtons() {
 		// Case for colour options
 		if(options.yellowRobotButton.isSelected()) {
@@ -156,15 +174,17 @@ public class MainGui extends JFrame {
 		if(options.penaltyAttack.isSelected()) {
 			log.setCurrentMode("Penalty Attack");
 			isPenaltyAttack = true;
+			isPenaltyDefend = false;
 		} else if(options.penaltyDefend.isSelected()) {
 			log.setCurrentMode("Penalty Defend");
 			isPenaltyDefend = true;
+			isPenaltyAttack = false;
 		} else if (options.normal.isSelected()) {
 			log.setCurrentMode("Normal");
 			isPenaltyAttack = false;
 			isPenaltyDefend = false;
 		}
-		
+
 		// Case for pitch
 		if(options.pitchMain.isSelected()) {
 			isMainPitch = true;
@@ -172,33 +192,39 @@ public class MainGui extends JFrame {
 			isMainPitch = false;
 		}
 	}
-	
+
 	// Getters
-//	public boolean getApplyClicked() {
-//		return applyClicked;
-//	}
-	
+	//	public boolean getApplyClicked() {
+	//		return applyClicked;
+	//	}
+
 	public boolean getTeam() {
 		return isYellow;
 	}
-	
+
 	public boolean getAttackLeft() {
 		return attackLeft;
 	}
-	
+
 	public boolean getIsPenaltyAttack() {
 		return isPenaltyAttack;
 	}
-	
+
 	public boolean getIsPenaltyDefend() {
 		return isPenaltyDefend;
 	}
-	
+
 	public boolean getIsMainPitch() {
 		return isMainPitch;
 	}
-	
-	public String getConstantsFile() {
+
+	public String getConstantsFileLocation() {
 		return constantsLocation;
+	}
+
+	public void setCoordinateLabels(Position ourRobot, Position enemyRobot, Position ball) {
+		log.setOurCoors(ourRobot);
+		log.setEnemyCoors(enemyRobot);
+		log.setBallCoors(ball);
 	}
 }

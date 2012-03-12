@@ -16,6 +16,9 @@
 ./src/Planning/Runner.java
 ./src/Planning/GraphPoint.java
 ./src/Planning/PathPlanner.java
+./src/Planning/Arc.java
+./src/Strategy/Strategy.java
+./src/Strategy/StrategyX.java
 ./src/Communications/CommunicationInterface.java
 ./src/Communications/BluetoothCommunication.java
 ./src/NXT/NXT_class.java
@@ -23,5 +26,6 @@
 ./src/GUI/MainGui.java
 ./src/GUI/GuiLog.java
 ./src/GUI/OptionsPanel.java
-./src/Strategy/StrategyX.java
 ./src/Strategy/Strategy.java
+./src/Strategy/StrategyX.java
+
