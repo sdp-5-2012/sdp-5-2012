@@ -102,7 +102,7 @@ public class Strategy extends Thread {
 
 		return mode;
 	}
-	
+
 	// Returns true if our robot has possession of the ball
 	public static boolean doWeHaveTheBall(Robot ourRobot, Ball ball) {
 		boolean ourBall = Move.getDist(ourRobot, ball.getCoors()) < 75;
@@ -152,7 +152,7 @@ public class Strategy extends Thread {
 			double difference = Math.abs(theirAngle - ourAngle);
 
 			if (difference < 0.27) {
-			obstruction = true;
+				obstruction = true;
 			}
 
 		}
@@ -172,15 +172,15 @@ public class Strategy extends Thread {
 			if((ball.getCoors().getX() != theirRobot.getCoors().getX()) && (ball.getCoors().getX() != ourRobot.getCoors().getX()) ){
 				slopeThemBall = (double) ((ball.getCoors().getY() - theirRobot.getCoors().getY()) / (ball.getCoors().getX() - theirRobot.getCoors().getX()));
 				slopeUsBall = (double) ((ball.getCoors().getY() - ourRobot.getCoors().getY()) / (ball.getCoors().getX() - ourRobot.getCoors().getX()));
-	
+
 			} else if(ball.getCoors().getX() == theirRobot.getCoors().getX()){
 				slopeThemBall = 0;
 				slopeUsBall = (double) ((ball.getCoors().getY() - ourRobot.getCoors().getY()) / (ball.getCoors().getX() - ourRobot.getCoors().getX()));
-	
+
 			} else if(ball.getCoors().getX() == ourRobot.getCoors().getX()){
 				slopeThemBall = (double) ((ball.getCoors().getY() - theirRobot.getCoors().getY()) / (ball.getCoors().getX() - theirRobot.getCoors().getX()));
 				slopeUsBall = 0;
-	
+
 			}
 
 			double theirAngle = Math.atan(slopeThemBall);
@@ -188,8 +188,8 @@ public class Strategy extends Thread {
 
 			double difference = Math.abs(theirAngle - ourAngle);
 
-			if (difference < 0.30) {
-			obstruction = true;
+			if (Math.toDegrees(difference) < 90) {
+				obstruction = true;
 			}
 
 

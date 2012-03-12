@@ -509,7 +509,7 @@ public class Runner extends Thread {
 	 */
 	private void modeFive() {	
 		System.out.println("MODE FIVE");
-		while (Move.getDist(nxt, ball.getCoors()) > 50 && stopFlag == false){
+		while (s.getCurrentMode() == 5 && Move.getDist(nxt, ball.getCoors()) > 50 && stopFlag == false){
 
 			getPitchInfo(true);
 			try {
@@ -539,7 +539,7 @@ public class Runner extends Thread {
 			//		 Vision.plotPoints(goals);
 			//		 }
 			nxt.moveForward(30);
-			while ( Move.getDist(nxt, gotoBall) > 15 && stopFlag == false) { 
+			while (s.getCurrentMode() == 5 && Move.getDist(nxt, gotoBall) > 15 && stopFlag == false) { 
 				getPitchInfo(false);
 				Vision.plotPoints(waypoints);
 //				dist = Move.getDist(nxt, gotoBall);
