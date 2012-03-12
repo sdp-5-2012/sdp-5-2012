@@ -760,117 +760,127 @@ public class Runner extends Thread {
 				// Upper Right Box
 				if (ballsX > 510 && ballsY < 164) {
 					ballOffsetPosition.setCoors(556, 190);
-				// Lower Right Box
+					// Lower Right Box
 				} else if (ballsX > 510 && ballsY > 328) {
 					ballOffsetPosition.setCoors(556, 303);
-				// Top strip (extreme)
+					// Top strip (extreme)
 				} else if (ballsX <= 142) {
 					ballOffsetPosition.setCoors(ballsX + 50, ballsY  + 30);
 					extremeStrip = true;
-				// Top strip (normal)
+					// Top strip (normal)
 				} else if (ballsX <= 184) {
 					ballOffsetPosition.setCoors(ballsX + 50, ballsY - 20);
-				// Mid-Upper Strip
+					// Mid-Upper Strip
 				} else if (ballsX <= 224) {
 					ballOffsetPosition.setCoors(ballsX + 50, ballsY - 10);
-				// Middle Strip
+					// Middle Strip
 				} else if (ballsX <= 265) {
 					ballOffsetPosition.setCoors(ballsX + 50, ballsY);
-				// Mid-Lower Strip
+					// Mid-Lower Strip
 				} else if (ballsX <= 305) {
 					ballOffsetPosition.setCoors(ballsX + 50, ballsY + 10);
-				// Bottom strip (normal)
+					// Bottom strip (normal)
 				} else if (ballsX <= 345) {
 					ballOffsetPosition.setCoors(ballsX + 50, ballsY + 20);
-				// Bottom strip (extreme)
+					// Bottom strip (extreme)
 				} else if (ballsX > 345) {
 					ballOffsetPosition.setCoors(ballsX + 50, ballsY - 30);
 				}
 			} else if (!attackLeft) {
+				// Upper left box
 				if (ballsX < 111 && ballsY < 164) {
 					ballOffsetPosition.setCoors(75, 190);
+					// Lower left box
 				} else if (ballsX < 110 && ballsY > 328) {
 					ballOffsetPosition.setCoors(75,303);
 					// Top strip (extreme)
 				} else if (ballsX <= 142) {
 					ballOffsetPosition.setCoors(ballsX - 50, ballsY  + 30);
 					extremeStrip = true;
-				// Top strip (normal)
+					// Top strip (normal)
 				} else if (ballsX <= 184) {
 					ballOffsetPosition.setCoors(ballsX - 50, ballsY - 20);
-				// Mid-Upper Strip
+					// Mid-Upper Strip
 				} else if (ballsX <= 224) {
 					ballOffsetPosition.setCoors(ballsX - 50, ballsY - 10);
-				// Middle Strip
+					// Middle Strip
 				} else if (ballsX <= 265) {
 					ballOffsetPosition.setCoors(ballsX - 50, ballsY);
-				// Mid-Lower Strip
+					// Mid-Lower Strip
 				} else if (ballsX <= 305) {
 					ballOffsetPosition.setCoors(ballsX - 50, ballsY + 10);
-				// Bottom strip (normal)
+					// Bottom strip (normal)
 				} else if (ballsX <= 345) {
 					ballOffsetPosition.setCoors(ballsX - 50, ballsY + 20);
-				// Bottom strip (extreme)
+					// Bottom strip (extreme)
 				} else if (ballsX > 345) {
 					ballOffsetPosition.setCoors(ballsX - 50, ballsY - 30);
 				}
 			}
 		} else if (!isMainPitch) {
-			
+			if (attackLeft) {
+				// Upper Right Box
+				if (ballsX > 491 && ballsY < 162) {
+					ballOffsetPosition.setCoors(524, 185);
+					// Lower Right Box
+				} else if (ballsX > 490 && ballsY > 310) {
+					ballOffsetPosition.setCoors(525, 288);
+					// Top strip (extreme)
+				} else if (ballsX <= 146) {
+					ballOffsetPosition.setCoors(ballsX + 50, ballsY  + 30);
+					extremeStrip = true;
+					// Top strip (normal)
+				} else if (ballsX <= 184) {
+					ballOffsetPosition.setCoors(ballsX + 50, ballsY - 20);
+					// Mid-Upper Strip
+				} else if (ballsX <= 221) {
+					ballOffsetPosition.setCoors(ballsX + 50, ballsY - 10);
+					// Middle Strip
+				} else if (ballsX <= 258) {
+					ballOffsetPosition.setCoors(ballsX + 50, ballsY);
+					// Mid-Lower Strip
+				} else if (ballsX <= 295) {
+					ballOffsetPosition.setCoors(ballsX + 50, ballsY + 10);
+					// Bottom strip (normal)
+				} else if (ballsX <= 331) {
+					ballOffsetPosition.setCoors(ballsX + 50, ballsY + 20);
+					// Bottom strip (extreme)
+				} else if (ballsX > 331) {
+					ballOffsetPosition.setCoors(ballsX + 50, ballsY - 30);
+				}
+			} else if (!attackLeft) {
+				// Upper left box
+				if (ballsX < 128 && ballsY < 163) {
+					ballOffsetPosition.setCoors(100, 184);
+					// Lower left box
+				} else if (ballsX < 129 && ballsY > 310) {
+					ballOffsetPosition.setCoors(105,288);
+					// Top strip (extreme)
+				} else if (ballsX <= 146) {
+					ballOffsetPosition.setCoors(ballsX - 50, ballsY  + 30);
+					extremeStrip = true;
+					// Top strip (normal)
+				} else if (ballsX <= 184) {
+					ballOffsetPosition.setCoors(ballsX - 50, ballsY - 20);
+					// Mid-Upper Strip
+				} else if (ballsX <= 221) {
+					ballOffsetPosition.setCoors(ballsX - 50, ballsY - 10);
+					// Middle Strip
+				} else if (ballsX <= 258) {
+					ballOffsetPosition.setCoors(ballsX - 50, ballsY);
+					// Mid-Lower Strip
+				} else if (ballsX <= 295) {
+					ballOffsetPosition.setCoors(ballsX - 50, ballsY + 10);
+					// Bottom strip (normal)
+				} else if (ballsX <= 331) {
+					ballOffsetPosition.setCoors(ballsX - 50, ballsY + 20);
+					// Bottom strip (extreme)
+				} else if (ballsX > 331) {
+					ballOffsetPosition.setCoors(ballsX - 50, ballsY - 30);
+				}
+			}
 		}
 		
-		/*
-		if(attackLeft){
-			// Extreme top Strip attacking left
-			if(ball.getCoors().getY() <130){
-				// when moving to this one, no rotation to goal required
-				ballOffsetPosition.setCoors(ball.getCoors().getX()+50, ball.getCoors().getY()+30);
-				extremeStrip = true;
-				// Normal top strip 
-			} else 	if(ball.getCoors().getY() <187){
-				ballOffsetPosition.setCoors(ball.getCoors().getX()+50, ball.getCoors().getY()-30);
-				// Extreme bottom strip
-			} else if (ball.getCoors().getY() >350){
-				// when moving to this one, no rotation to goal required
-				ballOffsetPosition.setCoors(ball.getCoors().getX()+50, ball.getCoors().getY()-30);
-				extremeStrip = true;
-				// Normal bottom strip
-			} else if (ball.getCoors().getY() >281){
-				ballOffsetPosition.setCoors(ball.getCoors().getX()+50, ball.getCoors().getY()+30);
-				// Upper Middle strip
-			} else if (187<= ball.getCoors().getY() && ball.getCoors().getY() <= 280 ){
-				ballOffsetPosition.setCoors(ball.getCoors().getX()+50, ball.getCoors().getY()-5);
-			}
-			// Lower Middle strip
-			else {
-				ballOffsetPosition.setCoors(ball.getCoors().getX()+50, ball.getCoors().getY()+5);
-			}
-		} else {
-			// Extreme top Strip attacking right
-			if(ball.getCoors().getY() <130){
-				// when moving to this one, no rotation to goal required
-				ballOffsetPosition.setCoors(ball.getCoors().getX()-50, ball.getCoors().getY()+30);
-				extremeStrip = true;
-			} else if(ball.getCoors().getY() <187){
-				ballOffsetPosition.setCoors(ball.getCoors().getX()-50, ball.getCoors().getY()-30);
-				// Extreme bottom strip
-			} else if (ball.getCoors().getY() >350){
-				// when moving to this one, no rotation to goal required
-				ballOffsetPosition.setCoors(ball.getCoors().getX()-50, ball.getCoors().getY()-30);
-				extremeStrip = true;
-				// Normal bottom strip
-			} else if (ball.getCoors().getY() >281){
-				ballOffsetPosition.setCoors(ball.getCoors().getX()-50, ball.getCoors().getY()+30);
-				// Upper Middle strip
-			} else if (187<= ball.getCoors().getY() && ball.getCoors().getY() <= 229 ){
-				ballOffsetPosition.setCoors(ball.getCoors().getX()-50, ball.getCoors().getY()-5);
-			}
-			// Lower Middle Strip
-			else {
-				ballOffsetPosition.setCoors(ball.getCoors().getX()-50, ball.getCoors().getY()+5);
-			}
-		}
-			 */
 			if (ball.getCoors().getX() < 70 || ball.getCoors().getX() > 560) {
 				isScore = true;
 			} else {
