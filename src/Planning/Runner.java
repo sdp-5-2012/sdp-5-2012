@@ -15,25 +15,25 @@ public class Runner extends Thread {
 	public ArrayList<Position> waypoints = new ArrayList<Position>();
 	Position ballOffsetPosition;
 
-	// Objects
-	public static Ball ball;
-	public static Robot nxt;
-	public static Robot otherRobot;
-	static Robot blueRobot;
-	static Robot yellowRobot;
-	static WorldState state;
-	ControlGUI control;
-	static Runner instance = null;
-	boolean usingSimulator = false;
-	Vision vision;
-	PathPlanner planner;
-	static MainGui gui;
-	Strategy s;
-	boolean stopFlag = false;
+// Objects
+public static Ball ball;
+public static Robot nxt;
+public static Robot otherRobot;
+static Robot blueRobot;
+static Robot yellowRobot;
+static WorldState state;
+ControlGUI control;
+static Runner instance = null;
+boolean usingSimulator = false;
+Vision vision;
+PathPlanner planner;
+static MainGui gui;
+Strategy s;
+boolean stopFlag = false;
 
-	Point ourNXT = new Point();
-	Point otherNXT = new Point();
-	Point ballPoint = new Point();
+Point ourNXT = new Point();
+Point otherNXT = new Point();
+Point ballPoint = new Point();
 
 	// game flags
 	boolean teamYellow = false;
