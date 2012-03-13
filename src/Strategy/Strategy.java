@@ -12,7 +12,7 @@ public class Strategy extends Thread {
 	 * 2 - dribble towards enemy half
 	 * 3 - retreat to own goal, defend
 	 * 4 - attack hard
-	 * 5 - default "go to ball, aim, kick" but go to the ball in an arc because the other robot's in the way!
+	 * 5 - avoid other robot and get to ball
 	 * 6 - kicker up and move back (we may be hiding the ball)
 	 *
 	 */
@@ -83,14 +83,14 @@ public class Strategy extends Thread {
 				if (areTheyInOurHalf(theirRobot, ourGoal, theirGoal)) {
 					mode = 3;
 				} else {
-					if (!areWeInOurHalf(ourRobot, ourGoal, theirGoal)) {
+					if (!areTheyInOurHalf(ourRobot, ourGoal, theirGoal)) {
 						mode = 4;
 					}
 				}
 			}
 
 			// POSSIBLY OBSOLETE DUE TO PATHFINDING ALGORITHM AVOIDING OTHER ROBOT ANYWAY
-			if (ballObstructed(ourRobot, theirRobot, ball)) {
+			if ((doWeHaveTheBall(ourRobot, ball)) && ballObstructed(ourRobot, theirRobot, ball)) {
 				mode = 5;
 
 			}

@@ -26,6 +26,3 @@
 ./src/GUI/MainGui.java
 ./src/GUI/GuiLog.java
 ./src/GUI/OptionsPanel.java
-./src/Strategy/Strategy.java
-./src/Strategy/StrategyX.java
-
