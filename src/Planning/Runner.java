@@ -461,8 +461,10 @@ public class Runner extends Thread {
 					}
 
 					while(!stopFlag && (Move.getDist(nxt, ball.getCoors()))<20){
+						if (Math.abs(Move.getAngleToPosition(nxt, ball.getCoors())) < 15)
 						nxt.rotateRobot(90);
 						nxt.moveForward(DEFAULT_SPEED);
+						Thread.sleep(1000);
 					}
 				}
 				nxt.stop();
