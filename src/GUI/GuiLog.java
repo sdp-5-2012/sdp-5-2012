@@ -40,6 +40,7 @@ public class GuiLog extends JPanel {
 	String currentAttackGoal ="Right";
 	String currentMode = "Normal";
 	String connectionStatus = "Connection Status";
+	int currentCamera;
 
 	boolean isConnected = false;
 
@@ -121,6 +122,11 @@ public class GuiLog extends JPanel {
 		currentPitchConstants = newPitchConstants;
 		updateJTextArea();
 	}
+	
+	public void setCurrentCamera(int camera) {
+		currentCamera = camera;
+		updateJTextArea();
+	}
 
 
 	/**
@@ -140,7 +146,8 @@ public class GuiLog extends JPanel {
 				"Our Coords:\t" + ourCoordsStr + "\t\t" + "Current Attack Goal: "+ currentAttackGoal +"\n" +
 				"Enemy Coords:\t" + enemyCoordsStr + "\t\t" + "Current Mode: "+ currentMode + "\n\n" +
 				"Connection Status:\t" + connectionStatus() + "\n" +
-				"Loaded Constants:\t" + currentPitchConstants);
+				"Loaded Constants:\t" + currentPitchConstants + "\n" +
+				"Loaded Camera:\t" + "Camera " + currentCamera);
 	}
 
 	public String connectionStatus() {

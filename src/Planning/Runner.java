@@ -46,6 +46,7 @@ public class Runner extends Thread {
 	boolean initialVision = false;
 	boolean isScore = false;
 	boolean extremeStrip = false;
+	int currentCamera;
 
 	// Positions
 	Position pitchCentre = null;
@@ -976,5 +977,9 @@ public class Runner extends Thread {
 
 	public void setStopFlag(boolean flag) {
 		stopFlag = flag;
+	}
+	
+	public void setCurrentCamera(int camera) {
+		currentCamera = camera;
 	}
 }

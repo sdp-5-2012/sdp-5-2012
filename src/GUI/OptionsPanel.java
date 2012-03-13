@@ -13,6 +13,7 @@ public class OptionsPanel extends JPanel {
 	JLabel attackGoal = new JLabel("Goal to attack:");
 	JLabel mode = new JLabel("Mode:");
 	JLabel pitchChoice = new JLabel("Pitch Choice:");
+	JLabel cameraChoice = new JLabel("Camera Choice:");
 		
 	// Radio buttons
 	public JRadioButton yellowRobotButton;
@@ -24,17 +25,21 @@ public class OptionsPanel extends JPanel {
 	public JRadioButton normal;
 	public JRadioButton pitchMain;
 	public JRadioButton pitchSide;
+	public JRadioButton cameraZero;
+	public JRadioButton cameraOne;
+	public JRadioButton cameraTwo;
 	
 	// Button Groups
 	ButtonGroup colourGroup;
 	ButtonGroup attackGroup;
 	ButtonGroup modeGroup;
 	ButtonGroup pitchChoiceGroup;
+	ButtonGroup cameraChoiceGroup;
 
 	/** Constructor */
 	public OptionsPanel() {
 
-		setLayout(new GridLayout(4,4));
+		setLayout(new GridLayout(5,4));
 
 		// robot colour
 		yellowRobotButton = new JRadioButton("Yellow");
@@ -79,6 +84,16 @@ public class OptionsPanel extends JPanel {
 		pitchChoiceGroup.add(pitchSide);
 		
 		pitchMain.setSelected(true);
+		
+		// Camera Choice
+		cameraZero = new JRadioButton("0 (side pitch)");
+		cameraOne = new JRadioButton("1 (upper main)");
+		cameraTwo = new JRadioButton("2 (lower main)");
+		// Group together
+		cameraChoiceGroup = new ButtonGroup();
+		cameraChoiceGroup.add(cameraZero);
+		cameraChoiceGroup.add(cameraOne);
+		cameraChoiceGroup.add(cameraTwo);
 				
 		// Add all components
 		add(robotColour);
@@ -96,6 +111,11 @@ public class OptionsPanel extends JPanel {
 		add(pitchChoice);
 		add(pitchMain);
 		add(pitchSide);
+		add(new JLabel(""));
+		add(cameraChoice);
+		add(cameraZero);
+		add(cameraOne);
+		add(cameraTwo);
 	}
 }
 
