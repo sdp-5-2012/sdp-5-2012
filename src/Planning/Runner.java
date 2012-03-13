@@ -619,7 +619,14 @@ public class Runner extends Thread {
 	}
 
 	private void penaltyAttack() {
-		int angle = -20 + (int)(Math.random()*20);
+		double weird = Math.random();
+		int angle;		  		
+
+		if(weird > 0.5){
+			angle = 20;
+		} else {
+			angle = -5;
+		}
 		System.out.println("Angle for penalty: " + angle);
 		nxt.rotateRobot(angle);
 		nxt.kick();
