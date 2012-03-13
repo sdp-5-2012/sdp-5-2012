@@ -13,7 +13,7 @@ import lejos.robotics.navigation.DifferentialPilot;
 /**
  * Code that runs on the NXT brick
  */
-public class NXT_class implements Runnable {
+public class NXT_class implements Runnable{
 
 	// class variables
 
@@ -22,7 +22,6 @@ public class NXT_class implements Runnable {
 	private static DifferentialPilot pilot;
 	private static volatile boolean blocking = false;
 	private static volatile boolean kicking = false;
-	private static volatile boolean movingForward = false;
 
 	// constants for the pilot class
 	private static final float TRACK_WIDTH = (float) 12.0; // Secondary table
@@ -31,18 +30,17 @@ public class NXT_class implements Runnable {
 	// NXT Opcodes
 	private final static int DO_NOTHING = 0X00;
 	private final static int FORWARDS = 0X01;
-	private final static int BACKWARDS=0x02;
+	private final static int BACKWARDS= 0x02;
 	private final static int STOP = 0X03;
 	private final static int KICK = 0X04;
 	private final static int QUIT = 0X05;
-	private final static int FORWARDS_TRAVEL=0X06;
-	private final static int TRAVEL_BACKWARDS_SLIGHRLY=0X07;
-	private final static int TRAVEL_ARC=0X08;
-	private final static int ACCELERATE=0X09;
+	private final static int FORWARDS_TRAVEL = 0X06;
+	private final static int TRAVEL_BACKWARDS_SLIGHTLY = 0X07;
+	private final static int TRAVEL_ARC = 0X08;
+	private final static int ACCELERATE = 0X09;
 	private final static int ROTATE = 0X0A;
-	private final static int EACH_WHEEL_SPEED=0X0B;
-	private final static int STEER =0X0C;
-	private final static int ARE_WE_STUCK = 0X0D;
+	private final static int SET_WHEEL_SPEED = 0X0B;
+	private final static int STEER = 0X0C;
 
 
 	public static void main(String[] args) throws Exception {
@@ -55,7 +53,7 @@ public class NXT_class implements Runnable {
 
 		// set initial pilot variables to produce maximum speed
 		pilot.setTravelSpeed(pilot.getMaxTravelSpeed());
-		
+
 		while (true) {
 			try {
 
@@ -67,6 +65,8 @@ public class NXT_class implements Runnable {
 				NXTConnection connection = Bluetooth.waitForConnection();
 				is = connection.openInputStream();
 				os = connection.openOutputStream();
+				
+				// Robot is ready when 'Connected!' appears on screen
 				LCD.clear();
 				LCD.drawString("Connected!", 0, 2);
 
@@ -79,11 +79,10 @@ public class NXT_class implements Runnable {
 					byte[] byteBuffer = new byte[4];
 					is.read(byteBuffer);
 
-					n = byteArrayToInt(byteBuffer);
-					int opcode = ((n << 24) >> 24);
+					int param0 = byteBuffer[1];
+					short param1 = bytesToInt(byteBuffer[2],byteBuffer[3]);
+					int opcode = byteBuffer[0];
 
-					// LCD.drawString(String.valueOf(kicking), 0, 2);
-					// If everything is alright, LCD should read "falsected"
 					if (blocking) {
 						os.write('o');
 						os.flush();
@@ -94,69 +93,48 @@ public class NXT_class implements Runnable {
 					switch (opcode) {
 
 					case FORWARDS:
-						int speedForward = n>>8;
+						int speedForward = param0;
 						LCD.clear();
 						LCD.drawString("move forwards", 0, 2);
-						//LCD.drawInt((int) pilot.getMaxTravelSpeed(), 0,4);
 						LCD.refresh();
 						pilot.setTravelSpeed(speedForward);
 						pilot.forward();
-						movingForward = true;
 						break;
 
 					case FORWARDS_TRAVEL:
-						int speedForwards = n>>8;
-						int travelDistance= n >>8;
+						int speedForwards = param0;
+						int travelDistance= param1;
 						LCD.clear();
 						LCD.drawString("move forwards whith speed", 0, 2);
-						//LCD.drawInt((int) pilot.getMaxTravelSpeed(), 0,4);
 						LCD.refresh();
 						pilot.setTravelSpeed(speedForwards);
 						pilot.travel(travelDistance);
 						break;
 
-					case TRAVEL_BACKWARDS_SLIGHRLY:	
+					case TRAVEL_BACKWARDS_SLIGHTLY:	
 						LCD.clear();
 						LCD.drawString("travel back a little bit", 0, 2);
-						//LCD.drawInt((int) pilot.getMaxTravelSpeed(), 0,4);
 						LCD.refresh();
 						pilot.travel(-10);
 						break;
 
 					case BACKWARDS:
-						int speedBackward = n>>8 ;
+						int speedBackward = param0;
 						LCD.clear();
 						LCD.drawString("move backwards", 0, 2);
-						//LCD.drawInt((int) pilot.getMaxTravelSpeed(), 0,4);
 						LCD.refresh();
 						pilot.backward();
 						pilot.setTravelSpeed(speedBackward);
 						break;
 
-					case ARE_WE_STUCK:
-						LCD.clear();
-						LCD.drawString("COUNT " + Motor.B.getTachoCount() + " " + Motor.C.getTachoCount(),0, 4);
-						LCD.refresh();
-
-						int counterB = Motor.B.getTachoCount();
-						int counterC = Motor.C.getTachoCount();
-
-						Thread.sleep(50);
-						if (!(Math.abs(Motor.B.getTachoCount()-counterB) > 0 && Math.abs(Motor.C.getTachoCount()-counterC)>0)){
-							os.write('S');
-							os.flush();
-							break;
-						}
-
 					case ROTATE:	
-						int rotateAngle = n >> 8;
+						short rotateAngle = param1;
 
 						LCD.clear();
 						LCD.drawString("start rotate", 0, 2);
+						LCD.drawString("angle = " + rotateAngle, 0, 3);
 
-						//						blocking = true;
 						pilot.setRotateSpeed(pilot.getRotateMaxSpeed()/5);
-						//						pilot.rotate(rotateAngle, false);
 						pilot.rotate(rotateAngle);
 						while(true) {
 							if(pilot.isMoving() == false) {
@@ -165,45 +143,16 @@ public class NXT_class implements Runnable {
 								break;
 							}
 						}
-						//					blocking = false;
 						break;
 
-					case EACH_WHEEL_SPEED:	
-						boolean left_wheel_backward = false;
-						boolean right_wheel_backward= false;
-						// get the left wheel speed sign bit
-						if (((n << 12) >> 31) == -1) {
-							left_wheel_backward = true;
-						}
-
-						// get the right wheel speed sign bit
-						if ((n >> 31) == -1) {
-							right_wheel_backward = true;
-						}
-						Motor.B.setSpeed((n<<13)>>21);
-						Motor.C.setSpeed((n<<1)>>21);
-						LCD.clear();
-						LCD.drawString("Left wheel speed"+Motor.B.getSpeed(),0,2);
-						LCD.drawString("right wheel speed"+Motor.C.getSpeed(),0,4);
-						LCD.refresh();
-						//Assume that Motor B connects to left wheel 
-						if(left_wheel_backward){
-							Motor.B.backward();
-						}else if(!left_wheel_backward){
-							Motor.B.forward();
-						}
-
-						//Assume that Motor C connects to left wheel 
-						if(right_wheel_backward){
-							Motor.C.backward();
-						}else if(!right_wheel_backward){
-							Motor.C.forward();
-						}
+					case SET_WHEEL_SPEED:
+						int speed = param0;
+						pilot.setTravelSpeed(speed);
 						break;
 
 					case STEER:
-						int turnRate = n >> 8;
-						int angle = n >> 8;
+						int turnRate = param0;
+						int angle = param1;
 						if(angle >360){
 							angle = -(angle-360);
 						}
@@ -211,13 +160,13 @@ public class NXT_class implements Runnable {
 						break;
 
 					case TRAVEL_ARC:
-						int radius = n >> 8;
-						int distance = n >> 8;
+						int radius = param0;
+						short distance = param1;
 						pilot.travelArc(radius, distance);
 						break;
 
 					case ACCELERATE:
-						int accel = n >>16;
+						int accel = param0;
 						pilot.setAcceleration(accel);
 						pilot.forward();
 						break;
@@ -227,7 +176,6 @@ public class NXT_class implements Runnable {
 						LCD.drawString("stop", 0, 2);
 						LCD.refresh();
 						pilot.stop();
-						movingForward = false;
 						break;
 
 					case KICK:
@@ -259,6 +207,7 @@ public class NXT_class implements Runnable {
 					case QUIT: // close connection
 						// Sound.twoBeeps();
 						break;
+
 					}
 
 					// respond to say command was acted on
@@ -283,18 +232,12 @@ public class NXT_class implements Runnable {
 			}
 		}
 	}
-	
-	
+
 	/**
-	 * Returns an integer from a byte array
+	 * Returns a short from two bytes
 	 */
-	public static int byteArrayToInt(byte[] b) {
-		int value = 0;
-		for (int i = 0; i < 4; i++) {
-			int shift = (4 - 1 - i) * 8;
-			value += (b[i] & 0x000000FF) << shift;
-		}
-		return value;
+	public static short bytesToInt(byte a, byte b) {
+		return (short)(((a & 0xFF) << 8) | (b & 0xFF));
 	}
 
 	/**
@@ -303,14 +246,6 @@ public class NXT_class implements Runnable {
 	 */
 	public NXT_class(DifferentialPilot pilot) {
 		this.pilot = pilot;
-	}
-	
-	public boolean getIsMovingForward() {
-		return movingForward;
-	}
-	
-	public void setIsMovingForward(boolean movingForward) {
-		this.movingForward = movingForward;
 	}
 
 	/**
@@ -322,11 +257,7 @@ public class NXT_class implements Runnable {
 		boolean reacting = false;
 		TouchSensor touchA = new TouchSensor(SensorPort.S1);
 		TouchSensor touchB = new TouchSensor(SensorPort.S2);
-		
-		// Thread for checking if stuck
-		Thread t = new Thread(new checkIfStuck(this, pilot));
-		t.start();
-		
+
 		while (true) {
 			try {
 
@@ -355,46 +286,4 @@ public class NXT_class implements Runnable {
 
 		}
 	}
-}	
-
-class checkIfStuck extends Thread {
-	NXT_class instance;
-	DifferentialPilot pilot;
-	
-	public checkIfStuck(NXT_class instance, DifferentialPilot pilot) {
-		this.instance = instance;
-		this.pilot = pilot;
-	}	
-	
-	public void run() {
-		while(true) {
-			
-			if(instance.getIsMovingForward()) {
-				LCD.clear();
-				LCD.drawString("COUNT " + Motor.B.getTachoCount() + " " + Motor.C.getTachoCount(),0, 4);
-				LCD.refresh();
-	
-				int counterB = Motor.B.getTachoCount();
-				int counterC = Motor.C.getTachoCount();
-	
-				try {
-					Thread.sleep(50);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-				if (!(Math.abs(Motor.B.getTachoCount()-counterB) > 0 && Math.abs(Motor.C.getTachoCount()-counterC)>0)){
-					pilot.stop();
-					pilot.backward();
-					try {
-						Thread.sleep(1000);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-					pilot.stop();
-
-				}
-			}
-		}
-	}
-	
 }

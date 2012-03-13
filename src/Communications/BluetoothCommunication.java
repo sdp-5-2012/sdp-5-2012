@@ -1,8 +1,5 @@
 package Communications;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -41,10 +38,9 @@ public class BluetoothCommunication implements CommunicationInterface {
         }
 	}
 
-	public void sendToRobot(int command) {
+	public void sendToRobot(byte[] command) {
 	    try {
-	    	byte[] bytes = ByteBuffer.allocate(4).putInt(command).array();
-	        os.write(bytes);
+	        os.write(command);
 	        os.flush();
 	    } catch (IOException ex) {
 	        System.out.println("Error sending command to robot");
