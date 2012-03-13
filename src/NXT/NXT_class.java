@@ -30,17 +30,17 @@ public class NXT_class implements Runnable{
 	// NXT Opcodes
 	private final static int DO_NOTHING = 0X00;
 	private final static int FORWARDS = 0X01;
-	private final static int BACKWARDS=0x02;
+	private final static int BACKWARDS= 0x02;
 	private final static int STOP = 0X03;
 	private final static int KICK = 0X04;
 	private final static int QUIT = 0X05;
-	private final static int FORWARDS_TRAVEL=0X06;
-	private final static int TRAVEL_BACKWARDS_SLIGHRLY=0X07;
-	private final static int TRAVEL_ARC=0X08;
-	private final static int ACCELERATE=0X09;
+	private final static int FORWARDS_TRAVEL = 0X06;
+	private final static int TRAVEL_BACKWARDS_SLIGHTLY = 0X07;
+	private final static int TRAVEL_ARC = 0X08;
+	private final static int ACCELERATE = 0X09;
 	private final static int ROTATE = 0X0A;
-	private final static int EACH_WHEEL_SPEED=0X0B;
-	private final static int STEER =0X0C;
+	private final static int SET_WHEEL_SPEED = 0X0B;
+	private final static int STEER = 0X0C;
 
 
 	public static void main(String[] args) throws Exception {
@@ -65,6 +65,8 @@ public class NXT_class implements Runnable{
 				NXTConnection connection = Bluetooth.waitForConnection();
 				is = connection.openInputStream();
 				os = connection.openOutputStream();
+				
+				// Robot is ready when 'Connected!' appears on screen
 				LCD.clear();
 				LCD.drawString("Connected!", 0, 2);
 
@@ -77,13 +79,10 @@ public class NXT_class implements Runnable{
 					byte[] byteBuffer = new byte[4];
 					is.read(byteBuffer);
 
-					int param0 = byteBuffer[2];
-					int param1 = byteBuffer[1]; //bytesToInt(byteBuffer[0],byteBuffer[1]);
-					int param2 = byteBuffer[0];
-					int opcode = byteBuffer[3];
+					int param0 = byteBuffer[1];
+					short param1 = bytesToInt(byteBuffer[2],byteBuffer[3]);
+					int opcode = byteBuffer[0];
 
-					// LCD.drawString(String.valueOf(kicking), 0, 2);
-					// If everything is alright, LCD should read "falsected"
 					if (blocking) {
 						os.write('o');
 						os.flush();
@@ -97,7 +96,6 @@ public class NXT_class implements Runnable{
 						int speedForward = param0;
 						LCD.clear();
 						LCD.drawString("move forwards", 0, 2);
-						//LCD.drawInt((int) pilot.getMaxTravelSpeed(), 0,4);
 						LCD.refresh();
 						pilot.setTravelSpeed(speedForward);
 						pilot.forward();
@@ -108,16 +106,14 @@ public class NXT_class implements Runnable{
 						int travelDistance= param1;
 						LCD.clear();
 						LCD.drawString("move forwards whith speed", 0, 2);
-						//LCD.drawInt((int) pilot.getMaxTravelSpeed(), 0,4);
 						LCD.refresh();
 						pilot.setTravelSpeed(speedForwards);
 						pilot.travel(travelDistance);
 						break;
 
-					case TRAVEL_BACKWARDS_SLIGHRLY:	
+					case TRAVEL_BACKWARDS_SLIGHTLY:	
 						LCD.clear();
 						LCD.drawString("travel back a little bit", 0, 2);
-						//LCD.drawInt((int) pilot.getMaxTravelSpeed(), 0,4);
 						LCD.refresh();
 						pilot.travel(-10);
 						break;
@@ -126,23 +122,19 @@ public class NXT_class implements Runnable{
 						int speedBackward = param0;
 						LCD.clear();
 						LCD.drawString("move backwards", 0, 2);
-						//LCD.drawInt((int) pilot.getMaxTravelSpeed(), 0,4);
 						LCD.refresh();
 						pilot.backward();
 						pilot.setTravelSpeed(speedBackward);
 						break;
 
-
-
 					case ROTATE:	
-						int rotateAngle = param0;
+						short rotateAngle = param1;
 
 						LCD.clear();
 						LCD.drawString("start rotate", 0, 2);
+						LCD.drawString("angle = " + rotateAngle, 0, 3);
 
-						//						blocking = true;
 						pilot.setRotateSpeed(pilot.getRotateMaxSpeed()/5);
-						//						pilot.rotate(rotateAngle, false);
 						pilot.rotate(rotateAngle);
 						while(true) {
 							if(pilot.isMoving() == false) {
@@ -151,40 +143,11 @@ public class NXT_class implements Runnable{
 								break;
 							}
 						}
-						//					blocking = false;
 						break;
 
-					case EACH_WHEEL_SPEED:	
-						boolean left_wheel_backward = false;
-						boolean right_wheel_backward= false;
-						// get the left wheel speed sign bit
-						if (((n << 12) >> 31) == -1) {
-							left_wheel_backward = true;
-						}
-
-						// get the right wheel speed sign bit
-						if ((n >> 31) == -1) {
-							right_wheel_backward = true;
-						}
-						Motor.B.setSpeed((n<<13)>>21);
-						Motor.C.setSpeed((n<<1)>>21);
-						LCD.clear();
-						LCD.drawString("Left wheel speed"+Motor.B.getSpeed(),0,2);
-						LCD.drawString("right wheel speed"+Motor.C.getSpeed(),0,4);
-						LCD.refresh();
-						//Assume that Motor B connects to left wheel 
-						if(left_wheel_backward){
-							Motor.B.backward();
-						}else if(!left_wheel_backward){
-							Motor.B.forward();
-						}
-
-						//Assume that Motor C connects to left wheel 
-						if(right_wheel_backward){
-							Motor.C.backward();
-						}else if(!right_wheel_backward){
-							Motor.C.forward();
-						}
+					case SET_WHEEL_SPEED:
+						int speed = param0;
+						pilot.setTravelSpeed(speed);
 						break;
 
 					case STEER:
@@ -198,14 +161,12 @@ public class NXT_class implements Runnable{
 
 					case TRAVEL_ARC:
 						int radius = param0;
-						int distance = param1;
-						int speed = param2;
-						pilot.setTravelSpeed(speed);
+						short distance = param1;
 						pilot.travelArc(radius, distance);
 						break;
 
 					case ACCELERATE:
-						int accel = n >>16;
+						int accel = param0;
 						pilot.setAcceleration(accel);
 						pilot.forward();
 						break;
@@ -247,9 +208,6 @@ public class NXT_class implements Runnable{
 						// Sound.twoBeeps();
 						break;
 
-
-
-
 					}
 
 					// respond to say command was acted on
@@ -273,16 +231,13 @@ public class NXT_class implements Runnable{
 				LCD.drawString("EXCEPTION!", 0, 2);
 			}
 		}
-
 	}
 
-
-
 	/**
-	 * Returns an integer from a byte array
+	 * Returns a short from two bytes
 	 */
-	public static int bytesToInt(byte a, byte b) {
-		return ((a & 0xFF) << 8) | (b & 0xFF);
+	public static short bytesToInt(byte a, byte b) {
+		return (short)(((a & 0xFF) << 8) | (b & 0xFF));
 	}
 
 	/**

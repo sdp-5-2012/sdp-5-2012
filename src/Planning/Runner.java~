@@ -234,7 +234,61 @@ public class Runner extends Thread {
 		// Thread strategy = new Thread(s);
 
 		// strategy.start();
-		ModeAvoid();
+		nxt.travelArcRobot(40,120);
+		 		try {
+ 			Thread.sleep(2000);
+ 		} catch (InterruptedException e) {
+ 			e.printStackTrace();
+ 		}
+ 		
+ 		nxt.travelArcRobot(-40,120);
+		 		try {
+ 			Thread.sleep(2000);
+ 		} catch (InterruptedException e) {
+ 			e.printStackTrace();
+ 		}
+ 		
+ 		nxt.travelArcRobot(40,-120);
+		 		try {
+ 			Thread.sleep(2000);
+ 		} catch (InterruptedException e) {
+ 			e.printStackTrace();
+ 		}
+ 		
+ 		 nxt.travelArcRobot(-40,-120);
+		 		try {
+ 			Thread.sleep(2000);
+ 		} catch (InterruptedException e) {
+ 			e.printStackTrace();
+ 		}
+// 		nxt.rotateRobot(127);
+// 		try {
+// 			Thread.sleep(1000);
+// 		} catch (InterruptedException e) {
+// 			e.printStackTrace();
+// 		}
+// 		
+// 		nxt.rotateRobot(-127);
+// 				try {
+// 			Thread.sleep(1000);
+// 		} catch (InterruptedException e) {
+// 			e.printStackTrace();
+// 		}
+// 		
+// 		nxt.rotateRobot(-180);
+// 				try {
+// 			Thread.sleep(1000);
+// 		} catch (InterruptedException e) {
+// 			e.printStackTrace();
+// 		}
+// 		
+// 		nxt.rotateRobot(180);
+// 				try {
+// 			Thread.sleep(1000);
+// 		} catch (InterruptedException e) {
+// 			e.printStackTrace();
+// 		}
+		
 // 		if (!stopFlag) {
 // 			if(gui.isModeAvoid()) {
 // 				ModeAvoid();
@@ -357,8 +411,7 @@ public class Runner extends Thread {
 	private void ModeAvoid() {		
 		while (Move.getDist(nxt, ball.getCoors()) > 50){
 
-			getPitchInfo(false);
-			//getPitchInfo(true);
+			getPitchInfo(true);
 			try {
 				Thread.sleep(200);
 			} catch (InterruptedException e) {
@@ -370,14 +423,12 @@ public class Runner extends Thread {
 			nxt.setAngle(avgAngle);
 
 			getPitchInfo(false);
-			int angleToBall = Move.getAngleToPosition(nxt, ball);
-			System.out.println("angle: " + angleToBall);
-			int dist = Move.getDist(nxt, ball);
-			System.out.println("dist: " + dist);
-			//nxt.rotateRobot(angleToBall);
-			int radius = dist/(2*Math.sin(angleToBall));
-			System.out.println("radius: " + radius);
-			nxt.travelArc(radius, dist, 20);
+			int angleToBall = Move.getAngleToPosition(nxt, gotoBall);
+
+			int dist = Move.getDist(nxt, gotoBall);
+
+			nxt.rotateRobot(angleToBall);
+
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
@@ -388,25 +439,25 @@ public class Runner extends Thread {
 			//		 Vision.plotPoints(goals);
 			//		 }
 
-			//nxt.moveForward(20);
-			//while (dist > 50) { 
-				//getPitchInfo(false);
-				//Vision.plotPoints(waypoints);
-				//dist = Move.getDist(nxt, gotoBall);
-				//int n = Move.getAngleToPosition(nxt, gotoBall);
+			nxt.moveForward(20);
+			while (dist > 50) { 
+				getPitchInfo(false);
+				Vision.plotPoints(waypoints);
+				dist = Move.getDist(nxt, gotoBall);
+				int n = Move.getAngleToPosition(nxt, gotoBall);
 
 
-// 				if ((Math.abs(n) > 20)) {
-// 					nxt.rotateRobot(n);
-// 					try {
-// 						Thread.sleep(200);
-// 					} catch (InterruptedException e) {
-// 						e.printStackTrace();
-// 					}
-// 					getPitchInfo(false);
-// 					dist = Move.getDist(nxt, gotoBall);
-// 					nxt.moveForward(20);
-// 				}
+				if ((Math.abs(n) > 20)) {
+					nxt.rotateRobot(n);
+					try {
+						Thread.sleep(200);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+					getPitchInfo(false);
+					dist = Move.getDist(nxt, gotoBall);
+					nxt.moveForward(20);
+				}
 			}
 		}
 		
