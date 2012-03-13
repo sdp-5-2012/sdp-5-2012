@@ -273,7 +273,7 @@ public class Runner extends Thread {
 					break;
 
 				}
-				Thread.sleep(1000);
+				//Thread.sleep(1000);
 			} else {
 				nxt.stop();
 				waitForNewInput();
@@ -446,21 +446,20 @@ public class Runner extends Thread {
 				}
 
 				int angle = Move.getAngleToPosition(nxt, inFrontOfGoal);
-				
+
 				while((Move.getDist(nxt, inFrontOfGoal) > 5)) {
-					
+
 					if (s.getCurrentMode() != 3 || !stopFlag) {
 						break ModeThreeLoop;
 					}
-					
+
 					//checks if the ball is closer to our goal than us AND we're far enough from the ball to
 					//not score an own goal
-					while((!stopFlag && (Move.getDist(nxt, ball.getCoors()))>20) && ((Move.getDist(nxt, ourGoal)>(Position.sqrdEuclidDist(ball.getCoors().getX(), ball.getCoors().getY(), ourGoal.getX(), ourGoal.getY()))))){
+					while((!stopFlag && (Move.getDist(nxt, ball.getCoors()))>20) && ((Move.getDist(nxt, ourGoal)>(Position.sqrdEuclidDist(ball.getCoors().getX(), ball.getCoors().getY(), ourGoal.getX(), ourGoal.getY()))))) {
 						nxt.rotateRobot(angle);
 						nxt.moveForward(50);
-					//					amIMoving();
 					}
-					
+
 					while(!stopFlag && (Move.getDist(nxt, ball.getCoors()))<20){
 						nxt.rotateRobot(90);
 						nxt.moveForward(DEFAULT_SPEED);
@@ -473,7 +472,6 @@ public class Runner extends Thread {
 				nxt.rotateRobot(angle);
 
 				nxt.moveForward(DEFAULT_SPEED);
-				//				amIMoving();
 				Thread.sleep(1000);
 				nxt.stop();
 				nxt.moveBackward(DEFAULT_SPEED);
@@ -880,95 +878,95 @@ public class Runner extends Thread {
 				}
 			}
 		}
-		
-			if (ball.getCoors().getX() < 70 || ball.getCoors().getX() > 560) {
-				isScore = true;
-			} else {
-				isScore = false;
+
+		if (ball.getCoors().getX() < 70 || ball.getCoors().getX() > 560) {
+			isScore = true;
+		} else {
+			isScore = false;
+		}
+		if (teamYellow) {
+			nxt.setAngle(state.getYellowOrientation());
+			nxt.setCoors(new Position(state.getYellowX(), state.getYellowY()));
+
+			otherRobot.setAngle(state.getBlueOrientation());
+			otherRobot.setCoors(new Position(state.getBlueX(), state.getBlueY()));
+
+		} else {
+			nxt.setAngle(state.getBlueOrientation());
+			nxt.setCoors(new Position(state.getBlueX(), state.getBlueY()));
+
+			otherRobot.setAngle(state.getYellowOrientation());
+			otherRobot.setCoors(new Position(state.getYellowX(), state
+					.getYellowY()));
+
+		}
+		gui.setCoordinateLabels(nxt.getCoors(), otherRobot.getCoors(), ball.getCoors());
+
+		if(findPath){
+			waypoints = planner.getOptimalPath(nxt.getCoors(), ball.getCoors(), otherRobot.getCoors());
+
+			for (int s = 0; s < waypoints.size(); s++) {
+				int distBetweenWaypoint = Move.getDist(nxt, waypoints.get(s));
+				if(distBetweenWaypoint < 40) waypoints.remove(s);
 			}
-			if (teamYellow) {
-				nxt.setAngle(state.getYellowOrientation());
-				nxt.setCoors(new Position(state.getYellowX(), state.getYellowY()));
-
-				otherRobot.setAngle(state.getBlueOrientation());
-				otherRobot.setCoors(new Position(state.getBlueX(), state.getBlueY()));
-
-			} else {
-				nxt.setAngle(state.getBlueOrientation());
-				nxt.setCoors(new Position(state.getBlueX(), state.getBlueY()));
-
-				otherRobot.setAngle(state.getYellowOrientation());
-				otherRobot.setCoors(new Position(state.getYellowX(), state
-						.getYellowY()));
-
-			}
-			gui.setCoordinateLabels(nxt.getCoors(), otherRobot.getCoors(), ball.getCoors());
-
-			if(findPath){
-				waypoints = planner.getOptimalPath(nxt.getCoors(), ball.getCoors(), otherRobot.getCoors());
-
-				for (int s = 0; s < waypoints.size(); s++) {
-					int distBetweenWaypoint = Move.getDist(nxt, waypoints.get(s));
-					if(distBetweenWaypoint < 40) waypoints.remove(s);
-				}
-				bla.setCoors(waypoints.get(0).getX(),waypoints.get(0).getY());
-				gotoBall.setCoors(waypoints.get(0).getX(),waypoints.get(0).getY());
-			}
-		}
-
-		//	public ArrayList<Ball> getPath() {
-		//		waypoints = planner.getOptimalPath(nxt.getCoors(), ball.getCoors(),	otherRobot.getCoors());
-		//		for (int f = 0; f < waypoints.size(); f++) {
-		//			Ball a = new Ball();
-		//			a.setCoors(waypoints.get(f));
-		//			goals.add(a);
-		//		}
-		//		System.out.println("PLANNER IN BALLS: "
-		//				+ goals.get(goals.size() - 1).getCoors().getX() + " "
-		//				+ goals.get(goals.size() - 1).getCoors().getY());
-		//		return goals;
-		//	}
-
-		public void setRobotColour() {
-			if (teamYellow) {
-				nxt = yellowRobot;
-				otherRobot = blueRobot;
-
-			} else {
-				nxt = blueRobot;
-				otherRobot = yellowRobot;
-			}
-		}
-
-		public void setTeamYellow(boolean team) {
-			teamYellow = team;
-		}
-
-		public Robot getOurRobot() {
-			return nxt;
-		}
-
-		public Robot getTheirRobot() {
-			return otherRobot;
-		}
-
-		public Ball getBall() {
-			return ball;
-		}
-
-		public Position getOurGoal() {
-			return ourGoal;
-		}
-
-		public Position getTheirGoal() {
-			return theirGoal;
-		}
-
-		public Position getPitchCentre() {
-			return pitchCentre;
-		}
-
-		public void setStopFlag(boolean flag) {
-			stopFlag = flag;
+			bla.setCoors(waypoints.get(0).getX(),waypoints.get(0).getY());
+			gotoBall.setCoors(waypoints.get(0).getX(),waypoints.get(0).getY());
 		}
 	}
+
+	//	public ArrayList<Ball> getPath() {
+	//		waypoints = planner.getOptimalPath(nxt.getCoors(), ball.getCoors(),	otherRobot.getCoors());
+	//		for (int f = 0; f < waypoints.size(); f++) {
+	//			Ball a = new Ball();
+	//			a.setCoors(waypoints.get(f));
+	//			goals.add(a);
+	//		}
+	//		System.out.println("PLANNER IN BALLS: "
+	//				+ goals.get(goals.size() - 1).getCoors().getX() + " "
+	//				+ goals.get(goals.size() - 1).getCoors().getY());
+	//		return goals;
+	//	}
+
+	public void setRobotColour() {
+		if (teamYellow) {
+			nxt = yellowRobot;
+			otherRobot = blueRobot;
+
+		} else {
+			nxt = blueRobot;
+			otherRobot = yellowRobot;
+		}
+	}
+
+	public void setTeamYellow(boolean team) {
+		teamYellow = team;
+	}
+
+	public Robot getOurRobot() {
+		return nxt;
+	}
+
+	public Robot getTheirRobot() {
+		return otherRobot;
+	}
+
+	public Ball getBall() {
+		return ball;
+	}
+
+	public Position getOurGoal() {
+		return ourGoal;
+	}
+
+	public Position getTheirGoal() {
+		return theirGoal;
+	}
+
+	public Position getPitchCentre() {
+		return pitchCentre;
+	}
+
+	public void setStopFlag(boolean flag) {
+		stopFlag = flag;
+	}
+}

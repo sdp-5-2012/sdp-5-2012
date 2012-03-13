@@ -32,6 +32,7 @@ public class MainGui extends JFrame {
 	boolean isPenaltyAttack = false;
 	boolean isPenaltyDefend = false;
 	String constantsLocation;
+	String cameraLocation;
 	boolean isMainPitch = false;
 
 	public MainGui(Runner runner) {
@@ -72,8 +73,10 @@ public class MainGui extends JFrame {
 
 		menuBar.add(importMenu);
 		JMenuItem loadConstants = new JMenuItem("Load Constants");
+		JMenuItem loadCamera = new JMenuItem("Load Camera Settings");
 
 		importMenu.add(loadConstants);		
+//		importMenu.add(loadCamera);
 
 		// Add Listener for load constants menu button
 		loadConstants.addActionListener(new ActionListener() {
@@ -92,12 +95,41 @@ public class MainGui extends JFrame {
 				// Create the actions				
 				fc.showOpenDialog(frame);
 				constantsFile = fc.getSelectedFile();
-				constantsLocation += "/" + constantsFile.getName();
+				if(constantsFile != null) {
+					constantsLocation += "/" + constantsFile.getName();
+					log.setCurrentPitchConstants(constantsFile.getName());
+				} else {
+					constantsLocation = src + "/pitch0";
+				}
 
-				log.setCurrentPitchConstants(constantsFile.getName());
+			}
+		});   
+		
+		// Add Listener for load camera settings menu button
+		loadCamera.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				JFrame frame = new JFrame();
+				constantsLocation = "";
+				// Create a file chooser and default to constants folder
+				constantsLocation = getClass().getClassLoader().getResource(".").getPath();
+				String src = constantsLocation.substring(0, constantsLocation.length()-4);
+				src = src + "constants";
+				constantsLocation = src;
+
+				JFileChooser fc = new JFileChooser(new File(src));
+				// Create the actions				
+				fc.showOpenDialog(frame);
+				constantsFile = fc.getSelectedFile();
+				if(constantsFile != null) {
+					constantsLocation += "/" + constantsFile.getName();
+					log.setCurrentPitchConstants(constantsFile.getName());
+				}
+				
 				System.out.println(constantsLocation);
 			}
-		});        
+		});  
 	}
 
 	public void addListeners() {
@@ -140,9 +172,8 @@ public class MainGui extends JFrame {
 						runner.notify();
 					}
 				} else if(log.startStop.getText() == "Stop") {
-					runner.setStopFlag(true);
+					runner.setStopFlag(true);//
 					log.startStop.setText("Start");
-					//			Runner.nxt.stop();
 				}
 			}
 		});
