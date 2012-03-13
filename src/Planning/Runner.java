@@ -1,6 +1,5 @@
 package Planning;
 
-import java.awt.Point;
 import java.util.ArrayList;
 import au.edu.jcu.v4l4j.V4L4JConstants;
 import au.edu.jcu.v4l4j.exceptions.V4L4JException;
@@ -16,68 +15,60 @@ public class Runner extends Thread {
 	Position ballOffsetPosition;
 
 	// Objects
-	public static Ball ball;
-	public static Robot nxt;
-	public static Robot otherRobot;
-	static Robot blueRobot;
-	static Robot yellowRobot;
-	static WorldState state;
-	ControlGUI control;
-	static Runner instance = null;
-	boolean usingSimulator = false;
-	Vision vision;
-	PathPlanner planner;
-	static MainGui gui;
-	Strategy s;
-	boolean stopFlag = false;
-
-	Point ourNXT = new Point();
-	Point otherNXT = new Point();
-	Point ballPoint = new Point();
+	private static Ball ball;
+	private static Robot nxt;
+	private static Robot otherRobot;
+	private static Robot blueRobot;
+	private static Robot yellowRobot;
+	private static WorldState state;
+	private ControlGUI control;
+	private static Runner instance = null;
+	private boolean usingSimulator = false;
+	private Vision vision;
+	private PathPlanner planner;
+	private static MainGui gui;
+	private Strategy s;
+	private boolean stopFlag = false;
 
 	// game flags
-	boolean teamYellow = false;
-	boolean attackLeft = false;
-	boolean isPenaltyAttack = false;
-	boolean isPenaltyDefend = false;
-	boolean applyClicked = false;
-	boolean isMainPitch = false;
-	String constantsLocation;
-	boolean initialVision = false;
-	boolean isScore = false;
-	boolean extremeStrip = false;
-	int currentCamera = 0;
+	private boolean teamYellow = false;
+	private boolean attackLeft = false;
+	private boolean isPenaltyAttack = false;
+	private boolean isPenaltyDefend = false;
+	private boolean isMainPitch = false;
+	private String constantsLocation;
+	private boolean isScore = false;
+	private boolean extremeStrip = false;
+	private int currentCamera = 0;
 
 	// Positions
-	Position pitchCentre = null;
-	Position ourGoal = null;
-	Position theirGoal = null;
-	Position leftGoalMain = new Position(40, 250);
-	Position leftGoalSide = new Position(62, 233);
-	Position rightGoalMain = new Position(608, 242);
-	Position rightGoalSide = new Position(567, 238);
-	Position centreMain = new Position(284, 246);
-	Position centreSide = new Position(253, 236);
+	private Position pitchCentre = null;
+	private Position ourGoal = null;
+	private Position theirGoal = null;
+	private Position leftGoalMain = new Position(40, 250);
+	private Position leftGoalSide = new Position(62, 233);
+	private Position rightGoalMain = new Position(608, 242);
+	private Position rightGoalSide = new Position(567, 238);
+	private Position centreMain = new Position(284, 246);
+	private Position centreSide = new Position(253, 236);
 
-	int topY = 0;
-	int lowY = 0;
-	int leftX = 0;
-	int rightX = 0;
+	private int topY = 0;
+	private int lowY = 0;
+	private int leftX = 0;
+	private int rightX = 0;
 
-	int mainTopY = 80;
-	int mainLowY = 392;
-	int mainLeftX = 40;
-	int mainRightX = 608;
+	private int mainTopY = 80;
+	private int mainLowY = 392;
+	private int mainLeftX = 40;
+	private int mainRightX = 608;
 
-	int sideTopY = 92;
-	int sideLowY = 369;
-	int sideLeftX = 62;
-	int sideRightX = 567;
+	private int sideTopY = 92;
+	private int sideLowY = 369;
+	private int sideLeftX = 62;
+	private int sideRightX = 567;
 
-	Position dest = new Position(0, 0);
-
-	public static final int DEFAULT_SPEED = 45; // used for move_forward method in Robot
-	public static final int EACH_WHEEL_SPEED = 900; // used for each_wheel_speed method in Robot
+	private static final int DEFAULT_SPEED = 45; // used for move_forward method in Robot
+	private static final int EACH_WHEEL_SPEED = 900; // used for each_wheel_speed method in Robot
 
 	public static void main(String args[]) {
 		instance = new Runner();
@@ -198,12 +189,10 @@ public class Runner extends Thread {
 		ThresholdsState thresholdsState = new ThresholdsState();
 
 		/* Default to main pitch. */
-		//		PitchConstants pitchConstants = new PitchConstants("/afs/inf.ed.ac.uk/user/s09/s0950134/git/sdp-5-2012/constants/pitch1");
 		PitchConstants pitchConstants = new PitchConstants(constantsLocation);
 
 		control = new ControlGUI(thresholdsState, worldState, pitchConstants);
 		control.initGUI();
-		System.out.println(currentCamera);
 
 		/* Default values for the main vision window. */
 		String videoDevice = "/dev/video0";
@@ -441,7 +430,7 @@ public class Runner extends Thread {
 	 * Mode 0: Default "go to ball, aim, kick"
 	 * @throws InterruptedException
 	 */
-	public void modeZero() throws InterruptedException {
+	private void modeZero() throws InterruptedException {
 		System.out.println("MODE ZERO");
 		while (!stopFlag && s.getCurrentMode() == 0) {
 			getPitchInfo(false);
@@ -878,7 +867,7 @@ public class Runner extends Thread {
 	/**
 	 * Get the most recent information from vision
 	 */
-	public void getPitchInfo(boolean findPath) {
+	private void getPitchInfo(boolean findPath) {
 
 		// Get pitch information from vision
 		int i = 0;
