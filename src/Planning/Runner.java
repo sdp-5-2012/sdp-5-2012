@@ -203,6 +203,7 @@ public class Runner extends Thread {
 
 		control = new ControlGUI(thresholdsState, worldState, pitchConstants);
 		control.initGUI();
+		System.out.println(currentCamera);
 
 		/* Default values for the main vision window. */
 		String videoDevice = "/dev/video0";
@@ -216,7 +217,7 @@ public class Runner extends Thread {
 			/* Create a new Vision object to serve the main vision window. */
 			vision = new Vision(videoDevice, width, height, channel,
 					videoStandard, compressionQuality, worldState,
-					thresholdsState, pitchConstants);
+					thresholdsState, pitchConstants, currentCamera);
 
 		} catch (V4L4JException e) {
 			e.printStackTrace();
@@ -467,7 +468,7 @@ public class Runner extends Thread {
 			while(!stopFlag && dist > 40 && s.getCurrentMode() == 0) { // dist in pixels
 
 				getPitchInfo(false);
-				vision.drawPos(ballOffsetPosition);
+//				vision.drawPos(ballOffsetPosition);
 				dist = Move.getDist(nxt, ballOffsetPosition);
 				int n = Move.getAngleToPosition(nxt, ballOffsetPosition);
 				//			System.out.println("angle to offset ball: " + n);
@@ -689,7 +690,7 @@ public class Runner extends Thread {
 			nxt.moveForward(DEFAULT_SPEED);
 			while (!stopFlag && s.getCurrentMode() == 5 && Move.getDist(nxt, gotoBall) > 15) { 
 				getPitchInfo(false);
-				Vision.plotPoints(waypoints);
+//				Vision.plotPoints(waypoints);
 				//				dist = Move.getDist(nxt, gotoBall);
 				int n = Move.getAngleToPosition(nxt, gotoBall);
 

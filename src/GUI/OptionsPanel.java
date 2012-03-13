@@ -89,6 +89,8 @@ public class OptionsPanel extends JPanel {
 		cameraZero = new JRadioButton("0 (side pitch)");
 		cameraOne = new JRadioButton("1 (upper main)");
 		cameraTwo = new JRadioButton("2 (lower main)");
+		cameraZero.setSelected(true);
+		
 		// Group together
 		cameraChoiceGroup = new ButtonGroup();
 		cameraChoiceGroup.add(cameraZero);

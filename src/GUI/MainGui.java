@@ -116,12 +116,13 @@ public class MainGui extends JFrame {
 				}
 
 				runner.setRobotColour();
+				setCamera();
 				runner.setCurrentCamera(currentCamera);
 
 				// Repeatedly try and make connection
-				while (!Runner.nxt.startCommunications()) {
-					log.setIsConnected(false);
-				}
+//				while (!Runner.nxt.startCommunications()) {
+//					log.setIsConnected(false);
+//				}
 
 				log.setIsConnected(true);
 				// Start vision
@@ -194,18 +195,7 @@ public class MainGui extends JFrame {
 		} else {
 			isMainPitch = false;
 		}
-		
-		// Case for camera
-		if(options.cameraZero.isSelected()) {
-			log.setCurrentCamera(0);
-			currentCamera = 0;			
-		} else if(options.cameraOne.isSelected()) {
-			log.setCurrentCamera(1);
-			currentCamera = 1;
-		} else if(options.cameraTwo.isSelected()) {
-			log.setCurrentCamera(2);
-			currentCamera = 2;
-		}
+	
 	}
 
 	// Getters
@@ -245,5 +235,19 @@ public class MainGui extends JFrame {
 		log.setOurCoors(ourRobot);
 		log.setEnemyCoors(enemyRobot);
 		log.setBallCoors(ball);
+	}
+	
+	public void setCamera() {
+		// Case for camera
+		if(options.cameraZero.isSelected()) {
+			log.setCurrentCamera(0);
+			currentCamera = 0;			
+		} else if(options.cameraOne.isSelected()) {
+			log.setCurrentCamera(1);
+			currentCamera = 1;
+		} else if(options.cameraTwo.isSelected()) {
+			log.setCurrentCamera(2);
+			currentCamera = 2;
+		}
 	}
 }
