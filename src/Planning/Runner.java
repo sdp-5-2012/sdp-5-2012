@@ -75,7 +75,7 @@ public class Runner extends Thread {
 
 	Position dest = new Position(0, 0);
 
-	public static final int DEFAULT_SPEED = 35; // used for move_forward method in Robot
+	public static final int DEFAULT_SPEED = 45; // used for move_forward method in Robot
 	public static final int EACH_WHEEL_SPEED = 900; // used for each_wheel_speed method in Robot
 
 	public static void main(String args[]) {
@@ -322,7 +322,7 @@ public class Runner extends Thread {
 			nxt.rotateRobot(angle);
 			System.out.println("Initial angle " + angle);
 
-			nxt.moveForward(30);
+			nxt.moveForward(DEFAULT_SPEED);
 
 			//			Thread.sleep(1000);
 			//			amIMoving();			
@@ -340,7 +340,7 @@ public class Runner extends Thread {
 					getPitchInfo(false);
 					dist = Move.getDist(nxt, ballOffsetPosition);
 
-					nxt.moveForward(30);
+					nxt.moveForward(DEFAULT_SPEED);
 					//					Thread.sleep(1000);
 					//					amIMoving();
 				}
@@ -368,7 +368,7 @@ public class Runner extends Thread {
 				}
 
 				nxt.rotateRobot(angle);
-				nxt.moveForward(30);
+				nxt.moveForward(DEFAULT_SPEED);
 				//				Thread.sleep(1000);
 				//
 				//				amIMoving();
@@ -463,7 +463,7 @@ public class Runner extends Thread {
 					
 					while(!stopFlag && (Move.getDist(nxt, ball.getCoors()))<20){
 						nxt.rotateRobot(90);
-						nxt.moveForward(30);
+						nxt.moveForward(DEFAULT_SPEED);
 					}
 				}
 				nxt.stop();
@@ -472,14 +472,14 @@ public class Runner extends Thread {
 				angle = Move.getAngleToPosition(nxt, rotatePoint);
 				nxt.rotateRobot(angle);
 
-				nxt.moveForward(30);
+				nxt.moveForward(DEFAULT_SPEED);
 				//				amIMoving();
 				Thread.sleep(1000);
 				nxt.stop();
-				nxt.moveBackward(30);
+				nxt.moveBackward(DEFAULT_SPEED);
 				Thread.sleep(2000);
 				nxt.stop();
-				nxt.moveForward(30);
+				nxt.moveForward(DEFAULT_SPEED);
 				Thread.sleep(1000);
 			}
 	}
@@ -550,7 +550,7 @@ public class Runner extends Thread {
 			//		 while(true){
 			//		 Vision.plotPoints(goals);
 			//		 }
-			nxt.moveForward(30);
+			nxt.moveForward(DEFAULT_SPEED);
 			while (!stopFlag && s.getCurrentMode() == 5 && Move.getDist(nxt, gotoBall) > 15) { 
 				getPitchInfo(false);
 				Vision.plotPoints(waypoints);
@@ -566,7 +566,7 @@ public class Runner extends Thread {
 					}
 					getPitchInfo(false);
 					//					dist = Move.getDist(nxt, gotoBall);
-					nxt.moveForward(20);
+					nxt.moveForward(DEFAULT_SPEED);
 				}
 			}
 		}
@@ -579,7 +579,7 @@ public class Runner extends Thread {
 		System.out.println("MODE SIX");
 		while(!stopFlag && s.getCurrentMode() == 6) {
 			nxt.rotateRobot(Move.getAngleToPosition(nxt, theirGoal));
-			nxt.moveForward(30);
+			nxt.moveForward(DEFAULT_SPEED);
 			nxt.kick();
 			nxt.stop();
 			getPitchInfo(false);
@@ -601,11 +601,11 @@ public class Runner extends Thread {
 						difference = ballInitial.getY() - ball.getCoors().getY();
 						if (Math.abs(difference) > 5 ) {
 							if (difference > 0) { 
-								nxt.moveForward(35);
+								nxt.moveForward(DEFAULT_SPEED);
 								Thread.sleep(1000);
 								nxt.stop();
 							} else if(difference < 0) { 
-								nxt.moveBackward(35);
+								nxt.moveBackward(DEFAULT_SPEED);
 								Thread.sleep(1000);
 								nxt.stop();
 							} else {
