@@ -233,7 +233,8 @@ public class Runner extends Thread {
 		s = new Strategy(instance);
 		Thread strategy = new Thread(s);
 		strategy.start();
-
+		modeHundred();
+		
 		while (true) {
 			if(!stopFlag) {		
 
@@ -298,6 +299,141 @@ public class Runner extends Thread {
 		setPositionInformation();
 		setRobotColour();
 	}
+
+	//	ModeStart
+	private void modeHundred() {
+		if(attackLeft){
+			double boo = Math.random();
+			Position positionNearBall = new Position (0,0); 
+			Position onWall = new Position (0,0);
+			if(boo > 0.5){
+
+				//			Gets the robot to either just right or just left of the ball 
+				getPitchInfo(false);
+				int positionNearBallX = ball.getCoors().getX()+10;
+				int positionNearBallY = ball.getCoors().getY()+10;
+
+				positionNearBall.setCoors(positionNearBallX, positionNearBallY);
+				int angleToNearBall = Move.getAngleToPosition(nxt, positionNearBall);
+				nxt.rotateRobot(angleToNearBall);
+
+				while((Move.getDist(nxt, positionNearBall) > 5)) {
+					if (!stopFlag) {
+						break;
+					}
+					nxt.moveForward(DEFAULT_SPEED);
+				}
+				nxt.stop();
+
+				//			Get angle to the point on the wall (in line with the mid point between the
+				//			ball and the centre of goal)
+
+				int halfDist = Move.getDist(nxt, theirGoal) /2;
+				int onWallX = ball.getCoors().getX() - halfDist;
+				onWall.setCoors(onWallX, topY);
+
+				nxt.rotateRobot(Move.getAngleToPosition(nxt, onWall));
+				nxt.kick();			
+				nxt.stop();
+
+			} else {
+				//				Gets the robot to either just right or just left of the ball 			
+				getPitchInfo(false);
+				int positionNearBallX = ball.getCoors().getX()-10;
+				int positionNearBallY = ball.getCoors().getY()-10;
+				positionNearBall.setCoors(positionNearBallX, positionNearBallY);
+				int angleToNearBall = Move.getAngleToPosition(nxt, positionNearBall);
+				nxt.rotateRobot(angleToNearBall);
+
+				while((Move.getDist(nxt, positionNearBall) > 5)) {
+					if (!stopFlag) {
+						break;
+					}
+					nxt.moveForward(DEFAULT_SPEED);
+				}
+				nxt.stop();
+
+				//				Get angle to the point on the wall (in line with the mid point between the
+				//				ball and the centre of goal)
+
+				int halfDist = Move.getDist(nxt, theirGoal) /2;
+				int onWallX = ball.getCoors().getX() - halfDist;
+				onWall.setCoors(onWallX, lowY);
+
+				nxt.rotateRobot(Move.getAngleToPosition(nxt, onWall));
+				nxt.kick();			
+				nxt.stop();
+			}
+		} else {
+			double boo = Math.random();
+			Position positionNearBall = new Position (0,0); 
+			Position onWall = new Position (0,0);
+			if(boo > 0.5){
+
+				//			Gets the robot to either just right or just left of the ball 
+				getPitchInfo(false);
+				int positionNearBallX = ball.getCoors().getX()+10;
+				int positionNearBallY = ball.getCoors().getY()+10;
+
+				positionNearBall.setCoors(positionNearBallX, positionNearBallY);
+				int angleToNearBall = Move.getAngleToPosition(nxt, positionNearBall);
+				nxt.rotateRobot(angleToNearBall);
+
+				while((Move.getDist(nxt, positionNearBall) > 5)) {
+					if (!stopFlag) {
+						break;
+					}
+					nxt.moveForward(DEFAULT_SPEED);
+				}
+				nxt.stop();
+
+				//			Get angle to the point on the wall (in line with the mid point between the
+				//			ball and the centre of goal)
+
+				int halfDist = Move.getDist(nxt, theirGoal) /2;
+				int onWallX = ball.getCoors().getX() + halfDist;
+				onWall.setCoors(onWallX, topY);
+
+				nxt.rotateRobot(Move.getAngleToPosition(nxt, onWall));
+				nxt.kick();			
+				nxt.stop();
+
+			} else {
+				//				Gets the robot to either just right or just left of the ball 			
+				getPitchInfo(false);
+				int positionNearBallX = ball.getCoors().getX()+10;
+				int positionNearBallY = ball.getCoors().getY()-10;
+				positionNearBall.setCoors(positionNearBallX, positionNearBallY);
+				int angleToNearBall = Move.getAngleToPosition(nxt, positionNearBall);
+				nxt.rotateRobot(angleToNearBall);
+
+				while((Move.getDist(nxt, positionNearBall) > 5)) {
+					if (!stopFlag) {
+						break;
+					}
+					nxt.moveForward(DEFAULT_SPEED);
+				}
+				nxt.stop();
+
+				//				Get angle to the point on the wall (in line with the mid point between the
+				//				ball and the centre of goal)
+
+				int halfDist = Move.getDist(nxt, theirGoal) /2;
+				int onWallX = ball.getCoors().getX() + halfDist;
+				onWall.setCoors(onWallX, lowY);
+
+				nxt.rotateRobot(Move.getAngleToPosition(nxt, onWall));
+				nxt.kick();			
+				nxt.stop();
+			}
+		}
+	}
+			
+
+			
+
+
+	
 
 	/**
 	 * Mode 0: Default "go to ball, aim, kick"
