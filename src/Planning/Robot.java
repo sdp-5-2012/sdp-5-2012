@@ -1,10 +1,6 @@
 package Planning;
 import JavaVision.*;
-
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.LinkedList;
 import lejos.pc.comm.NXTCommFactory;
 import lejos.pc.comm.NXTInfo;
@@ -18,7 +14,6 @@ public class Robot extends ObjectDetails {
 	public boolean askingToReset = false;
 
 	public boolean moving = true;
-	public boolean stuck = false;
 
 	private final static int DO_NOTHING = 0X00;
 	private final static int FORWARDS = 0X01;
@@ -27,16 +22,15 @@ public class Robot extends ObjectDetails {
 	private final static int KICK = 0X04;
 	private final static int QUIT = 0X05;
 	private final static int FORWARDS_TRAVEL=0X06;
-	private final static int TRAVEL_BACKWARDS_SLIGHRLY=0X07;
+	private final static int TRAVEL_BACKWARDS_SLIGHTLY=0X07;
 	private final static int TRAVEL_ARC=0X08;
 	private final static int ACCELERATE=0X09;
 
 	private final static int ROTATE = 0X0A;
-	private final static int EACH_WHEEL_SPEED=0X0B;
+	private final static int SET_WHEEL_SPEED=0X0B;
 	private final static int STEER =0X0C;
-	private final static int ARE_WE_STUCK = 0X0D;
-	
-	private LinkedList<Integer> commandList = new LinkedList<Integer>();
+
+	private LinkedList<byte[]> commandList = new LinkedList<byte[]>();
 	private BluetoothCommunication comms;
 	private lejos.pc.comm.NXTComm nxtComm;
 	private NXTInfo info = new NXTInfo(NXTCommFactory.BLUETOOTH, "NXT",
@@ -111,11 +105,12 @@ public class Robot extends ObjectDetails {
 
 	/**
 	 * Add a command to the queue to be sent to the robot
-	 * @throws IOException 
 	 */
-	public void addCommand(int command)  {
+	public void addCommand(byte[] command) {
+
 		while (commandList.size() > 3) {
 			commandList.remove();
+			System.out.println("<");
 		}
 		commandList.offer(command);
 		sendToRobot(command);
@@ -131,7 +126,7 @@ public class Robot extends ObjectDetails {
 	/**
 	 * Sends a command to the robot
 	 */
-	public void sendToRobot(int command) {
+	public void sendToRobot(byte[] command) {
 		//		System.out.println("SENT "+command+" TO ROBOT");
 		comms.sendToRobot(command);
 	}
@@ -151,8 +146,6 @@ public class Robot extends ObjectDetails {
 			// Robot has finished moving
 			System.out.println("RESPONSE: FINISHED ROTATION!");
 			moving = false;
-		} else if (response == 'S'){
-			stuck = true;
 		}
 
 		return response;
@@ -164,17 +157,17 @@ public class Robot extends ObjectDetails {
 	 */
 	public void moveForward(int speed) {
 		moving = true;
-		int command = FORWARDS |(speed << 8);
+		byte[] command = {FORWARDS,(byte)speed,0x00,0x00};
 		addCommand(command);
 		//	System.out.println("move forward");
 	}
 
-	public void accelerateRobot(int acceleration) {
-		moving = true;
-		int command = ACCELERATE | (acceleration <<16 );
-		addCommand(command);
-		System.out.println("accerelate");
-	}
+// 	public void accelerateRobot(int acceleration) {
+// 		moving = true;
+// 		int command = ACCELERATE | (acceleration <<16 );
+// 		addCommand(command);
+// 		System.out.println("accerelate");
+// 	}
 
 
 	/**
@@ -182,7 +175,7 @@ public class Robot extends ObjectDetails {
 	 */
 	public void moveBackward(int speed) {
 		moving = true;
-		int command = BACKWARDS |(speed << 8);
+		byte[] command = {BACKWARDS,(byte)speed,0x00,0x00};
 		addCommand(command);
 		System.out.println("move backward");
 	}
@@ -191,13 +184,9 @@ public class Robot extends ObjectDetails {
 	 * Commands the robot to move backward slightly
 	 */
 	public void backwardsSlightly(){
-		addCommand(TRAVEL_BACKWARDS_SLIGHRLY);
+		byte[] command = {TRAVEL_BACKWARDS_SLIGHTLY,0x00,0x00,0x00};
+		addCommand(command);
 		System.out.println("move backward a little bit");
-	}
-	
-	public void backOffBitch(){
-		backwardsSlightly();
-		rotateRobot(90);
 	}
 
 	/**
@@ -205,7 +194,9 @@ public class Robot extends ObjectDetails {
 	 */
 	public void rotateRobot(int angle) {
 		moving = true;
-		int command = ROTATE |(angle << 8);
+		short angle2 = (short)angle;
+		byte[] command = {ROTATE,0x00,(byte)(angle2 >> 8),(byte)angle2};
+		System.out.println(command[0] + ", " + command[1] + ", " + command[2] + ", " + command[3]);
 
 		addCommand(command);
 		System.out.println("rotate");
@@ -228,38 +219,27 @@ public class Robot extends ObjectDetails {
 	 */
 	public void travelArcRobot(int radius, int distance) {
 		moving = true;
-		int command = TRAVEL_ARC | (radius << 8) | (distance << 8);
+		byte[] command = {TRAVEL_ARC,(byte)radius,(byte)(distance >> 8),(byte)distance};
 		addCommand(command);
 		System.out.println("travel along arc");
 
 	}
 
-	public void each_wheel_speed(int left_wheel_speed,
-			int right_wheel_speed){
-		System.out.println("Different wheel speed");
-		int command = EACH_WHEEL_SPEED |(int)Math.abs((left_wheel_speed <<8))
-		|(int)Math.abs((right_wheel_speed <<20));
-		// set the sign bit for the left wheel
-		if (left_wheel_speed > 0) {
-			command = command | (1 << 19);
-		}
-
-		// set the sign bit for the right wheel
-		if (right_wheel_speed > 0) {
-			command = command | (1 << 31);
-		}
+	public void set_wheel_speed(int speed){
+		System.out.println("set wheel speed");
+		byte[] command = {SET_WHEEL_SPEED,(byte)speed,0x00,0x00};
 		addCommand(command);
 	}
 
 
 
-	public void steer(int turnRate, int angle){
-		int command = STEER|(turnRate << 8)
-		| (turnRate << 8);
-		System.out.println("start steer");
-		addCommand(command);
-
-	}
+// 	public void steer(int turnRate, int angle){
+// 		int command = STEER|(turnRate << 8)
+// 		| (turnRate << 8);
+// 		System.out.println("start steer");
+// 		addCommand(command);
+// 
+// 	}
 
 
 	/**
@@ -267,12 +247,8 @@ public class Robot extends ObjectDetails {
 	 */
 	public void stop() {
 		moving = false;
-		addCommand(STOP);
-	}
-	
-	public void askIfStuck() {
-		
-		addCommand(ARE_WE_STUCK);
+		byte[] command = {STOP,0x00,0x00,0x00};
+		addCommand(command);
 	}
 
 	/**
@@ -280,7 +256,8 @@ public class Robot extends ObjectDetails {
 	 */
 	public void kick() {
 		System.out.println("kick");
-		addCommand(KICK);
+		byte[] command = {KICK,0x00,0x00,0x00};
+		addCommand(command);
 	}
 
 	public void setConnected(boolean isConnected) {
@@ -293,10 +270,6 @@ public class Robot extends ObjectDetails {
 
 	public boolean isMoving() {
 		return moving;
-	}
-	
-	public boolean isStuck() {
-		return stuck;
 	}
 
 }

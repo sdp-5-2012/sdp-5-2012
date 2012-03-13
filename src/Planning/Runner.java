@@ -274,7 +274,7 @@ public class Runner extends Thread {
 					break;
 
 				}
-				//Thread.sleep(1000);
+				Thread.sleep(1000);
 			} else {
 				nxt.stop();
 				waitForNewInput();
@@ -647,7 +647,6 @@ public class Runner extends Thread {
 					nxt.moveForward(50);
 				}
 				nxt.stop();
-
 			}
 		nxt.stop();
 	}
@@ -771,15 +770,15 @@ public class Runner extends Thread {
 	}
 
 
-	private void amIMoving() {
-		System.out.println("ARE WE MOVING?");
-		nxt.askIfStuck();
-		if(nxt.isStuck()){
-			System.out.println("STTTUUUUCCCKKK");
-			nxt.backOffBitch();
-
-		}
-	}
+//	private void amIMoving() {
+//		System.out.println("ARE WE MOVING?");
+//		nxt.askIfStuck();
+//		if(nxt.isStuck()){
+//			System.out.println("STTTUUUUCCCKKK");
+//			nxt.backOffBitch();
+//
+//		}
+//	}
 
 	private int getAverageAngle() {
 		int angle = 0;
