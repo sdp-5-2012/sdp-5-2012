@@ -118,9 +118,9 @@ public class MainGui extends JFrame {
 				runner.setCurrentCamera(currentCamera);
 
 				// Repeatedly try and make connection
-//				while (!Runner.nxt.startCommunications()) {
-//					log.setIsConnected(false);
-//				}
+				while (!Runner.nxt.startCommunications()) {
+					log.setIsConnected(false);
+				}
 
 				log.setIsConnected(true);
 				// Start vision
@@ -197,10 +197,6 @@ public class MainGui extends JFrame {
 	}
 
 	// Getters
-	//	public boolean getApplyClicked() {
-	//		return applyClicked;
-	//	}
-
 	public boolean getTeam() {
 		return isYellow;
 	}

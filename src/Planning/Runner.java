@@ -16,7 +16,7 @@ public class Runner extends Thread {
 
 	// Objects
 	private static Ball ball;
-	private static Robot nxt;
+	public static Robot nxt;
 	private static Robot otherRobot;
 	private static Robot blueRobot;
 	private static Robot yellowRobot;
@@ -229,11 +229,14 @@ public class Runner extends Thread {
 		Thread strategy = new Thread(s);
 		strategy.start();
 
-		modeStart();
+		if(!stopFlag) {
+			modeStart();
+		} else {
+			waitForNewInput();
+		}
 
 		while (true) {
 			if(!stopFlag) {		
-
 				if (isPenaltyAttack) {
 					penaltyAttack();
 				} else if (isPenaltyDefend) {
@@ -428,7 +431,7 @@ public class Runner extends Thread {
 			}
 		}
 	}
-	
+
 	/**
 	 * Mode 0: Default "go to ball, aim, kick"
 	 * @throws InterruptedException
