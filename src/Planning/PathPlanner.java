@@ -17,7 +17,7 @@ public class PathPlanner {
 	public static int gridSize = 10;// size of a square on the map
 	public static int gridX = (int) Math.ceil(pitchX / gridSize);
 	public static int gridY = (int) Math.ceil(pitchY / gridSize);
-	int correction = 40;
+	int correction = 35;
 	public static ArrayList<GraphPoint> path;
 	public static ArrayList<GraphPoint> occupied = new ArrayList<GraphPoint>();
 	public static ArrayList<GraphPoint> checked;
