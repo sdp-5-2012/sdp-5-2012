@@ -45,8 +45,12 @@ public class Vision extends WindowAdapter {
 	private WorldState worldState;
 	private ThresholdsState thresholdsState;
 	private PitchConstants pitchConstants;
-	private int camera = 1;
+	private int camera = 2;
 	BufferedImage frameImage;
+	private final static double robotH = 12;
+	private final static double roomH = 200;
+	private double middleX;
+	private double middleY;
 
 	// private int[] xDistortion;
 	// private int[] yDistortion;
@@ -82,6 +86,9 @@ public class Vision extends WindowAdapter {
 		this.worldState = worldState;
 		this.thresholdsState = thresholdsState;
 		this.pitchConstants = pitchConstants;
+		this.middleX = width/2;
+		this.middleY = height/2;
+		
 
 		/* Initialise the GUI that displays the video feed. */
 		initFrameGrabber(videoDevice, width, height, channel, videoStandard,
@@ -196,10 +203,6 @@ public class Vision extends WindowAdapter {
 					frameImage = BarrelDistortionCorrection
 							.correctPic(frameImage);
 
-					// frameImage = frameImage.getSubimage(
-					// 0,
-					// pitchConstants.topBuffer,
-					// frameImage.getWidth(),frameImage.getHeight()-pitchConstants.topBuffer-pitchConstants.bottomBuffer);
 					processAndUpdateImage(frameImage, before, counter);
 				}
 				counter++;
@@ -283,7 +286,11 @@ public class Vision extends WindowAdapter {
 		int bottomBuffer = pitchConstants.bottomBuffer;
 		int leftBuffer = pitchConstants.leftBuffer;
 		int rightBuffer = pitchConstants.rightBuffer;
-
+		
+		image.getGraphics().drawLine(leftBuffer, topBuffer, image.getWidth()-rightBuffer, topBuffer);
+		image.getGraphics().drawLine(leftBuffer, image.getHeight()-bottomBuffer, image.getWidth()-rightBuffer, image.getHeight()-bottomBuffer);
+		image.getGraphics().drawLine(leftBuffer, topBuffer, leftBuffer, image.getHeight()-bottomBuffer);
+		image.getGraphics().drawLine(image.getWidth()-rightBuffer, topBuffer, image.getWidth()-rightBuffer, image.getHeight()-bottomBuffer);
 		for (int row = topBuffer; row < image.getHeight() - bottomBuffer; row++) {
 
 			for (int column = leftBuffer; column < image.getWidth()
@@ -322,7 +329,7 @@ public class Vision extends WindowAdapter {
 
 				}
 
-				if (justG > 100) {
+				if (justG > 95) {
 
 					greenXPoints.add(column);
 					greenYPoints.add(row);
@@ -363,6 +370,19 @@ public class Vision extends WindowAdapter {
 		Position ball;
 		Position blue;
 		Position yellow;
+		
+		blueXPoints = correctParallax(blueXPoints, middleX);
+		blueYPoints = correctParallax(blueYPoints, middleY);
+		yellowXPoints = correctParallax(yellowXPoints, middleX);
+		yellowYPoints = correctParallax(yellowYPoints, middleY);
+		greenXPoints = correctParallax(greenXPoints, middleX);
+		greenYPoints = correctParallax(greenYPoints, middleY);
+		
+//		for(int i=0; i< greenXPoints.size(); i++){
+//			frameImage.getGraphics().drawOval(greenXPoints.get(i), greenYPoints.get(i), 3, 3);
+//		}
+
+
 
 		if (numBluePos > 0) {
 			blueX /= numBluePos;
@@ -392,18 +412,15 @@ public class Vision extends WindowAdapter {
 			int gY = greenYPoints.get(i);
 			if (Position.sqrdEuclidDist(gX, gY, yellowX, yellowY) > Position
 					.sqrdEuclidDist(gX, gY, blueX, blueY)) {
-				if (Position.sqrdEuclidDist(gX, gY, blueX, blueY) < 1000) {
+//				if (Position.sqrdEuclidDist(gX, gY, blueX, blueY) < 1000) {
 					bluePX.add(gX);
 					bluePY.add(gY);
-				}
+			//	}
 			} else {
-
-				// if (Position.sqrdEuclidDist(gX, gY, yellowX, yellowY) < 1500)
-				// {
 
 				yellowPX.add(gX);
 				yellowPY.add(gY);
-				// }
+				
 			}
 		}
 
@@ -446,20 +463,6 @@ public class Vision extends WindowAdapter {
 		ballY = ballCentroid.getY();
 		ball = new Position(ballX, ballY);
 		ball.fixValues(worldState.getBallX(), worldState.getBallY());
-
-		// Graphics bla = image.getGraphics();
-		// bla.setColor(Color.RED);
-		// bla.fillOval(calcCentroid(bluePX, bluePY).getX(),
-		// calcCentroid(bluePX, bluePY).getY(), 5, 5);
-
-		// for (int i = 0; i < bluePX.size(); i++) {
-		// image.getGraphics().drawOval(bluePX.get(i), bluePY.get(i), 3, 3);
-		// }
-		// //
-		// for (int i = 0; i < yellowPX.size(); i++) {
-		// image.getGraphics()
-		// .drawOval(yellowPX.get(i), yellowPY.get(i), 3, 3);
-		// }
 
 		Position centroidy = calcCentroid(yellowPX, yellowPY);
 
@@ -507,6 +510,8 @@ public class Vision extends WindowAdapter {
 //		for(int i=0; i<yellowXPoints.size(); i++){
 //			image.getGraphics().drawOval(yellowXPoints.get(i), yellowYPoints.get(i), 3, 3);
 //		}
+		
+		
 		Position centroidb = calcCentroid(bluePX, bluePY);
 		ArrayList<Integer> newblueX = new ArrayList<Integer>();
 		ArrayList<Integer> newblueY = new ArrayList<Integer>();
@@ -623,22 +628,19 @@ public class Vision extends WindowAdapter {
 		frameGraphics.drawImage(image, 0, 0, width, height, null);
 	}
 
-	private void removeOutliers(ArrayList<Integer> xPoints,
-			ArrayList<Integer> yPoints, Position centroid) {
-
-		ArrayList<Position> goodPoints = Position.removeOutliers(xPoints,
-				yPoints, centroid);
-		ArrayList<Integer> newXPoints = new ArrayList<Integer>();
-		ArrayList<Integer> newYPoints = new ArrayList<Integer>();
-		for (int k = 0; k < goodPoints.size(); k++) {
-			newXPoints.add((int) goodPoints.get(k).getX());
-			newYPoints.add((int) goodPoints.get(k).getY());
+	private ArrayList<Integer> correctParallax(ArrayList<Integer> points, double middle){
+		ArrayList<Integer> correctPoints = new ArrayList<Integer>();
+		
+		for(int i=0; i<points.size(); i++ ){
+			int correctX = (int) (robotH * (middle - points.get(i))/roomH + points.get(i));
+			correctPoints.add(correctX);
 		}
-		xPoints = newXPoints;
-		yPoints = newYPoints;
-
+		
+		
+		return correctPoints;
+		
 	}
-
+	
 	private Position calcCentroid(ArrayList<Integer> xPoints,
 			ArrayList<Integer> yPoints) {
 		Position centroid = new Position(0, 0);
@@ -886,9 +888,10 @@ public class Vision extends WindowAdapter {
 		}
 
 		Graphics im = image.getGraphics();
-		im.setColor(Color.BLACK);
+		//im.setColor(Color.BLACK);
 		im.drawLine(p1.getX(), p1.getY(), p2.getX(), p2.getY());
 		im.drawLine(p3.getX(), p3.getY(), p4.getX(), p4.getY());
+		
 		// image.getGraphics().drawOval(centroid.getX(), centroid.getY(), 3, 3);
 
 		double m1 = (p1.getY() - p2.getY()) / ((p1.getX() - p2.getX()) * 1.0);
