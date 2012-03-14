@@ -14,27 +14,25 @@ import javax.swing.JSplitPane;
 import JavaVision.Position;
 import Planning.Runner;
 
+@SuppressWarnings("serial")
 public class MainGui extends JFrame {
-	public GuiLog log;
-	JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-	public OptionsPanel options;
-	String fileDir = new String("");
-	JFileChooser chooser;
-	File constantsFile;
+	private GuiLog log;
+	private JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+	private  OptionsPanel options;
+	private File constantsFile;
 	//	volatile boolean applyClicked = false;
 	//	volatile boolean isYellow = true;
-	Runner runner;
+	private Runner runner;
 
 	// values Runner needs
-	boolean attackLeft = true;
-	boolean isYellow = true;
+	private boolean attackLeft = true;
+	private boolean isYellow = true;
 	//int currentMode = 0;	// 0: Normal, 1: Penalty Defend, 2: Penalty Attack
-	boolean isPenaltyAttack = false;
-	boolean isPenaltyDefend = false;
-	String constantsLocation;
-	String cameraLocation;
-	boolean isMainPitch = false;
-	int currentCamera = 0;
+	private boolean isPenaltyAttack = false;
+	private boolean isPenaltyDefend = false;
+	private String constantsLocation;
+	private boolean isMainPitch = false;
+	private int currentCamera = 0;
 
 	public MainGui(Runner runner) {
 		this.runner = runner;

@@ -1,52 +1,38 @@
 package GUI;
 
 import java.awt.BorderLayout;
-
 import java.awt.Color;
-
 import java.awt.GridLayout;
-
-import java.awt.event.ActionEvent;
-
-import java.awt.event.ActionListener;
-
-
 import javax.swing.JButton;
-
 import javax.swing.JPanel;
-
 import javax.swing.JScrollPane;
-
 import javax.swing.JTextArea;
-
-
 import JavaVision.Position;
 
-
+@SuppressWarnings("serial")
 public class GuiLog extends JPanel {
 
 	// Components to be added to the control panel
-	JTextArea logging;
-	Position ourCoords = new Position(0, 0);
-	Position enemyCoords = new Position(0, 0);
-	Position ballCoords = new Position(0, 0);
+	private JTextArea logging;
+	private Position ourCoords = new Position(0, 0);
+	private Position enemyCoords = new Position(0, 0);
+	private Position ballCoords = new Position(0, 0);
 
 	JPanel buttons = new JPanel(new GridLayout(2, 1));
 	JButton startStop = new JButton("Start");
 	JButton connect = new JButton("Connect");
 
-	String currentPitchConstants = "...";
-	String currentColour ="Yellow";
-	String currentAttackGoal ="Right";
-	String currentMode = "Normal";
-	String connectionStatus = "Connection Status";
-	int currentCamera;
+	private String currentPitchConstants = "...";
+	private String currentColour ="Yellow";
+	private String currentAttackGoal ="Right";
+	private String currentMode = "Normal";
+	private int currentCamera;
 
-	boolean isConnected = false;
+	private boolean isConnected = false;
 
-	String ballCoordsStr ="";
-	String ourCoordsStr = "";
-	String enemyCoordsStr = "";
+	private String ballCoordsStr ="";
+	private String ourCoordsStr = "";
+	private String enemyCoordsStr = "";
 
 	/** Constructor */
 	public GuiLog() {

@@ -1,5 +1,4 @@
 package Planning;
-import JavaVision.*;
 import java.io.IOException;
 import java.util.LinkedList;
 import lejos.pc.comm.NXTCommFactory;

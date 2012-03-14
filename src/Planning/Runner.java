@@ -215,6 +215,10 @@ public class Runner extends Thread {
 		}
 	}
 
+	/**
+	 * Main Planning Loop
+	 * @throws InterruptedException
+	 */
 	private void mainLoop() throws InterruptedException {
 
 		bla.setCoors(100, 100);
@@ -224,8 +228,9 @@ public class Runner extends Thread {
 		s = new Strategy(instance);
 		Thread strategy = new Thread(s);
 		strategy.start();
-		modeHundred();
-		
+
+		modeStart();
+
 		while (true) {
 			if(!stopFlag) {		
 
@@ -291,8 +296,12 @@ public class Runner extends Thread {
 		setRobotColour();
 	}
 
-	//	ModeStart
-	private void modeHundred() {
+	/**
+	 * Mode Start
+	 * - Used at beginning of game
+	 */
+	private void modeStart() {
+		System.out.println("MODE START");
 		if(attackLeft){
 			double boo = Math.random();
 			Position positionNearBall = new Position (0,0); 
@@ -308,7 +317,7 @@ public class Runner extends Thread {
 				int angleToNearBall = Move.getAngleToPosition(nxt, positionNearBall);
 				nxt.rotateRobot(angleToNearBall);
 
-				while((Move.getDist(nxt, positionNearBall) > 5)) {
+				while((Move.getDist(nxt, positionNearBall) > 30)) {
 					if (!stopFlag) {
 						break;
 					}
@@ -336,7 +345,7 @@ public class Runner extends Thread {
 				int angleToNearBall = Move.getAngleToPosition(nxt, positionNearBall);
 				nxt.rotateRobot(angleToNearBall);
 
-				while((Move.getDist(nxt, positionNearBall) > 5)) {
+				while((Move.getDist(nxt, positionNearBall) > 30)) {
 					if (!stopFlag) {
 						break;
 					}
@@ -370,7 +379,7 @@ public class Runner extends Thread {
 				int angleToNearBall = Move.getAngleToPosition(nxt, positionNearBall);
 				nxt.rotateRobot(angleToNearBall);
 
-				while((Move.getDist(nxt, positionNearBall) > 5)) {
+				while((Move.getDist(nxt, positionNearBall) > 30)) {
 					if (!stopFlag) {
 						break;
 					}
@@ -398,7 +407,7 @@ public class Runner extends Thread {
 				int angleToNearBall = Move.getAngleToPosition(nxt, positionNearBall);
 				nxt.rotateRobot(angleToNearBall);
 
-				while((Move.getDist(nxt, positionNearBall) > 5)) {
+				while((Move.getDist(nxt, positionNearBall) > 30)) {
 					if (!stopFlag) {
 						break;
 					}
@@ -419,13 +428,7 @@ public class Runner extends Thread {
 			}
 		}
 	}
-			
-
-			
-
-
 	
-
 	/**
 	 * Mode 0: Default "go to ball, aim, kick"
 	 * @throws InterruptedException
@@ -457,7 +460,7 @@ public class Runner extends Thread {
 			while(!stopFlag && dist > 40 && s.getCurrentMode() == 0) { // dist in pixels
 
 				getPitchInfo(false);
-//				vision.drawPos(ballOffsetPosition);
+				//				vision.drawPos(ballOffsetPosition);
 				dist = Move.getDist(nxt, ballOffsetPosition);
 				int n = Move.getAngleToPosition(nxt, ballOffsetPosition);
 				//			System.out.println("angle to offset ball: " + n);
@@ -589,7 +592,7 @@ public class Runner extends Thread {
 
 					while(!stopFlag && (Move.getDist(nxt, ball.getCoors()))<20){
 						if (Math.abs(Move.getAngleToPosition(nxt, ball.getCoors())) < 15)
-						nxt.rotateRobot(90);
+							nxt.rotateRobot(90);
 						nxt.moveForward(DEFAULT_SPEED);
 						Thread.sleep(1000);
 					}
@@ -679,7 +682,7 @@ public class Runner extends Thread {
 			nxt.moveForward(DEFAULT_SPEED);
 			while (!stopFlag && s.getCurrentMode() == 5 && Move.getDist(nxt, gotoBall) > 15) { 
 				getPitchInfo(false);
-//				Vision.plotPoints(waypoints);
+				//				Vision.plotPoints(waypoints);
 				//				dist = Move.getDist(nxt, gotoBall);
 				int n = Move.getAngleToPosition(nxt, gotoBall);
 
@@ -761,15 +764,15 @@ public class Runner extends Thread {
 	}
 
 
-//	private void amIMoving() {
-//		System.out.println("ARE WE MOVING?");
-//		nxt.askIfStuck();
-//		if(nxt.isStuck()){
-//			System.out.println("STTTUUUUCCCKKK");
-//			nxt.backOffBitch();
-//
-//		}
-//	}
+	//	private void amIMoving() {
+	//		System.out.println("ARE WE MOVING?");
+	//		nxt.askIfStuck();
+	//		if(nxt.isStuck()){
+	//			System.out.println("STTTUUUUCCCKKK");
+	//			nxt.backOffBitch();
+	//
+	//		}
+	//	}
 
 	private int getAverageAngle() {
 		int angle = 0;
@@ -867,7 +870,7 @@ public class Runner extends Thread {
 	/**
 	 * Get the most recent information from vision
 	 */
-	private void getPitchInfo(boolean findPath) {
+	public void getPitchInfo(boolean findPath) {
 
 		// Get pitch information from vision
 		int i = 0;
@@ -1104,7 +1107,7 @@ public class Runner extends Thread {
 	public void setStopFlag(boolean flag) {
 		stopFlag = flag;
 	}
-	
+
 	public void setCurrentCamera(int camera) {
 		currentCamera = camera;
 	}

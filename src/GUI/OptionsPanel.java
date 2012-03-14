@@ -5,15 +5,16 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
+@SuppressWarnings("serial")
 public class OptionsPanel extends JPanel {
 
 	// Components to be added to the control panel
 	// Option labels
-	JLabel robotColour = new JLabel("Robot Colour:");
-	JLabel attackGoal = new JLabel("Goal to attack:");
-	JLabel mode = new JLabel("Mode:");
-	JLabel pitchChoice = new JLabel("Pitch Choice:");
-	JLabel cameraChoice = new JLabel("Camera Choice:");
+	private JLabel robotColour = new JLabel("Robot Colour:");
+	private JLabel attackGoal = new JLabel("Goal to attack:");
+	private JLabel mode = new JLabel("Mode:");
+	private JLabel pitchChoice = new JLabel("Pitch Choice:");
+	private JLabel cameraChoice = new JLabel("Camera Choice:");
 		
 	// Radio buttons
 	public JRadioButton yellowRobotButton;
@@ -30,11 +31,11 @@ public class OptionsPanel extends JPanel {
 	public JRadioButton cameraTwo;
 	
 	// Button Groups
-	ButtonGroup colourGroup;
-	ButtonGroup attackGroup;
-	ButtonGroup modeGroup;
-	ButtonGroup pitchChoiceGroup;
-	ButtonGroup cameraChoiceGroup;
+	private ButtonGroup colourGroup;
+	private ButtonGroup attackGroup;
+	private ButtonGroup modeGroup;
+	private ButtonGroup pitchChoiceGroup;
+	private ButtonGroup cameraChoiceGroup;
 
 	/** Constructor */
 	public OptionsPanel() {
