@@ -14,26 +14,25 @@ import javax.swing.JSplitPane;
 import JavaVision.Position;
 import Planning.Runner;
 
+@SuppressWarnings("serial")
 public class MainGui extends JFrame {
-	public GuiLog log;
-	JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-	public OptionsPanel options;
-	String fileDir = new String("");
-	JFileChooser chooser;
-	File constantsFile;
+	private GuiLog log;
+	private JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+	private  OptionsPanel options;
+	private File constantsFile;
 	//	volatile boolean applyClicked = false;
 	//	volatile boolean isYellow = true;
-	Runner runner;
+	private Runner runner;
 
 	// values Runner needs
-	boolean attackLeft = true;
-	boolean isYellow = true;
+	private boolean attackLeft = true;
+	private boolean isYellow = true;
 	//int currentMode = 0;	// 0: Normal, 1: Penalty Defend, 2: Penalty Attack
-	boolean isPenaltyAttack = false;
-	boolean isPenaltyDefend = false;
-	String constantsLocation;
-	String cameraLocation;
-	boolean isMainPitch = false;
+	private boolean isPenaltyAttack = false;
+	private boolean isPenaltyDefend = false;
+	private String constantsLocation;
+	private boolean isMainPitch = false;
+	private int currentCamera = 0;
 
 	public MainGui(Runner runner) {
 		this.runner = runner;
@@ -59,8 +58,6 @@ public class MainGui extends JFrame {
 
 		addListeners();
 		log.setCurrentPitchConstants("pitch0");
-
-		pack();
 	}
 
 	private void addMenu() {
@@ -73,10 +70,8 @@ public class MainGui extends JFrame {
 
 		menuBar.add(importMenu);
 		JMenuItem loadConstants = new JMenuItem("Load Constants");
-		JMenuItem loadCamera = new JMenuItem("Load Camera Settings");
 
 		importMenu.add(loadConstants);		
-//		importMenu.add(loadCamera);
 
 		// Add Listener for load constants menu button
 		loadConstants.addActionListener(new ActionListener() {
@@ -104,32 +99,6 @@ public class MainGui extends JFrame {
 
 			}
 		});   
-		
-		// Add Listener for load camera settings menu button
-		loadCamera.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				JFrame frame = new JFrame();
-				constantsLocation = "";
-				// Create a file chooser and default to constants folder
-				constantsLocation = getClass().getClassLoader().getResource(".").getPath();
-				String src = constantsLocation.substring(0, constantsLocation.length()-4);
-				src = src + "constants";
-				constantsLocation = src;
-
-				JFileChooser fc = new JFileChooser(new File(src));
-				// Create the actions				
-				fc.showOpenDialog(frame);
-				constantsFile = fc.getSelectedFile();
-				if(constantsFile != null) {
-					constantsLocation += "/" + constantsFile.getName();
-					log.setCurrentPitchConstants(constantsFile.getName());
-				}
-				
-				System.out.println(constantsLocation);
-			}
-		});  
 	}
 
 	public void addListeners() {
@@ -145,6 +114,8 @@ public class MainGui extends JFrame {
 				}
 
 				runner.setRobotColour();
+				setCamera();
+				runner.setCurrentCamera(currentCamera);
 
 				// Repeatedly try and make connection
 				while (!Runner.nxt.startCommunications()) {
@@ -172,7 +143,7 @@ public class MainGui extends JFrame {
 						runner.notify();
 					}
 				} else if(log.startStop.getText() == "Stop") {
-					runner.setStopFlag(true);//
+					runner.setStopFlag(true);
 					log.startStop.setText("Start");
 				}
 			}
@@ -222,13 +193,10 @@ public class MainGui extends JFrame {
 		} else {
 			isMainPitch = false;
 		}
+	
 	}
 
 	// Getters
-	//	public boolean getApplyClicked() {
-	//		return applyClicked;
-	//	}
-
 	public boolean getTeam() {
 		return isYellow;
 	}
@@ -252,10 +220,28 @@ public class MainGui extends JFrame {
 	public String getConstantsFileLocation() {
 		return constantsLocation;
 	}
+	
+	public int getCurrentCamera() {
+		return currentCamera;
+	}
 
 	public void setCoordinateLabels(Position ourRobot, Position enemyRobot, Position ball) {
 		log.setOurCoors(ourRobot);
 		log.setEnemyCoors(enemyRobot);
 		log.setBallCoors(ball);
+	}
+	
+	public void setCamera() {
+		// Case for camera
+		if(options.cameraZero.isSelected()) {
+			log.setCurrentCamera(0);
+			currentCamera = 0;			
+		} else if(options.cameraOne.isSelected()) {
+			log.setCurrentCamera(1);
+			currentCamera = 1;
+		} else if(options.cameraTwo.isSelected()) {
+			log.setCurrentCamera(2);
+			currentCamera = 2;
+		}
 	}
 }

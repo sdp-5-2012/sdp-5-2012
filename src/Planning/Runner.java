@@ -1,6 +1,5 @@
 package Planning;
 
-import java.awt.Point;
 import java.util.ArrayList;
 import au.edu.jcu.v4l4j.V4L4JConstants;
 import au.edu.jcu.v4l4j.exceptions.V4L4JException;
@@ -16,67 +15,60 @@ public class Runner extends Thread {
 	Position ballOffsetPosition;
 
 	// Objects
-	public static Ball ball;
+	private static Ball ball;
 	public static Robot nxt;
-	public static Robot otherRobot;
-	static Robot blueRobot;
-	static Robot yellowRobot;
-	static WorldState state;
-	ControlGUI control;
-	static Runner instance = null;
-	boolean usingSimulator = false;
-	Vision vision;
-	PathPlanner planner;
-	static MainGui gui;
-	Strategy s;
-	boolean stopFlag = false;
-
-	Point ourNXT = new Point();
-	Point otherNXT = new Point();
-	Point ballPoint = new Point();
+	private static Robot otherRobot;
+	private static Robot blueRobot;
+	private static Robot yellowRobot;
+	private static WorldState state;
+	private ControlGUI control;
+	private static Runner instance = null;
+	private boolean usingSimulator = false;
+	private Vision vision;
+	private PathPlanner planner;
+	private static MainGui gui;
+	private Strategy s;
+	private boolean stopFlag = false;
 
 	// game flags
-	boolean teamYellow = false;
-	boolean attackLeft = false;
-	boolean isPenaltyAttack = false;
-	boolean isPenaltyDefend = false;
-	boolean applyClicked = false;
-	boolean isMainPitch = false;
-	String constantsLocation;
-	boolean initialVision = false;
-	boolean isScore = false;
-	boolean extremeStrip = false;
+	private boolean teamYellow = false;
+	private boolean attackLeft = false;
+	private boolean isPenaltyAttack = false;
+	private boolean isPenaltyDefend = false;
+	private boolean isMainPitch = false;
+	private String constantsLocation;
+	private boolean isScore = false;
+	private boolean extremeStrip = false;
+	private int currentCamera = 0;
 
 	// Positions
-	Position pitchCentre = null;
-	Position ourGoal = null;
-	Position theirGoal = null;
-	Position leftGoalMain = new Position(40, 250);
-	Position leftGoalSide = new Position(62, 233);
-	Position rightGoalMain = new Position(608, 242);
-	Position rightGoalSide = new Position(567, 238);
-	Position centreMain = new Position(284, 246);
-	Position centreSide = new Position(253, 236);
+	private Position pitchCentre = null;
+	private Position ourGoal = null;
+	private Position theirGoal = null;
+	private Position leftGoalMain = new Position(40, 250);
+	private Position leftGoalSide = new Position(62, 233);
+	private Position rightGoalMain = new Position(608, 242);
+	private Position rightGoalSide = new Position(567, 238);
+	private Position centreMain = new Position(284, 246);
+	private Position centreSide = new Position(253, 236);
 
-	int topY = 0;
-	int lowY = 0;
-	int leftX = 0;
-	int rightX = 0;
+	private int topY = 0;
+	private int lowY = 0;
+	private int leftX = 0;
+	private int rightX = 0;
 
-	int mainTopY = 80;
-	int mainLowY = 392;
-	int mainLeftX = 40;
-	int mainRightX = 608;
+	private int mainTopY = 80;
+	private int mainLowY = 392;
+	private int mainLeftX = 40;
+	private int mainRightX = 608;
 
-	int sideTopY = 92;
-	int sideLowY = 369;
-	int sideLeftX = 62;
-	int sideRightX = 567;
+	private int sideTopY = 92;
+	private int sideLowY = 369;
+	private int sideLeftX = 62;
+	private int sideRightX = 567;
 
-	Position dest = new Position(0, 0);
-
-	public static final int DEFAULT_SPEED = 45; // used for move_forward method in Robot
-	public static final int EACH_WHEEL_SPEED = 900; // used for each_wheel_speed method in Robot
+	private static final int DEFAULT_SPEED = 45; // used for move_forward method in Robot
+	private static final int EACH_WHEEL_SPEED = 900; // used for each_wheel_speed method in Robot
 
 	public static void main(String args[]) {
 		instance = new Runner();
@@ -197,7 +189,6 @@ public class Runner extends Thread {
 		ThresholdsState thresholdsState = new ThresholdsState();
 
 		/* Default to main pitch. */
-		//		PitchConstants pitchConstants = new PitchConstants("/afs/inf.ed.ac.uk/user/s09/s0950134/git/sdp-5-2012/constants/pitch1");
 		PitchConstants pitchConstants = new PitchConstants(constantsLocation);
 
 		control = new ControlGUI(thresholdsState, worldState, pitchConstants);
@@ -215,7 +206,7 @@ public class Runner extends Thread {
 			/* Create a new Vision object to serve the main vision window. */
 			vision = new Vision(videoDevice, width, height, channel,
 					videoStandard, compressionQuality, worldState,
-					thresholdsState, pitchConstants);
+					thresholdsState, pitchConstants, currentCamera);
 
 		} catch (V4L4JException e) {
 			e.printStackTrace();
@@ -224,6 +215,10 @@ public class Runner extends Thread {
 		}
 	}
 
+	/**
+	 * Main Planning Loop
+	 * @throws InterruptedException
+	 */
 	private void mainLoop() throws InterruptedException {
 
 		bla.setCoors(100, 100);
@@ -233,11 +228,15 @@ public class Runner extends Thread {
 		s = new Strategy(instance);
 		Thread strategy = new Thread(s);
 		strategy.start();
-		modeHundred();
-		
+
+		if(!stopFlag) {
+			modeStart();
+		} else {
+			waitForNewInput();
+		}
+
 		while (true) {
 			if(!stopFlag) {		
-
 				if (isPenaltyAttack) {
 					penaltyAttack();
 				} else if (isPenaltyDefend) {
@@ -300,8 +299,12 @@ public class Runner extends Thread {
 		setRobotColour();
 	}
 
-	//	ModeStart
-	private void modeHundred() {
+	/**
+	 * Mode Start
+	 * - Used at beginning of game
+	 */
+	private void modeStart() {
+		System.out.println("MODE START");
 		if(attackLeft){
 			double boo = Math.random();
 			Position positionNearBall = new Position (0,0); 
@@ -317,7 +320,7 @@ public class Runner extends Thread {
 				int angleToNearBall = Move.getAngleToPosition(nxt, positionNearBall);
 				nxt.rotateRobot(angleToNearBall);
 
-				while((Move.getDist(nxt, positionNearBall) > 5)) {
+				while((Move.getDist(nxt, positionNearBall) > 30)) {
 					if (!stopFlag) {
 						break;
 					}
@@ -345,7 +348,7 @@ public class Runner extends Thread {
 				int angleToNearBall = Move.getAngleToPosition(nxt, positionNearBall);
 				nxt.rotateRobot(angleToNearBall);
 
-				while((Move.getDist(nxt, positionNearBall) > 5)) {
+				while((Move.getDist(nxt, positionNearBall) > 30)) {
 					if (!stopFlag) {
 						break;
 					}
@@ -379,7 +382,7 @@ public class Runner extends Thread {
 				int angleToNearBall = Move.getAngleToPosition(nxt, positionNearBall);
 				nxt.rotateRobot(angleToNearBall);
 
-				while((Move.getDist(nxt, positionNearBall) > 5)) {
+				while((Move.getDist(nxt, positionNearBall) > 30)) {
 					if (!stopFlag) {
 						break;
 					}
@@ -407,7 +410,7 @@ public class Runner extends Thread {
 				int angleToNearBall = Move.getAngleToPosition(nxt, positionNearBall);
 				nxt.rotateRobot(angleToNearBall);
 
-				while((Move.getDist(nxt, positionNearBall) > 5)) {
+				while((Move.getDist(nxt, positionNearBall) > 30)) {
 					if (!stopFlag) {
 						break;
 					}
@@ -428,18 +431,12 @@ public class Runner extends Thread {
 			}
 		}
 	}
-			
-
-			
-
-
-	
 
 	/**
 	 * Mode 0: Default "go to ball, aim, kick"
 	 * @throws InterruptedException
 	 */
-	public void modeZero() throws InterruptedException {
+	private void modeZero() throws InterruptedException {
 		System.out.println("MODE ZERO");
 		while (!stopFlag && s.getCurrentMode() == 0) {
 			getPitchInfo(false);
@@ -466,7 +463,7 @@ public class Runner extends Thread {
 			while(!stopFlag && dist > 40 && s.getCurrentMode() == 0) { // dist in pixels
 
 				getPitchInfo(false);
-				vision.drawPos(ballOffsetPosition);
+				//				vision.drawPos(ballOffsetPosition);
 				dist = Move.getDist(nxt, ballOffsetPosition);
 				int n = Move.getAngleToPosition(nxt, ballOffsetPosition);
 				//			System.out.println("angle to offset ball: " + n);
@@ -598,7 +595,7 @@ public class Runner extends Thread {
 
 					while(!stopFlag && (Move.getDist(nxt, ball.getCoors()))<20){
 						if (Math.abs(Move.getAngleToPosition(nxt, ball.getCoors())) < 15)
-						nxt.rotateRobot(90);
+							nxt.rotateRobot(90);
 						nxt.moveForward(DEFAULT_SPEED);
 						Thread.sleep(1000);
 					}
@@ -688,7 +685,7 @@ public class Runner extends Thread {
 			nxt.moveForward(DEFAULT_SPEED);
 			while (!stopFlag && s.getCurrentMode() == 5 && Move.getDist(nxt, gotoBall) > 15) { 
 				getPitchInfo(false);
-				Vision.plotPoints(waypoints);
+				//				Vision.plotPoints(waypoints);
 				//				dist = Move.getDist(nxt, gotoBall);
 				int n = Move.getAngleToPosition(nxt, gotoBall);
 
@@ -770,15 +767,15 @@ public class Runner extends Thread {
 	}
 
 
-//	private void amIMoving() {
-//		System.out.println("ARE WE MOVING?");
-//		nxt.askIfStuck();
-//		if(nxt.isStuck()){
-//			System.out.println("STTTUUUUCCCKKK");
-//			nxt.backOffBitch();
-//
-//		}
-//	}
+	//	private void amIMoving() {
+	//		System.out.println("ARE WE MOVING?");
+	//		nxt.askIfStuck();
+	//		if(nxt.isStuck()){
+	//			System.out.println("STTTUUUUCCCKKK");
+	//			nxt.backOffBitch();
+	//
+	//		}
+	//	}
 
 	private int getAverageAngle() {
 		int angle = 0;
@@ -1112,5 +1109,9 @@ public class Runner extends Thread {
 
 	public void setStopFlag(boolean flag) {
 		stopFlag = flag;
+	}
+
+	public void setCurrentCamera(int camera) {
+		currentCamera = camera;
 	}
 }

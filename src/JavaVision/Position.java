@@ -150,36 +150,36 @@ public class Position {
     }
     
     
-    public static ArrayList<Point> removeOutliers(ArrayList<Integer> xs, ArrayList<Integer> ys, Point centroid){
-    	ArrayList<Point> goodPoints = new ArrayList<Point>();
-	if (xs.size() > 0) {
-    		
-	    	int stdev = 0;
-	    	
-	    	/* Standard deviation */
-	    	for (int i = 0; i < xs.size(); i++) {
-	    		int x = xs.get(i);
-	    		int y = ys.get(i);
-	    		
-	    		stdev += Math.pow(Math.sqrt(sqrdEuclidDist(x, y, (int) centroid.getX(), (int)centroid.getY())), 2);
-	    	}
-	    	stdev  = (int) Math.sqrt(stdev / xs.size());
-	    		    	
-	    	/* Remove points further than standard deviation */
-	    	for (int i = 0; i < xs.size(); i++) {
-	    		int x = xs.get(i);
-	    		int y = ys.get(i);
-	    		if (Math.abs(x - centroid.getX()) < stdev*1 && Math.abs(y - centroid.getY()) < stdev*1) {
-	    			Point p = new Point(x, y);
-	    			goodPoints.add(p);
-	    		}
-	    	}
-	    	
-    	}
-    	
-		return goodPoints;
-    	
-    }
+    public static ArrayList<Position> removeOutliers(ArrayList<Integer> xs, ArrayList<Integer> ys, Position centroid){
+    	ArrayList<Position> goodPoints = new ArrayList<Position>();
+    	if (xs.size() > 0) {
+        		
+    	    	int stdev = 0;
+    	    	
+    	    	/* Standard deviation */
+    	    	for (int i = 0; i < xs.size(); i++) {
+    	    		int x = xs.get(i);
+    	    		int y = ys.get(i);
+    	    		
+    	    		stdev += Math.pow(Math.sqrt(sqrdEuclidDist(x, y, (int) centroid.getX(), (int)centroid.getY())), 2);
+    	    	}
+    	    	stdev  = (int) Math.sqrt(stdev / xs.size());
+    	    		    	
+    	    	/* Remove points further than standard deviation */
+    	    	for (int i = 0; i < xs.size(); i++) {
+    	    		int x = xs.get(i);
+    	    		int y = ys.get(i);
+    	    		if (Math.abs(x - centroid.getX()) < stdev*1 && Math.abs(y - centroid.getY()) < stdev*1) {
+    	    			Position p = new Position(x, y);
+    	    			goodPoints.add(p);
+    	    		}
+    	    	}
+    	    	
+        	}
+        	
+    		return goodPoints;
+        	
+        }
     
     /**
      * Calculates the squared euclidean distance between two 2D points.

@@ -1,13 +1,15 @@
 ./src/JavaVision/ControlGUI.java
+./src/JavaVision/Vision.java
+./src/JavaVision/Position.java
 ./src/JavaVision/RangeSliderUI.java
 ./src/JavaVision/ThresholdsState.java
-./src/JavaVision/Position.java
 ./src/JavaVision/WorldState.java
 ./src/JavaVision/NoAngleException.java
 ./src/JavaVision/PitchConstants.java
 ./src/JavaVision/RangeSlider.java
-./src/JavaVision/Vision.java
 ./src/JavaVision/RunVision.java
+./src/JavaVision/BarrelDistortionCorrection.java
+./src/JavaVision/RotateImage.java
 ./src/Planning/GraphPointComparator.java
 ./src/Planning/Ball.java
 ./src/Planning/ObjectDetails.java
@@ -17,8 +19,6 @@
 ./src/Planning/GraphPoint.java
 ./src/Planning/PathPlanner.java
 ./src/Planning/Arc.java
-./src/Strategy/Strategy.java
-./src/Strategy/StrategyX.java
 ./src/Communications/CommunicationInterface.java
 ./src/Communications/BluetoothCommunication.java
 ./src/NXT/NXT_class.java
@@ -26,3 +26,5 @@
 ./src/GUI/MainGui.java
 ./src/GUI/GuiLog.java
 ./src/GUI/OptionsPanel.java
+./src/Strategy/Strategy.java
+./src/Strategy/StrategyX.java
