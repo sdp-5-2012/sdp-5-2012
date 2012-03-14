@@ -29,6 +29,7 @@ public class Robot extends ObjectDetails {
 	private final static int ROTATE = 0X0A;
 	private final static int SET_WHEEL_SPEED=0X0B;
 	private final static int STEER =0X0C;
+	private final static int EACH_WHEEL_SPEED = 0x0D;
 
 	private LinkedList<byte[]> commandList = new LinkedList<byte[]>();
 	private BluetoothCommunication comms;
@@ -240,6 +241,12 @@ public class Robot extends ObjectDetails {
 // 		addCommand(command);
 // 
 // 	}
+
+	public void each_wheel_speed(int speedL, int speedR){
+		moving = true;
+		byte[] command = {EACH_WHEEL_SPEED,(byte)speedL,(byte)(speedR >> 8),(byte)speedR};
+		addCommand(command);
+	}
 
 
 	/**

@@ -229,22 +229,46 @@ public class Runner extends Thread {
 	private void mainLoop() throws InterruptedException {
 		bla.setCoors(100, 100);
 
-		getPitchInfo(false);
+		//getPitchInfo(false);
 		// s = new Strategy(instance);
 		// Thread strategy = new Thread(s);
 
 		// strategy.start();
-
-		if (!stopFlag) {
-			if(gui.isModeAvoid()) {
-				ModeAvoid();
-			} else {
-				modeScore();
-			}
-		} else {
-			nxt.stop();
-			waitForNewInput();
-		}
+		
+		nxt.rotateRobot(150);
+		try{
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {}
+		
+		nxt.each_wheel_speed(100,100);
+		try{
+			Thread.sleep(5000);
+		} catch (InterruptedException e) {}
+		
+		nxt.each_wheel_speed(300,-300);
+		try{
+			Thread.sleep(5000);
+		} catch (InterruptedException e) {}
+		
+		nxt.each_wheel_speed(-100,-100);
+		try{
+			Thread.sleep(5000);
+		} catch (InterruptedException e) {}
+		
+				nxt.each_wheel_speed(300,600);
+		try{
+			Thread.sleep(5000);
+		} catch (InterruptedException e) {}
+// 		if (!stopFlag) {
+// 			if(gui.isModeAvoid()) {
+// 				ModeAvoid();
+// 			} else {
+// 				modeScore();
+// 			}
+// 		} else {
+// 			nxt.stop();
+// 			waitForNewInput();
+// 		}
 	}
 
 	/**

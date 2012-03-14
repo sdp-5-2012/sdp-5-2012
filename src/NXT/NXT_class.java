@@ -41,7 +41,7 @@ public class NXT_class implements Runnable{
 	private final static int ROTATE = 0X0A;
 	private final static int SET_WHEEL_SPEED = 0X0B;
 	private final static int STEER = 0X0C;
-
+	private final static int EACH_WHEEL_SPEED = 0X0D;
 
 	public static void main(String[] args) throws Exception {
 
@@ -170,6 +170,28 @@ public class NXT_class implements Runnable{
 						pilot.setAcceleration(accel);
 						pilot.forward();
 						break;
+					
+					case EACH_WHEEL_SPEED:
+						LCD.drawString("each wheel speed", 0, 2);
+						int leftspeed = param0;
+						int rightspeed = (int)param1;
+						
+						Motor.B.setSpeed(Math.abs(leftspeed));
+						Motor.C.setSpeed(Math.abs(rightspeed));
+
+						if (leftspeed >=0){
+							Motor.B.forward();
+						}else{
+							Motor.B.backward();
+						}
+
+						if (rightspeed >=0){
+							Motor.C.forward();
+						}else{
+							Motor.C.backward();
+						}
+						break;
+
 
 					case STOP:
 						LCD.clear();
