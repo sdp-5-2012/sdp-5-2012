@@ -8,12 +8,12 @@ public class PathPlanner {
 	// SET PITCH INFO
 	public static int pitchXX = 567;
 	public static int pitchYY = 360;
-	
+
 	public static int pitchX = 493;// 500
 	public static int pitchY = 245;// 245
 	// Displacement for the side pitch
-	public int displacementX = 67;
-	public int displacementY = 110;
+	public int displacementX = 59;
+	public int displacementY = 89;
 	public static int gridSize = 10;// size of a square on the map
 	public static int gridX = (int) Math.ceil(pitchX / gridSize);
 	public static int gridY = (int) Math.ceil(pitchY / gridSize);
@@ -122,7 +122,7 @@ public class PathPlanner {
 	public PathPlanner(boolean attackLeft) {
 		shootingLeft = attackLeft;
 	}
-	
+
 	public ArrayList<Position> getOptimalPath(Position ourPosition,
 			Position goalPosition, Position oppPosition) {
 		// Gets occupied grids on the map
@@ -132,31 +132,31 @@ public class PathPlanner {
 		ourPositionCoor = new Position(ourPosition.getX() - displacementX, ourPosition.getY() - displacementY);
 		oppPositionCoor = new Position(oppPosition.getX() - displacementX, oppPosition.getY() - displacementY);
 		goalPositionCoor = new Position(goalPosition.getX() - displacementX, goalPosition.getY() - displacementY);
-		
-		
+
+
 		//UNCOMMENT WHEN POSITIONING TO SHOOT
-		if(shootingLeft) {
-			goalPositionCoor.setX(goalPositionCoor.getX() + 60);
-			
-			int dev = 122 -goalPositionCoor.getY();
-			if(dev<0&&((goalPositionCoor.getY()-dev/2)<pitchY)){
-				goalPositionCoor.setY(goalPositionCoor.getY()-dev/3);
-			}
-			if(dev>0&&(goalPositionCoor.getY()-dev/2>0)){
-				goalPositionCoor.setY(goalPositionCoor.getY()-dev/3);
-			}
-			
-		}else{
-			goalPositionCoor.setX(goalPositionCoor.getX() - 60);
-			
-			int dev = 122 -goalPositionCoor.getY();
-			if(dev<0&&((goalPositionCoor.getY()-dev/2)<pitchY)){
-				goalPositionCoor.setY(goalPositionCoor.getY()-dev/3);
-			}
-			if(dev>0&&(goalPositionCoor.getY()-dev/2>0)){
-				goalPositionCoor.setY(goalPositionCoor.getY()-dev/3);
-			}
-		}
+//		if(shootingLeft) {
+//			goalPositionCoor.setX(goalPositionCoor.getX() + 60);
+//
+//			int dev = 122 -goalPositionCoor.getY();
+//			if(dev<0&&((goalPositionCoor.getY()-dev/2)<pitchY)){
+//				goalPositionCoor.setY(goalPositionCoor.getY()-dev/3);
+//			}
+//			if(dev>0&&(goalPositionCoor.getY()-dev/2>0)){
+//				goalPositionCoor.setY(goalPositionCoor.getY()-dev/3);
+//			}
+//
+//		}else{
+//			goalPositionCoor.setX(goalPositionCoor.getX() - 60);
+//
+//			int dev = 122 -goalPositionCoor.getY();
+//			if(dev<0&&((goalPositionCoor.getY()-dev/2)<pitchY)){
+//				goalPositionCoor.setY(goalPositionCoor.getY()-dev/3);
+//			}
+//			if(dev>0&&(goalPositionCoor.getY()-dev/2>0)){
+//				goalPositionCoor.setY(goalPositionCoor.getY()-dev/3);
+//			}
+//		}
 		// THIS WAS
 		// CHANGED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!^
 		ourPositionGrid = coordinatesToGrid(ourPositionCoor);
@@ -165,54 +165,54 @@ public class PathPlanner {
 		// System.out.println(occupied);
 		occupied.add(ourPositionGrid);
 		occupied.add(oppPositionGrid);
-		
-		// correction set to 10
-		for (int x = 0; x < correction; x++) {
-			for (int y = 0; y < correction; y++) {
-				// getting 10 pixels in which the opposition may be sitting
-				if ((oppPositionCoor.getX() + x < pitchX) && (oppPositionCoor.getY() < pitchY)) {
-					Position a = new Position(oppPositionCoor.getX() + x, oppPositionCoor.getY() + y);
-					GraphPoint aa = coordinatesToGrid(a);
-					occupied.add(aa);
-				}
 
-				// getting 10 more pixels in which the opposition may be sitting
-				if ((oppPositionCoor.getX() - x > 0) && (oppPositionCoor.getY() - y > 0)) {
-					
-					Position b = new Position(oppPositionCoor.getX() - x, oppPositionCoor.getY() - y);
-					GraphPoint bb = coordinatesToGrid(b);
-					occupied.add(bb);
-				}
-			}
-		}
-		
 		// correction set to 10
-//		for (int x = 0; x < 30; x++) {
-//			for (int y = 0; y < 2; y++) {
+//		for (int x = 0; x < correction; x++) {
+//			for (int y = 0; y < correction; y++) {
 //				// getting 10 pixels in which the opposition may be sitting
-//				if ((goalPositionCoor.getX() + x < pitchX) && (goalPositionCoor.getY() < pitchY)) {
-//					Position a = new Position(goalPositionCoor.getX() + x, goalPositionCoor.getY() + y);
+//				if ((oppPositionCoor.getX() + x < pitchX) && (oppPositionCoor.getY() < pitchY)) {
+//					Position a = new Position(oppPositionCoor.getX() + x, oppPositionCoor.getY() + y);
 //					GraphPoint aa = coordinatesToGrid(a);
 //					occupied.add(aa);
 //				}
 //
 //				// getting 10 more pixels in which the opposition may be sitting
-//				if ((goalPositionCoor.getX() - x > 0) && (goalPositionCoor.getY() - y > 0)) {
-//					
-//					Position b = new Position(goalPositionCoor.getX() - x, goalPositionCoor.getY() - y);
+//				if ((oppPositionCoor.getX() - x > 0) && (oppPositionCoor.getY() - y > 0)) {
+//
+//					Position b = new Position(oppPositionCoor.getX() - x, oppPositionCoor.getY() - y);
 //					GraphPoint bb = coordinatesToGrid(b);
 //					occupied.add(bb);
 //				}
 //			}
 //		}
-//		for(int index = 0; index<occupied.size(); index++){
-//			GraphPoint pp = coordinatesToGrid(new Position(goalPositionCoor.getX(), goalPositionCoor.getY()));
-//			if((occupied.get(index).getX()==pp.getX())&&(occupied.get(index).getY()==pp.getY())){
-//				System.out.println("SEXYY");
-//				occupied.remove(index);
-//				break;
-//			}
-//		}
+
+		// correction set to 10
+		//		for (int x = 0; x < 30; x++) {
+		//			for (int y = 0; y < 2; y++) {
+		//				// getting 10 pixels in which the opposition may be sitting
+		//				if ((goalPositionCoor.getX() + x < pitchX) && (goalPositionCoor.getY() < pitchY)) {
+		//					Position a = new Position(goalPositionCoor.getX() + x, goalPositionCoor.getY() + y);
+		//					GraphPoint aa = coordinatesToGrid(a);
+		//					occupied.add(aa);
+		//				}
+		//
+		//				// getting 10 more pixels in which the opposition may be sitting
+		//				if ((goalPositionCoor.getX() - x > 0) && (goalPositionCoor.getY() - y > 0)) {
+		//					
+		//					Position b = new Position(goalPositionCoor.getX() - x, goalPositionCoor.getY() - y);
+		//					GraphPoint bb = coordinatesToGrid(b);
+		//					occupied.add(bb);
+		//				}
+		//			}
+		//		}
+		//		for(int index = 0; index<occupied.size(); index++){
+		//			GraphPoint pp = coordinatesToGrid(new Position(goalPositionCoor.getX(), goalPositionCoor.getY()));
+		//			if((occupied.get(index).getX()==pp.getX())&&(occupied.get(index).getY()==pp.getY())){
+		//				System.out.println("SEXYY");
+		//				occupied.remove(index);
+		//				break;
+		//			}
+		//		}
 		//System.out.println(occupied);
 		// System.out.println(ourPositionGrid);
 		// path = new ArrayList<GraphPoint>();
@@ -235,11 +235,11 @@ public class PathPlanner {
 		for (int i = 0; i < wayPositions.size(); i++) {
 			System.out.println("(" + wayPositions.get(i).getX() + ", " + wayPositions.get(i).getY() + ") ");
 		} 
-		 int a = goalPositionCoor.getX()+displacementX;
-		 int b = goalPositionCoor.getY()+displacementY;
-		 goalPositionCoor.setX(a);
-		 goalPositionCoor.setY(b);
-		 wayPositions.add(goalPositionCoor);
+		int a = goalPositionCoor.getX()+displacementX;
+		int b = goalPositionCoor.getY()+displacementY;
+		goalPositionCoor.setX(a);
+		goalPositionCoor.setY(b);
+		wayPositions.add(goalPositionCoor);
 		return wayPositions;
 	}
 
@@ -256,7 +256,7 @@ public class PathPlanner {
 		int y = a.y * gridSize;
 		a.x = x + displacementX;
 		a.y = y + displacementY;
-		
+
 		return new Position(a.x, a.y);
 	}
 
@@ -265,16 +265,16 @@ public class PathPlanner {
 		/*
 		 * SAME THING WITH PLACING INACCESSIBLE PositionS ON THE GRID
 		 */
-		if (oppPositionGrid.distance(newPosition) < 3) {
+		if (oppPositionGrid.distance(newPosition) < 9) {
 			// discourage it heavily, to not crash into opponent
 			return 500;
 		}
 
-//		if ((Math.abs(gridX - newPosition.x) < 3)
-//				|| (Math.abs(gridY - newPosition.y)) < 3) {
-//			// Discourage going too close to walls
-//			return 100;
-//		}
+		//		if ((Math.abs(gridX - newPosition.x) < 3)
+		//				|| (Math.abs(gridY - newPosition.y)) < 3) {
+		//			// Discourage going too close to walls
+		//			return 100;
+		//		}
 		if (!shootingLeft) {
 			if (Math.abs(newPosition.y - goalPositionGrid.y) < 6
 					&& newPosition.x >= goalPositionGrid.x)
@@ -334,7 +334,7 @@ public class PathPlanner {
 						// if it's not already on check list, add it
 						if (!checked.contains(pt)) {
 							checked.add(pt); // checked means it's a valid Position
-												// in which we can travel
+							// in which we can travel
 							pt.setParent(currentPosition);
 							if ((pt.x == goalPositionGrid.x)
 									&& (pt.y == goalPositionGrid.y)) {
@@ -404,11 +404,11 @@ public class PathPlanner {
 		}
 	}
 
-	private static ArrayList<GraphPoint> optimisePath(ArrayList<GraphPoint> path) {
+	private ArrayList<GraphPoint> optimisePath(ArrayList<GraphPoint> path) {
 
 		ArrayList<GraphPoint> newPath = path;
 		for (int i = 0; i < newPath.size() - 1; i++) {
-			// remove Positions that are too close to each other
+			// remove points that are too close to each other
 			if (newPath.get(i).distance(newPath.get(i + 1)) < 3) {
 				newPath.remove(i + 1);
 			}
@@ -417,13 +417,22 @@ public class PathPlanner {
 		// optimise angles repeatedly 3 times
 		for (int j = 0; j < 3; j++) {
 			for (int i = 0; i < newPath.size() - 2; i++) {
-				// remove Positions that hardly change in gradient
+				// remove points that hardly change in gradient
 				if (Math.abs((getAngle(newPath.get(i), newPath.get(i + 1)))
 						- (getAngle(newPath.get(i + 1), newPath.get(i + 2)))) < 30)
 					newPath.remove(i + 2);
 			}
 		}
-
+		for(int x = 0; x<newPath.size()-1;x++){//removes points that are too close to each other
+			if(Math.abs(newPath.get(x).getX()-newPath.get(x+1).getX())<15){
+				if(Math.abs(newPath.get(x).getY()-newPath.get(x+1).getY())<15){
+					newPath.remove(x+1);
+				}
+			}
+		}
+		if(ourPositionCoor.getX() - gridToCoor(newPath.get(0)).getX() < 20 && ourPositionCoor.getY() - gridToCoor(newPath.get(0)).getY() < 20) {
+			newPath.remove(0);
+		}
 		return newPath;
 	}
 

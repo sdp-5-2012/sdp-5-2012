@@ -15,10 +15,10 @@ public class BarrelDistortionCorrection {
 	
 	private static int width = 0;
 	private static int height = 0;
-	private final static double ax = -0.016;
-	private final static double ay = -0.06;
-//	private final static double ax = -0.03;
-//	private final static double ay = -0.08;
+//	private final static double ax = -0.016;
+//	private final static double ay = -0.06;
+	private final static double ax = -0.02;
+	private final static double ay = -0.12;
 	
 
 	public BufferedImage correct(Raster data) {
@@ -71,6 +71,32 @@ public class BarrelDistortionCorrection {
 		// System.out.println("New Pixel: (" + pixi + ", " + pixj + ")");
 
 		return new int[] { pixi, pixj };
+	}
+	
+	public static Position convertPixelPos(Position p) {
+		// System.out.println("Pixel: (" + x + ", " + y + ")");
+		// first normalise pixel
+		double px = (2 * p.getX() - width) / (double) width;
+		double py = (2 * p.getY() - height) / (double) height;
+
+		// System.out.println("Norm Pixel: (" + px + ", " + py + ")");
+		// then compute the radius of the pixel you are working with
+		double rad = px * px + py * py;
+
+		// then compute new pixel'
+		double px1 = px * (1 - ax * rad);
+		double py1 = py * (1 - ay * rad);
+
+		// then convert back
+		int pixi = (int) ((px1 + 1) * width / 2);
+		int pixj = (int) ((py1 + 1) * height / 2);
+		// System.out.println("New Pixel: (" + pixi + ", " + pixj + ")");
+		Position convert = new Position(pixi, pixj);
+		if (convert.getX() >= 0 && convert.getX() < width && convert.getY() >= 0
+				&& convert.getY() < height) {
+			return convert;
+		}
+		return p;
 	}
 
 	public static BufferedImage correctPic(BufferedImage image) {

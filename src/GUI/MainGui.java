@@ -40,7 +40,7 @@ public class MainGui extends JFrame {
 		// default constants is pitch0
 		constantsLocation = getClass().getClassLoader().getResource(".").getPath();
 		String src = constantsLocation.substring(0, constantsLocation.length()-4);
-		src = src + "src/JavaVision/constants/pitch0";
+		src = src + "constants/pitch0";
 		constantsLocation = src;
 
 		getContentPane().setLayout(new BorderLayout());
@@ -115,12 +115,13 @@ public class MainGui extends JFrame {
 
 				runner.setRobotColour();
 				setCamera();
+	
 				runner.setCurrentCamera(currentCamera);
 
 				// Repeatedly try and make connection
-				while (!Runner.nxt.startCommunications()) {
-					log.setIsConnected(false);
-				}
+//				while (!Runner.nxt.startCommunications()) {
+//					log.setIsConnected(false);
+//				}
 
 				log.setIsConnected(true);
 				// Start vision
