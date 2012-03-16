@@ -119,11 +119,20 @@ public class Runner extends Thread {
 		// } catch (InterruptedException e) {
 		// e.printStackTrace();
 		// }
-		getPitchInfo(true);
+		getPitchInfo(false);
 		//		while(true){
 		//		vision.drawPath(waypoints);}
-	//	curveShite(waypoints);
-		m();
+		//test();
+	//	plotCurve();
+		// nxt.travelArcRobot(50, 200);
+		moveTo(ball.getCoors());
+//		arc();
+//		System.out.println(Move.getAngleToPosition(nxt, ball.getCoors()));
+//		while(Move.getAngleToPosition(nxt, ball.getCoors()) > 5) {
+//			int[] s = Position(ball.getCoors());
+//			System.out.println(s[0] + " " + s[1]);
+//			nxt.each_wheel_speed(s[0], s[1]);
+//		}
 	}
 
 	/**
@@ -216,7 +225,7 @@ public class Runner extends Thread {
 			/* Create a new Vision object to serve the main vision window. */
 			vision = new Vision(videoDevice, width, height, channel,
 					videoStandard, compressionQuality, worldState,
-					thresholdsState, pitchConstants, currentCamera);
+					thresholdsState, pitchConstants, currentCamera, isMainPitch);
 
 		} catch (V4L4JException e) {
 			e.printStackTrace();
@@ -941,9 +950,11 @@ public class Runner extends Thread {
 				e.printStackTrace();
 			}
 
-			int m = (int) Runner.nxt.getAngle();
+			// int m = (int) Runner.nxt.getAngle();
+			int m = Move.getAngleToPosition(nxt, ball.getCoors());
 
 			prevResults[i - 1] = m;
+			System.out.println(prevResults[i-1]);
 
 		}
 
@@ -1212,28 +1223,92 @@ public class Runner extends Thread {
 
 		getPitchInfo(false);
 
-		int initialAngle = Move.getAngleToPosition(nxt, ball.getCoors());
-		nxt.rotateRobot(initialAngle);
-		nxt.moveForward(25);
-		while (Move.getDist(nxt, ball.getCoors()) > 45) {
-			getPitchInfo(false);
-			if (Move.getDist(nxt, ball.getCoors()) <= 45) {
-				nxt.stop();
-				break;
-			}
-			if (Math.abs(Move.getAngleToPosition(nxt, ball.getCoors())) > 20) {
-				nxt.stop();
-				// nxt.rotateRobot(Move.getAngleToPosition(nxt,
-				// ball.getCoors()));
-				// nxt.moveForward(25);
-			}
-		}
-		nxt.stop();
+//		int initialAngle = Move.getAngleToPosition(nxt, ball.getCoors());
+//		int initialAngle = getAverageAngle();
+//		System.out.println("initial angle " + initialAngle);
+//		nxt.rotateRobot(initialAngle);
+//		nxt.moveForward(25);
+//		while (Move.getDist(nxt, ball.getCoors()) > 60) {
+//			getPitchInfo(false);
+//			if (Move.getDist(nxt, ball.getCoors()) <= 60) {
+//				System.out.println("STTTOTOTOTOTP");
+//				nxt.stop();
+//				break;
+//			}
+//			if (Math.abs(Move.getAngleToPosition(nxt, ball.getCoors())) > 20
+//					&& Move.getDist(nxt, ball.getCoors()) > 45) {
+//				getPitchInfo(false);
+//				nxt.stop();
+//				nxt.rotateRobot(Move.getAngleToPosition(nxt, ball.getCoors()));
+//				System.out.println("ROTATE: " + Move.getAngleToPosition(nxt, ball.getCoors()) );
+//				nxt.moveForward(25);
+//			}
+//		}
+//		nxt.stop();
+	
+	
+	
+//		while (Move.getDist(nxt, ball.getCoors()) > 60) {
+//			getPitchInfo(false);
+//			int n = Move.getAngleToPosition(nxt, ball.getCoors());
+//			if ( n < 10 && n > -10)
+//				nxt.each_wheel_speed(250, 250);
+//			
+//			if (n > 10) {
+//				while (Move.getDist(nxt, ball.getCoors()) > 60 && n > 10) {
+//					getPitchInfo(false);
+//					n = Move.getAngleToPosition(nxt, ball.getCoors());
+//					if ( n < 10 && n > -10)
+//						break;
+//					nxt.each_wheel_speed(50, 250);
+//				}
+//			}
+//			if (n < -10) {
+//				while (Move.getDist(nxt, ball.getCoors()) > 60 && n < -10) {
+//					getPitchInfo(false);
+//					n = Move.getAngleToPosition(nxt, ball.getCoors());
+//					if ( n < 10 && n > -10)
+//						break;
+//					nxt.each_wheel_speed(250, 50);
+//				}
+//			}
+//		}
+		
+		
+//		int initialAngle = getAverageAngle();
+//		nxt.rotateRobot(initialAngle);
+		
+
+
+		
+//		while (Move.getDist(nxt, ball.getCoors()) > 60) {
+//			getPitchInfo(false);
+//			if (Move.getDist(nxt, ball.getCoors()) <= 60) {
+//				System.out.println("STTTOTOTOTOTP");
+//				nxt.stop();
+//				break;
+//			}
+//			if (Math.abs(Move.getAngleToPosition(nxt, ball.getCoors())) > 20
+//					&& Move.getDist(nxt, ball.getCoors()) > 45) {
+//				getPitchInfo(false);
+//				nxt.stop();
+//				nxt.rotateRobot(Move.getAngleToPosition(nxt, ball.getCoors()));
+//				System.out.println("ROTATE: " + Move.getAngleToPosition(nxt, ball.getCoors()) );
+//				// nxt.moveForward(35);
+//				
+//				s = Position(ball.getCoors());
+//				nxt.each_wheel_speed(s[0], s[1]);
+//			}
+//		}
+//		nxt.stop();
 	}
 
 	private void moveTo(Position target) {
 
 		int[] s = Position(target);
+		System.out.println(s[0] + " " + s[1]);
+		while(true)
+		vision.plotPosition(target);/*
 		if (s[0] < 0 && s[1] < 0) {
 			double a1 = Move.getAngleToPosition(nxt,
 					new Position((int) target.getX(), (int) target.getY()));
@@ -1246,9 +1321,9 @@ public class Runner extends Thread {
 		} else {
 			nxt.each_wheel_speed(s[0], s[1]);
 		}
-		System.out.println(s[0] + " " + s[1]);
-		nxt.each_wheel_speed(s[0], s[1]);
-
+//		System.out.println(s[0] + " " + s[1]);
+//		nxt.each_wheel_speed(s[0], s[1]);
+*/
 		// }
 	}
 
@@ -1275,26 +1350,29 @@ public class Runner extends Thread {
 		System.out.println(nxt.getCoors().getX());
 		System.out.println(nxt.getCoors().getY());
 
-		dx = target.getX() - nxt.getCoors().getX();
-		dy = target.getY() - nxt.getCoors().getY();
-		d_e = Math.sqrt(dx * dx + dy * dy);
-
-		if (dx == 0 && dy == 0) {
-			theta_d = 90;
-		} else {
-			theta_d = (int) (180 / Math.PI * Math.atan2((double) dy,
-					(double) dx));
-		}
-
-		// calculate theta_e = theta_d - theta_r
-		theta_e = (int) (theta_d - nxt.getAngle());
-
-		// keep theta_e within (-180, 180]
-		while (theta_e > 180)
-			theta_e -= 360;
-
-		while (theta_e <= 180)
-			theta_e += 360;
+//		dx = target.getX() - nxt.getCoors().getX();
+//		dy = target.getY() - nxt.getCoors().getY();
+//		d_e = Math.sqrt(dx * dx + dy * dy);
+//
+//		if (dx == 0 && dy == 0) {
+//			theta_d = 90;
+//		} else {
+//			theta_d = (int) (180 / Math.PI * Math.atan2((double) dy,
+//					(double) dx));
+//		}
+//
+//		// calculate theta_e = theta_d - theta_r
+//		theta_e = (int) (theta_d - nxt.getAngle());
+//
+//		// keep theta_e within (-180, 180]
+//		while (theta_e > 180)
+//			theta_e -= 360;
+//
+//		while (theta_e <= 180)
+//			theta_e += 360;
+		
+		d_e = Move.getDist(nxt, ball.getCoors());
+		theta_e = Move.getAngleToPosition(nxt, ball.getCoors());
 
 		// set the ka according to distance error
 		if (d_e > 100) {
@@ -1302,7 +1380,8 @@ public class Runner extends Thread {
 		} else if (d_e > 50) {
 			ka = 19. / 90.;
 		} else if (d_e > 30) {
-			ka = 21. / 90.;
+			ka = 21. / 90.
+			;
 		} else if (d_e > 20) {
 			ka = 23. / 90.;
 		} else {
@@ -1344,7 +1423,7 @@ public class Runner extends Thread {
 			vl = (int) (-.17 * theta_e);
 		}
 
-		return new int[] { vr, vl };
+		return new int[] { vl*5, vr*5 };
 	}
 
 	// public ArrayList<Ball> getPath() {
@@ -1407,92 +1486,29 @@ public class Runner extends Thread {
 	public void setCurrentCamera(int camera) {
 		currentCamera = camera;
 	}
-
-	public double nchoosek(int n, int k) {
-		double facn = 1;
-		double fack = 1;
-		double facnk = 1;
-
-		for (int i = 1; i <= n; i++)
-			facn = facn * i;
-
-		for (int i = 1; i <= k; i++)
-			fack = fack * i;
-
-		for (int i = 1; i <= n - k; i++)
-			facnk = facnk * i;
-
-		return (facn / (fack * facnk));
-
-	}
-
-	public static long choose(long total, long choose){
-		if(total < choose)
-			return 0;
-		if(choose == 0 || choose == total)
-			return 1;
-		return choose(total-1,choose-1)+choose(total-1,choose);
-	}
-
-
-	void curveShite(ArrayList<Position> pathpoints) {
-		ArrayList<Position> pos = new ArrayList<Position>();
-		//		int startX = 200;
-		//		int startY = 200;
-		//
-		//		int endX = 400;
-		//		int endY = 400;
-		//
-		//		int bezierX = 400;
-		//		int bezierY = 0;
-
-		pos.add(pathpoints.get(0));
-		for (double t = 0.0; t <= 1; t += 0.01) {
-			double x = 0;
-			double y = 0;
-
-			for (int i = 1; i < pathpoints.size()-1; i++) {
-
-
-				x += pathpoints.get(i).getX() * Math.pow(t, i)
-				* Math.pow(1 - t, pathpoints.size()-2 - i)
-				* choose(pathpoints.size()-2, i);
-
-				y += pathpoints.get(i).getY() * Math.pow(t, i)
-				* Math.pow(1 - t, pathpoints.size()-2 - i)
-				* choose(pathpoints.size()-2, i);
-
-
-			}
-			pos.add(new Position((int)x, (int)y));
-
-		}
-		pos.add(pathpoints.get(pathpoints.size()-1));
-		int i = 0;
-		while (true) {
-			vision.drawPath(pos);
-			i++;
-		}
-
-	}
 	
-	void m() {
+	public void setIsMainPitch(boolean pitch) {
+		isMainPitch = pitch;
+	}
+
+
+	void plotCurve() {
 		getPitchInfo(false);
 		ArrayList<Position> pos = new ArrayList<Position>();
 		ArrayList<Position> test = new ArrayList<Position>();
-		
+
 		test.add(new Position(nxt.getCoors().getX(),nxt.getCoors().getY()));
 		test.add(new Position(Math.abs(nxt.getCoors().getX() - ball.getCoors().getX()), Math.abs(nxt.getCoors().getY() - ball.getCoors().getY())));
 		test.add(new Position(ball.getCoors().getX(), ball.getCoors().getY() ));
 		test.add(new Position(ball.getCoors().getX(), ball.getCoors().getY()));
-		
+
 		int numpoints = test.size()-2;
 		double t;
-		double k = .225;
+		double k = .125;
 		double x1,x2,y1,y2;
 		x1 = test.get(0).getX();
 		y1 = test.get(0).getY();
-		
+
 		for(t=k;t<=1+k;t+=k){
 			//use Berstein polynomials
 			x2=(test.get(0).getX()+t*(-test.get(0).getX()*3+t*(3*test.get(0).getX()-
@@ -1503,17 +1519,30 @@ public class Runner extends Thread {
 					test.get(0).getY()*t)))+t*(3*test.get(1).getY()+t*(-6*test.get(1).getY()+
 							test.get(1).getY()*3*t))+t*t*(test.get(2).getY()*3-test.get(2).getY()*3*t)+
 							test.get(3).getY()*t*t*t;
-			
-			
+
+
 			//draw curve
 			x1 = x2;
 			y1 = y2;
 			pos.add(new Position((int) x1, (int)y1));
 		}
-		
+
 		while(true) {
 			vision.drawPath(pos);
 		}
+	}
+	
+	void arc() {
+		getPitchInfo(false);
+		double dist = Move.getDist(nxt, ball.getCoors());
+		double h  = 50;
+		
+		int radius = (int) ((4*Math.pow(h, 2) + Math.pow(dist, 2)) / 8*h);
+		
+		nxt.travelArcRobot(radius, (int) dist);
+		
+		
+		
 	}
 
 }

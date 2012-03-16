@@ -25,9 +25,9 @@ public class Move {
 		// int y = (int) Math.abs(robot.getCoors().getY() -
 		// ball.getCoors().getY());
 		int dist = (int) Math.sqrt(x * x + y * y);
-		System.out.println("Coordinates received in getDist: robot "
-				+ robot.getCoors().getX() + " " + robot.getCoors().getY()
-				+ " and Ball: " + p.getX() + " " + p.getY() + " dist " + dist);
+//		System.out.println("Coordinates received in getDist: robot "
+//				+ robot.getCoors().getX() + " " + robot.getCoors().getY()
+//				+ " and Ball: " + p.getX() + " " + p.getY() + " dist " + dist);
 		return dist;
 	}
 

@@ -124,6 +124,13 @@ public class MainGui extends JFrame {
 //				}
 
 				log.setIsConnected(true);
+				
+				// Case for pitch
+				if(options.pitchMain.isSelected()) {
+					runner.setIsMainPitch(true);
+				} else {
+					runner.setIsMainPitch(false);
+				}
 				// Start vision
 				runner.startVision();
 				log.startStop.setEnabled(true);
@@ -188,12 +195,12 @@ public class MainGui extends JFrame {
 			isPenaltyDefend = false;
 		}
 
-		// Case for pitch
-		if(options.pitchMain.isSelected()) {
-			isMainPitch = true;
-		} else {
-			isMainPitch = false;
-		}
+//		// Case for pitch
+//		if(options.pitchMain.isSelected()) {
+//			isMainPitch = true;
+//		} else {
+//			isMainPitch = false;
+//		}
 	
 	}
 

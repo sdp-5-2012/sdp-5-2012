@@ -12,14 +12,14 @@ import java.awt.image.WritableRaster;
 
 public class BarrelDistortionCorrection {
 
-	
+
 	private static int width = 0;
 	private static int height = 0;
-//	private final static double ax = -0.016;
-//	private final static double ay = -0.06;
-	private final static double ax = -0.02;
-	private final static double ay = -0.12;
-	
+	private static double ax = -0.016;
+	private static double ay = -0.06;
+	//	private final static double ax = -0.02;
+	//	private final static double ay = -0.12;
+
 
 	public BufferedImage correct(Raster data) {
 		// create a new raster to hold the generated image
@@ -46,9 +46,9 @@ public class BarrelDistortionCorrection {
 
 		// System.out.println(numPixelsWritten);
 
-		
-			BufferedImage img = new BufferedImage(cm, wraster, false, null);
-			return img;
+
+		BufferedImage img = new BufferedImage(cm, wraster, false, null);
+		return img;
 	}
 
 	public static int[] convertPixel(int x, int y) {
@@ -72,7 +72,7 @@ public class BarrelDistortionCorrection {
 
 		return new int[] { pixi, pixj };
 	}
-	
+
 	public static Position convertPixelPos(Position p) {
 		// System.out.println("Pixel: (" + x + ", " + y + ")");
 		// first normalise pixel
@@ -99,16 +99,23 @@ public class BarrelDistortionCorrection {
 		return p;
 	}
 
-	public static BufferedImage correctPic(BufferedImage image) {
+	public static BufferedImage correctPic(BufferedImage image, boolean isMainPitch) {
 
-		
-			width = image.getWidth();
-			height = image.getHeight();
 
+		width = image.getWidth();
+		height = image.getHeight();
+
+		if(isMainPitch) {
+			ax = -0.016;
+			ay = -0.06;
+		} else {
+			ax = -0.02;
+			ay = -0.12;
+		}
 		Raster data = image.getData();
 		BarrelDistortionCorrection bcd = new BarrelDistortionCorrection();
 		BufferedImage correct = bcd.correct(data);
 		return correct;
-		
+
 	}
 }
