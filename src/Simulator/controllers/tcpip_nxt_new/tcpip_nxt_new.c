@@ -50,6 +50,7 @@ static WbDeviceTag compass;
 #define NULL_SPEED 0
 #define HALF_SPEED 6
 #define MIN_SPEED -10
+#define CONTROLLER_SPEED 60 // the speed our robot controller uses
 
 /* Robot Stuff */
 #define DO_NOTHING 0X00
@@ -98,25 +99,20 @@ double get_bearing_in_degrees() {
     bearing = bearing + 360.0;
   return bearing;
   }
-  /*
-static int byteArrayToInt(unsigned char b[4]) {
-  int value = 0;
-  int i = 0;
-  while (i < 4){
-    int shift = (4 - 1 - i) * 8;
-    value += (b[i] & 0x000000FF) << shift;
-    i++;
-    }
-  return value;
-	} */
+  
+static short bytesToShort(char a, char b) {
+  return (short)(((a & 0xFF) << 8) | (b & 0xFF));
+  }
 
 // Robot Actions
 static void do_nothing(){
   step();
   }
 
-static void go_forward() {
-  wb_differential_wheels_set_speed(MAX_SPEED, MAX_SPEED);
+// go forward with speed proportional to max speed
+static void go_forward(int speed) {
+  int wheel_speed = (CONTROLLER_SPEED / speed) * MAX_SPEED;
+  wb_differential_wheels_set_speed(wheel_speed, wheel_speed);
   }
 
 static void go_backward() {
@@ -135,48 +131,7 @@ static void kick(){
   }
   wb_servo_set_position(servo, 0);
   }
-  /*
-static void turn(int angleDeg) {
-  stop();
-  wb_differential_wheels_enable_encoders(get_time_step());
-  wb_differential_wheels_set_encoders(0.0, 0.0);
-  step();
-  double angle = (angleDeg * (M_PI / 180));
-  printf("%f",(M_PI/180));
-  double neg = (angle < 0.0)? -1.0: 1.0;
-  wb_differential_wheels_set_speed((neg*HALF_SPEED / 2), (-neg*HALF_SPEED / 2));
-  double orientation;
-  do {
-    double l = wb_differential_wheels_get_left_encoder();
-    double r = wb_differential_wheels_get_right_encoder();
-    double dl = l / ENCODER_RESOLUTION * WHEEL_RADIUS; // distance covered by left wheel in meter
-    double dr = r / ENCODER_RESOLUTION * WHEEL_RADIUS; // distance covered by right wheel in meter
-    orientation = neg * (dl - dr) / AXLE_LENGTH; // delta orientation in radian
-    printf("Orientation %f \n",orientation);
-    printf("Angle %f \n",angle);
-    step();
-  } while (orientation < neg*angle); // overshooting here. REPORT ME.
-  stop();
-  wb_differential_wheels_disable_encoders();
-  step();
-  }
   
-static void turn_to(double angle) {
-	double orientation = get_bearing_in_degrees();
-	while(orientation < (0.99 * angle) || orientation > (1.01 * angle)) {
-  printf("Orientation %f \n",orientation);
-		if(orientation < angle) {
-			wb_differential_wheels_set_speed((HALF_SPEED / 4), -(HALF_SPEED / 4));	
-		} else if (orientation > angle) {
-			wb_differential_wheels_set_speed(-(HALF_SPEED / 4), (HALF_SPEED / 4));	
-		}
-		orientation = get_bearing_in_degrees();
-		step();
-	}
-	stop();
-	step();
-  }*/
-
 static void turn_comp(double angle) {
 	double current_orientation = get_bearing_in_degrees();
   double goal_orientation = (current_orientation + angle);
@@ -266,7 +221,7 @@ static void run()
 {
     int n;
     int ret;
-    int angle;
+    short angle;
     unsigned char buffer[5];
     struct timeval tv = { 0, 0 };
     int number;
@@ -295,24 +250,28 @@ static void run()
     buffer[n] = '\0';
     printf("Received %d bytes: %s\n", n, buffer);
     printf("%x, %x, %x, %x\n",buffer[0],buffer[1],buffer[2],buffer[3]);
-    if (buffer[3] == FORWARDS) {
-        go_forward();
+    
+    int param0 = (int)buffer[1];
+    short param1 = (short)bytesToShort(buffer[2],buffer[3]);
+    
+    if (buffer[0] == FORWARDS) {
+        go_forward(param0);
 
-    } else if (buffer[3] == STOP) {
+    } else if (buffer[0] == STOP) {
         stop();
 
-    } else if (buffer[3] == BACKWARDS) {
+    } else if (buffer[0] == BACKWARDS) {
         go_backward();
 
-    } else if (buffer[3] == DO_NOTHING) {
+    } else if (buffer[0] == DO_NOTHING) {
         do_nothing();
         
-  } else if (buffer[3] == ROTATE) {
-        angle = buffer[2];
-        turn_comp(angle);
+  } else if (buffer[0] == ROTATE) {
+        angle = param1;
+        turn_comp((double)angle);
         send(fd, "f", 1, 0);
         
-  } else if (buffer[3] == KICK) {
+  } else if (buffer[0] == KICK) {
           kick();
 
     } else if (strncmp(buffer, "exit", 4) == 0) {

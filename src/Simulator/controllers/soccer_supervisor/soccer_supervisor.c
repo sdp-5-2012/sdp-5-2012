@@ -68,7 +68,7 @@ int main() {
     ball_translation = wb_supervisor_field_get_sf_vec3f(ball_translation_field);
     for (i = 0; i < ROBOTS; i++) {
       robot_translation[i]=wb_supervisor_field_get_sf_vec3f(robot_translation_field[i]);
-      //printf("coords for robot %d: %g %g %g\n",i,robot_translation[i][0],robot_translation[i][1],robot_translation[i][2]); 
+      printf("coords for robot %d: %g %g %g\n",i,robot_translation[i][0],robot_translation[i][1],robot_translation[i][2]); 
       packet[3 * i]     = robot_translation[i][0];  /* robot i: X */
       packet[3 * i + 1] = robot_translation[i][2];  /* robot i: Z */
 
