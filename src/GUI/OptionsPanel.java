@@ -1,6 +1,7 @@
 package GUI;
 import java.awt.GridLayout;
 import javax.swing.ButtonGroup;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
@@ -30,6 +31,8 @@ public class OptionsPanel extends JPanel {
 	public JRadioButton cameraOne;
 	public JRadioButton cameraTwo;
 	
+	public JCheckBox bypassRobot;
+	
 	// Button Groups
 	private ButtonGroup colourGroup;
 	private ButtonGroup attackGroup;
@@ -40,7 +43,7 @@ public class OptionsPanel extends JPanel {
 	/** Constructor */
 	public OptionsPanel() {
 
-		setLayout(new GridLayout(5,4));
+		setLayout(new GridLayout(7,4));
 
 		// robot colour
 		yellowRobotButton = new JRadioButton("Yellow");
@@ -97,6 +100,9 @@ public class OptionsPanel extends JPanel {
 		cameraChoiceGroup.add(cameraZero);
 		cameraChoiceGroup.add(cameraOne);
 		cameraChoiceGroup.add(cameraTwo);
+		
+		// Bypass Robot Connection
+		bypassRobot = new JCheckBox("Bypass Connection");
 				
 		// Add all components
 		add(robotColour);
@@ -119,5 +125,11 @@ public class OptionsPanel extends JPanel {
 		add(cameraZero);
 		add(cameraOne);
 		add(cameraTwo);
+		// Blank Line
+		add(new JLabel(""));
+		add(new JLabel(""));
+		add(new JLabel(""));
+		add(new JLabel(""));
+		add(bypassRobot);
 	}
 }

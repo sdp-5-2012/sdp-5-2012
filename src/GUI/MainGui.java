@@ -115,16 +115,18 @@ public class MainGui extends JFrame {
 
 				runner.setRobotColour();
 				setCamera();
-	
+
 				runner.setCurrentCamera(currentCamera);
 
 				// Repeatedly try and make connection
-//				while (!Runner.nxt.startCommunications()) {
-//					log.setIsConnected(false);
-//				}
+				if(!options.bypassRobot.isSelected()) {
+					while (!Runner.nxt.startCommunications()) {
+						log.setIsConnected(false);
+					}
+				}
 
 				log.setIsConnected(true);
-				
+
 				// Case for pitch
 				if(options.pitchMain.isSelected()) {
 					runner.setIsMainPitch(true);
@@ -195,13 +197,13 @@ public class MainGui extends JFrame {
 			isPenaltyDefend = false;
 		}
 
-//		// Case for pitch
-//		if(options.pitchMain.isSelected()) {
-//			isMainPitch = true;
-//		} else {
-//			isMainPitch = false;
-//		}
-	
+		//		// Case for pitch
+		//		if(options.pitchMain.isSelected()) {
+		//			isMainPitch = true;
+		//		} else {
+		//			isMainPitch = false;
+		//		}
+
 	}
 
 	// Getters
@@ -228,7 +230,7 @@ public class MainGui extends JFrame {
 	public String getConstantsFileLocation() {
 		return constantsLocation;
 	}
-	
+
 	public int getCurrentCamera() {
 		return currentCamera;
 	}
@@ -238,7 +240,7 @@ public class MainGui extends JFrame {
 		log.setEnemyCoors(enemyRobot);
 		log.setBallCoors(ball);
 	}
-	
+
 	public void setCamera() {
 		// Case for camera
 		if(options.cameraZero.isSelected()) {

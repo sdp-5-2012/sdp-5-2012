@@ -125,8 +125,8 @@ public class Runner extends Thread {
 		//test();
 	//	plotCurve();
 		// nxt.travelArcRobot(50, 200);
-		moveTo(ball.getCoors());
-//		arc();
+		//moveTo(ball.getCoors());
+		nxt.steer(50, Move.getAngleToPosition(nxt, ball.getCoors()));
 //		System.out.println(Move.getAngleToPosition(nxt, ball.getCoors()));
 //		while(Move.getAngleToPosition(nxt, ball.getCoors()) > 5) {
 //			int[] s = Position(ball.getCoors());
@@ -185,7 +185,7 @@ public class Runner extends Thread {
 	private void createAndShowGui() {
 		// Set the the control gui
 		gui = new MainGui(instance);
-		gui.setSize(625, 400);
+		gui.setSize(650, 400);
 		gui.setLocation(500, 500);
 		gui.setTitle("N.U.K.E Control Panel");
 		gui.setResizable(false);
