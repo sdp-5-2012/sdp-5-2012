@@ -24,7 +24,7 @@
 ./src/NXT/NXT_class.java
 ./src/PC/ControlGUI.java
 ./src/GUI/MainGui.java
-./src/GUI/GuiLog.java
 ./src/GUI/OptionsPanel.java
+./src/GUI/GuiLog.java
 ./src/Strategy/Strategy.java
 ./src/Strategy/StrategyX.java

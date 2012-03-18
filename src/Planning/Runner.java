@@ -1,5 +1,7 @@
 package Planning;
 
+import java.awt.Dimension;
+import java.awt.Toolkit;
 import java.util.ArrayList;
 import au.edu.jcu.v4l4j.V4L4JConstants;
 import au.edu.jcu.v4l4j.exceptions.V4L4JException;
@@ -183,10 +185,13 @@ public class Runner extends Thread {
 	}
 
 	private void createAndShowGui() {
+		// Get the size of the default screen
+		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+		
 		// Set the the control gui
 		gui = new MainGui(instance);
 		gui.setSize(650, 400);
-		gui.setLocation(500, 500);
+		gui.setLocation((int) (dim.getWidth()- 650), 500);
 		gui.setTitle("N.U.K.E Control Panel");
 		gui.setResizable(false);
 		gui.setVisible(true);
@@ -951,7 +956,7 @@ public class Runner extends Thread {
 			}
 
 			// int m = (int) Runner.nxt.getAngle();
-			int m = Move.getAngleToPosition(nxt, ball.getCoors());
+			int m = (int) Runner.nxt.getAngle();
 
 			prevResults[i - 1] = m;
 			System.out.println(prevResults[i-1]);
