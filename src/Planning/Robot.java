@@ -24,7 +24,7 @@ public class Robot extends ObjectDetails {
 	private final static int FORWARDS_TRAVEL=0X06;
 	private final static int TRAVEL_BACKWARDS_SLIGHTLY=0X07;
 	private final static int TRAVEL_ARC=0X08;
-	private final static int ACCELERATE=0X09;
+	private final static int ARC=0X09;
 
 	private final static int ROTATE = 0X0A;
 	private final static int SET_WHEEL_SPEED=0X0B;
@@ -163,12 +163,15 @@ public class Robot extends ObjectDetails {
 		//	System.out.println("move forward");
 	}
 
-// 	public void accelerateRobot(int acceleration) {
-// 		moving = true;
-// 		int command = ACCELERATE | (acceleration <<16 );
-// 		addCommand(command);
-// 		System.out.println("accerelate");
-// 	}
+	/**
+	 * Commands the robot travel an arc
+	 */
+	public void arc(int radius, int angle) {
+		moving = true;
+		byte[] command = {ARC,(byte)radius,(byte)(angle >> 8),(byte)angle};
+		addCommand(command);
+		System.out.println("arc to angle");
+	}
 
 
 	/**

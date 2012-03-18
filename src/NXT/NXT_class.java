@@ -37,7 +37,7 @@ public class NXT_class implements Runnable{
 	private final static int FORWARDS_TRAVEL = 0X06;
 	private final static int TRAVEL_BACKWARDS_SLIGHTLY = 0X07;
 	private final static int TRAVEL_ARC = 0X08;
-	private final static int ACCELERATE = 0X09;
+	private final static int ARC = 0X09;
 	private final static int ROTATE = 0X0A;
 	private final static int SET_WHEEL_SPEED = 0X0B;
 	private final static int STEER = 0X0C;
@@ -163,10 +163,10 @@ public class NXT_class implements Runnable{
 						pilot.travelArc(radius, distance, true);
 						break;
 
-					case ACCELERATE:
-						int accel = param0;
-						pilot.setAcceleration(accel);
-						pilot.forward();
+					case ARC:
+						int arcradius = param0;
+						short arcangle = param1;
+						pilot.arc(arcradius, arcangle, true);
 						break;
 					
 					case EACH_WHEEL_SPEED:
