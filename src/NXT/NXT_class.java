@@ -79,9 +79,9 @@ public class NXT_class implements Runnable{
 					byte[] byteBuffer = new byte[4];
 					is.read(byteBuffer);
 
-					int param0 = byteBuffer[1];
-					short param1 = bytesToInt(byteBuffer[2],byteBuffer[3]);
 					int opcode = byteBuffer[0];
+					int param0 = byteBuffer[1];
+					short param1 = bytesToShort(byteBuffer[2],byteBuffer[3]);
 
 					if (blocking) {
 						os.write('o');
@@ -102,13 +102,11 @@ public class NXT_class implements Runnable{
 						break;
 
 					case FORWARDS_TRAVEL:
-						int speedForwards = param0;
 						int travelDistance= param1;
 						LCD.clear();
 						LCD.drawString("move forwards whith speed", 0, 2);
 						LCD.refresh();
-						pilot.setTravelSpeed(speedForwards);
-						pilot.travel(travelDistance);
+						pilot.travel(travelDistance, true);
 						break;
 
 					case TRAVEL_BACKWARDS_SLIGHTLY:	
@@ -135,7 +133,7 @@ public class NXT_class implements Runnable{
 						LCD.drawString("angle = " + rotateAngle, 0, 3);
 
 						pilot.setRotateSpeed(pilot.getRotateMaxSpeed()/5);
-						pilot.rotate(rotateAngle);
+						pilot.rotate(rotateAngle, true);
 						while(true) {
 							if(pilot.isMoving() == false) {
 								os.write('f');
@@ -162,7 +160,7 @@ public class NXT_class implements Runnable{
 					case TRAVEL_ARC:
 						int radius = param0;
 						short distance = param1;
-						pilot.travelArc(radius, distance);
+						pilot.travelArc(radius, distance, true);
 						break;
 
 					case ACCELERATE:
@@ -258,7 +256,7 @@ public class NXT_class implements Runnable{
 	/**
 	 * Returns a short from two bytes
 	 */
-	public static short bytesToInt(byte a, byte b) {
+	public static short bytesToShort(byte a, byte b) {
 		return (short)(((a & 0xFF) << 8) | (b & 0xFF));
 	}
 

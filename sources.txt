@@ -1,5 +1,6 @@
 ./src/Communications/BluetoothCommunication.java
 ./src/Communications/CommunicationInterface.java
+./src/Communications/TcpipCommunication.java
 ./src/JavaVision/Position.java
 ./src/JavaVision/Vision.java
 ./src/JavaVision/PitchConstants.java

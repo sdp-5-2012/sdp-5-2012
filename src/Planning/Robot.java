@@ -197,8 +197,6 @@ public class Robot extends ObjectDetails {
 		moving = true;
 		short angle2 = (short)angle;
 		byte[] command = {ROTATE,0x00,(byte)(angle2 >> 8),(byte)angle2};
-		System.out.println(command[0] + ", " + command[1] + ", " + command[2] + ", " + command[3]);
-
 		addCommand(command);
 		System.out.println("rotate");
 
@@ -216,6 +214,16 @@ public class Robot extends ObjectDetails {
 	}
 
 	/**
+	 * Commands the robot to travel a certain distance
+	 */
+	public void travel(int distance) {
+		moving = true;
+		byte[] command = {FORWARDS_TRAVEL,0x00,(byte)(distance >> 8),(byte)distance};
+		addCommand(command);
+		System.out.println("travel forwards" + distance);
+	}
+
+	/**
 	 * Commands the robot to travel along an arc
 	 */
 	public void travelArcRobot(int radius, int distance) {
@@ -223,16 +231,16 @@ public class Robot extends ObjectDetails {
 		byte[] command = {TRAVEL_ARC,(byte)radius,(byte)(distance >> 8),(byte)distance};
 		addCommand(command);
 		System.out.println("travel along arc");
-
 	}
 
+	/**
+	 * Set the travel speed of the robot
+	 */
 	public void set_wheel_speed(int speed){
 		System.out.println("set wheel speed");
 		byte[] command = {SET_WHEEL_SPEED,(byte)speed,0x00,0x00};
 		addCommand(command);
 	}
-
-
 
 // 	public void steer(int turnRate, int angle){
 // 		int command = STEER|(turnRate << 8)
@@ -247,7 +255,6 @@ public class Robot extends ObjectDetails {
 		byte[] command = {EACH_WHEEL_SPEED,(byte)speedL,(byte)(speedR >> 8),(byte)speedR};
 		addCommand(command);
 	}
-
 
 	/**
 	 * Commands the robot to stop where it is

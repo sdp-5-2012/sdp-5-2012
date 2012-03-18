@@ -240,22 +240,22 @@ public class Runner extends Thread {
 			Thread.sleep(1000);
 		} catch (InterruptedException e) {}
 		
-		nxt.each_wheel_speed(100,100);
+		nxt.travel(10);
 		try{
 			Thread.sleep(5000);
 		} catch (InterruptedException e) {}
 		
-		nxt.each_wheel_speed(300,-300);
+		nxt.travel(50);
 		try{
 			Thread.sleep(5000);
 		} catch (InterruptedException e) {}
 		
-		nxt.each_wheel_speed(-100,-100);
+		nxt.travelArcRobot(20, 120);
 		try{
 			Thread.sleep(5000);
 		} catch (InterruptedException e) {}
 		
-				nxt.each_wheel_speed(300,600);
+		nxt.travel(100);
 		try{
 			Thread.sleep(5000);
 		} catch (InterruptedException e) {}
