@@ -1,6 +1,9 @@
 package Planning;
 
+import java.awt.Dimension;
 import java.awt.Point;
+import java.awt.Toolkit;
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import au.edu.jcu.v4l4j.V4L4JConstants;
 import au.edu.jcu.v4l4j.exceptions.V4L4JException;
@@ -10,76 +13,83 @@ import JavaVision.*;
 import Strategy.*;
 
 public class Runner extends Thread {
-	public Position bla = new Position(0,0);
-	public Position gotoBall = new Position(0,0);
-//	public ArrayList<Position> waypoints = new ArrayList<Position>();
-	public ArrayList<Position> waypoints = new ArrayList<Position>();
+	public Position bla = new Position(0, 0);
+	public Position gotoBall = new Position(0, 0);
+	public ArrayList<Position> test = new ArrayList<Position>();
 	Position ballOffsetPosition;
-	
+	public ArrayList<Position> waypoints = new ArrayList<Position>();
+
 	// Objects
-	public static Ball ball;
+	private static Ball ball;
 	public static Robot nxt;
-	public static Robot otherRobot;
-	static Robot blueRobot;
-	static Robot yellowRobot;
-	static WorldState state;
-	ControlGUI control;
-	static Runner instance = null;
-	boolean usingSimulator = false;
-	Vision vision;
-	PathPlanner planner;
-	static MainGui gui;
-	Strategy s;
-	boolean stopFlag = false;
-	
-	Point ourNXT = new Point();
-	Point otherNXT = new Point();
-	Point ballPoint = new Point();
+	private static Robot otherRobot;
+	private static Robot blueRobot;
+	private static Robot yellowRobot;
+	private static WorldState state;
+	private ControlGUI control;
+	private static Runner instance = null;
+	private boolean usingSimulator = false;
+	private Vision vision;
+	private PathPlanner planner;
+	private static MainGui gui;
+	private Strategy s;
+	private boolean stopFlag = false;
 
 	// game flags
-	boolean teamYellow = false;
-	boolean attackLeft = false;
-	boolean isPenaltyAttack = false;
-	boolean isPenaltyDefend = false;
-	boolean applyClicked = false;
-	boolean isMainPitch = false;
-	String constantsLocation;
-	boolean initialVision = false;
-	boolean isScore = false;
-	boolean extremeStrip = false;
+	private boolean teamYellow = false;
+	private boolean attackLeft = false;
+	private boolean isPenaltyAttack = false;
+	private boolean isPenaltyDefend = false;
+	private boolean isMainPitch = false;
+	private String constantsLocation;
+	private boolean isScore = false;
+	private boolean extremeStrip = false;
+	private int currentCamera = 0;
 
 	// Positions
-	Position pitchCentre = null;
-	Position ourGoal = null;
-	Position theirGoal = null;
-	Position leftGoalMain = new Position(40, 250);
-	Position leftGoalSide = new Position(62, 233);
-	Position rightGoalMain = new Position(608, 242);
-	Position rightGoalSide = new Position(567, 238);
-	Position centreMain = new Position(284, 246);
-	Position centreSide = new Position(253, 236);
+	private Position pitchCentre = null;
+	private Position ourGoal = null;
+	private Position theirGoal = null;
+	private Position leftGoalMain = new Position(40, 250);
+	private Position leftGoalSide = new Position(62, 233);
+	private Position rightGoalMain = new Position(608, 242);
+	private Position rightGoalSide = new Position(567, 238);
+	private Position centreMain = new Position(284, 246);
+	private Position centreSide = new Position(253, 236);
 
-	int topY = 0;
-	int lowY = 0;
-	int leftX = 0;
-	int rightX = 0;
+	private int topY = 0;
+	private int lowY = 0;
+	private int leftX = 0;
+	private int rightX = 0;
 
-	int mainTopY = 80;
-	int mainLowY = 392;
-	int mainLeftX = 40;
-	int mainRightX = 608;
+	private int mainTopY = 80;
+	private int mainLowY = 392;
+	private int mainLeftX = 40;
+	private int mainRightX = 608;
 
-	int sideTopY = 92;
-	int sideLowY = 369;
-	int sideLeftX = 62;
-	int sideRightX = 567;
+	private int sideTopY = 92;
+	private int sideLowY = 369;
+	private int sideLeftX = 62;
+	private int sideRightX = 567;
+
+	// Arc fields
+	static double rotation;
+	static double distance;
+	static double arcRadius;
+	static double arcAngle;
+
+	static Arc arc = new Arc();
+
+	private static final int DEFAULT_SPEED = 35; // used for move_forward method
+	// in Robot
+	private static final int EACH_WHEEL_SPEED = 900; // used for
+	// each_wheel_speed
+	// method in Robot
+	private int left_wheel_speed = EACH_WHEEL_SPEED;
+	private int right_wheel_speed = EACH_WHEEL_SPEED;
 
 	Position dest = new Position(0, 0);
 
-	public static final int DEFAULT_SPEED = 35; // used for move_forward method
-	// in Robot
-	public static final int EACH_WHEEL_SPEED = 900; // used for each_wheel_speed
-	// method in Robot
 	public static void main(String args[]) {
 		instance = new Runner();
 	}
@@ -119,6 +129,8 @@ public class Runner extends Thread {
 		getUserOptions();
 		setPositionInformation();
 		planner = new PathPlanner(attackLeft);
+		nxt.set_wheel_speed(20);
+//		nxt.travel(30);
 
 		try {
 			mainLoop();
@@ -175,10 +187,13 @@ public class Runner extends Thread {
 	}
 
 	private void createAndShowGui() {
+		// Get the size of the default screen
+		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+
 		// Set the the control gui
 		gui = new MainGui(instance);
-		gui.setSize(600, 400);
-		gui.setLocation(500, 500);
+		gui.setSize(650, 400);
+		gui.setLocation((int) (dim.getWidth()- 650), 500);
 		gui.setTitle("N.U.K.E Control Panel");
 		gui.setResizable(false);
 		gui.setVisible(true);
@@ -190,9 +205,9 @@ public class Runner extends Thread {
 	public void startVision() {
 		/**
 		 * Creates the control GUI, and initialises the image processing.
-		 * 
+		 *
 		 * @param args
-		 *            Program arguments. Not used.
+		 * Program arguments. Not used.
 		 */
 		// Get constants location from gui
 		constantsLocation = gui.getConstantsFileLocation();
@@ -217,7 +232,7 @@ public class Runner extends Thread {
 			/* Create a new Vision object to serve the main vision window. */
 			vision = new Vision(videoDevice, width, height, channel,
 					videoStandard, compressionQuality, worldState,
-					thresholdsState, pitchConstants);
+					thresholdsState, pitchConstants, currentCamera, isMainPitch);
 
 		} catch (V4L4JException e) {
 			e.printStackTrace();
@@ -235,15 +250,42 @@ public class Runner extends Thread {
 
 		// strategy.start();
 
-		if (!stopFlag) {
-			if(gui.isModeAvoid()) {
-				ModeAvoid();
-			} else {
-				modeScore();
-			}
-		} else {
-			nxt.stop();
-			waitForNewInput();
+		//		if (!stopFlag) {
+		//			if(gui.isModeAvoid()) {
+		//				ModeAvoid();
+		//			} else {
+		//				modeScore();
+		//			}
+		//		} else {
+		//			nxt.stop();
+		//			waitForNewInput();
+		//		}
+
+		while(!stopFlag) {
+			motion(arc.calculateArc(new Point2D.Double(nxt.getCoors().getX(),nxt.getCoors().getY()), 
+					new Point2D.Double(ball.getCoors().getX(),ball.getCoors().getY()), 
+					new Point2D.Double(ball.getCoors().getX()-100,ball.getCoors().getY()),nxt.getAngle()));
+		}
+	}
+
+	public static void motion(int type) {
+		switch (type) {
+		case(Arc.MOTION_ROTATE):
+			rotation = arc.getRotation();
+			System.out.println("rotate: " + rotation);
+			nxt.rotateRobot((int) rotation);
+			break;
+		case(Arc.MOTION_FORWARD):
+			distance = arc.getDistance();
+			System.out.println("travel: " + distance);
+			nxt.travel((int) ( distance/2.5));
+		break;
+		case(Arc.MOTION_ARC):
+			arcRadius = arc.getArcRadius();
+			arcAngle = arc.getArcAngle();
+			System.out.println("arc: " + arcRadius + ", " + arcAngle);
+			nxt.arc((int)arcRadius, (int)arcAngle);
+		break;
 		}
 	}
 
@@ -299,7 +341,7 @@ public class Runner extends Thread {
 			while(dist > 40 && stopFlag == false) { // dist in pixels
 				//			System.out.println("dist to ball: " + dist);
 				getPitchInfo(false);
-				vision.drawPos(ballOffsetPosition);
+				vision.plotPosition(ballOffsetPosition);
 				dist = Move.getDist(nxt, ballOffsetPosition);
 				int n = Move.getAngleToPosition(nxt, ballOffsetPosition);
 				//			System.out.println("angle to offset ball: " + n);
@@ -388,7 +430,7 @@ public class Runner extends Thread {
 			nxt.moveForward(20);
 			while (dist > 50) { 
 				getPitchInfo(false);
-				Vision.plotPoints(waypoints);
+				vision.drawPath(waypoints);
 				dist = Move.getDist(nxt, gotoBall);
 				int n = Move.getAngleToPosition(nxt, gotoBall);
 
@@ -406,28 +448,136 @@ public class Runner extends Thread {
 				}
 			}
 		}
-		
-//		getPitchInfo(false);
-//		Ball goal = new Ball();
-//		if(attackLeft) {
-//			goal.setCoors(leftGoalSide);
-//		} else {
-//			goal.setCoors(rightGoalSide);
-//		}
-//		int angle = Move.getAngleToPosition(nxt, goal.getCoors());
-//		nxt.rotateRobot(angle);
-//		nxt.moveForward(30);
-//		try {
-//			Thread.sleep(1100);
-//		} catch (InterruptedException e) {
-//			e.printStackTrace();
-//		}
-//		nxt.kick();
-//		
-//		nxt.stop();
+
+		//		getPitchInfo(false);
+		//		Ball goal = new Ball();
+		//		if(attackLeft) {
+		//			goal.setCoors(leftGoalSide);
+		//		} else {
+		//			goal.setCoors(rightGoalSide);
+		//		}
+		//		int angle = Move.getAngleToPosition(nxt, goal.getCoors());
+		//		nxt.rotateRobot(angle);
+		//		nxt.moveForward(30);
+		//		try {
+		//			Thread.sleep(1100);
+		//		} catch (InterruptedException e) {
+		//			e.printStackTrace();
+		//		}
+		//		nxt.kick();
+		//		
+		//		nxt.stop();
 
 	}
 
+/*	private void line() {
+		// arc movement
+		getPitchInfo(false);
+//		float angle = getAverageAngle();
+//		nxt.setAngle(angle);
+//
+//		int radiusPx = (int) (dist/(2*Math.sin(angleToBall))); // radius in px
+//		System.out.println("Radius in PX: " + radiusPx);
+//		int radius = (int) convertPxToCm(radiusPx); // radius in cm
+//		System.out.println("Radius: " + radius);
+//		int a = (int) (Math.PI - (2 * (Math.acos(dist/radiusPx)))); // angle inside circle in radians
+//		int s = radius * a; // arc length in cm
+//		
+//		nxt.set_wheel_speed(30);
+//		nxt.travelArcRobot(Math.abs(radius), (int) (s));
+		
+		int t = 500;
+		// Position oldBallCoors = Move.modifyPositionCoors(nxt, new Position(ball.getCoors().getX(), ball.getCoors().getY()));
+		Position oldBallCoors = new Position(ball.getCoors().getX(), ball.getCoors().getY());
+		int angle = getAverageAngle();
+		try {
+			Thread.sleep(t);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		getPitchInfo(false);
+		nxt.setAngle(angle);
+		// Position newBallCoors = Move.modifyPositionCoors(nxt, new Position(ball.getCoors().getX(), ball.getCoors().getY()));
+		Position newBallCoors =new Position(ball.getCoors().getX(), ball.getCoors().getY());
+		Line line = new Line(oldBallCoors, newBallCoors);
+		Position intercept = new Position(nxt.getCoors().getX(), line.getYfromX(80));
+		nxt.rotateRobot(Move.getAngleToPosition(nxt, intercept));
+		
+		line.printEquation();
+		vision.plotPosition(intercept);
+		vision.drawLine(line);		
+		int dist = Move.getDist(nxt, new Position(intercept.getX(), intercept.getY()-20));
+		nxt.each_wheel_speed(left_wheel_speed, right_wheel_speed);
+		int counter = 0;
+		while(dist > 80) { // dist in pixels
+
+			vision.drawPos(intercept);
+			vision.drawLine(line);
+			if(counter == 50){
+				counter = 0;
+
+				getPitchInfo(false);
+				dist = Move.getDist(nxt, new Position(intercept.getX(), intercept.getY()-20));
+				int n = Move.getAngleToPosition(nxt, intercept);
+
+				System.out.println("SPEEDLEFT " + left_wheel_speed);
+				System.out.println("SPEEDRIGHT " + right_wheel_speed);
+
+				if((Math.abs(n) > 20)) {
+					System.out.println("!!!!ANGLE TOO LARGE: " + n);
+					if(n<20) {
+						right_wheel_speed *= 0.85;
+						nxt.each_wheel_speed(left_wheel_speed, right_wheel_speed);
+						try {
+							Thread.sleep(20);
+						} catch (InterruptedException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						System.out.println("SPEEDLEFT " + left_wheel_speed);
+						System.out.println("SPEEDRIGHT " + right_wheel_speed);
+
+					} else {
+						left_wheel_speed *= 0.85;
+						nxt.each_wheel_speed(left_wheel_speed, right_wheel_speed);try {
+							Thread.sleep(20);
+						} catch (InterruptedException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+
+						System.out.println("SPEEDLEFT " + left_wheel_speed);
+						System.out.println("SPEEDRIGHT " + right_wheel_speed);
+					}
+				 
+					if(left_wheel_speed > right_wheel_speed){
+						right_wheel_speed = left_wheel_speed;
+					} else {
+						left_wheel_speed = right_wheel_speed;
+					}
+					nxt.each_wheel_speed(left_wheel_speed, right_wheel_speed);
+					try {
+						Thread.sleep(80);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}	
+				}
+			}
+			counter++;
+		}
+		nxt.each_wheel_speed(0, 0);
+		getPitchInfo(false);
+		Position faceGoal;
+		if(attackLeft) {
+			faceGoal = new Position(23, 160);
+		} else {
+			faceGoal = new Position(601, 160);
+		}
+		int faceGoalAngle = Move.getAngleToPosition(nxt, faceGoal);
+		nxt.rotateRobot(faceGoalAngle);
+	}*/
 
 	private int getAverageAngle() {
 		int angle = 0;
@@ -652,6 +802,46 @@ public class Runner extends Thread {
 		}
 	}
 
+	void plotCurve() {
+		getPitchInfo(false);
+		ArrayList<Position> pos = new ArrayList<Position>();
+		ArrayList<Position> test = new ArrayList<Position>();
+
+		test.add(new Position(nxt.getCoors().getX(),nxt.getCoors().getY()));
+		test.add(new Position(Math.abs(nxt.getCoors().getX() - ball.getCoors().getX()), Math.abs(nxt.getCoors().getY() - ball.getCoors().getY())));
+		test.add(new Position(ball.getCoors().getX(), ball.getCoors().getY() ));
+		test.add(new Position(ball.getCoors().getX(), ball.getCoors().getY()));
+
+		int numpoints = test.size()-2;
+		double t;
+		double k = .125;
+		double x1,x2,y1,y2;
+		x1 = test.get(0).getX();
+		y1 = test.get(0).getY();
+
+		for(t=k;t<=1+k;t+=k){
+			//use Berstein polynomials
+			x2=(test.get(0).getX()+t*(-test.get(0).getX()*3+t*(3*test.get(0).getX()-
+					test.get(0).getX()*t)))+t*(3*test.get(1).getX()+t*(-6*test.get(1).getX()+
+							test.get(1).getX()*3*t))+t*t*(test.get(2).getX()*3-test.get(2).getX()*3*t)+
+							test.get(3).getX()*t*t*t;
+			y2=(test.get(0).getY()+t*(-test.get(0).getY()*3+t*(3*test.get(0).getY()-
+					test.get(0).getY()*t)))+t*(3*test.get(1).getY()+t*(-6*test.get(1).getY()+
+							test.get(1).getY()*3*t))+t*t*(test.get(2).getY()*3-test.get(2).getY()*3*t)+
+							test.get(3).getY()*t*t*t;
+
+
+			//draw curve
+			x1 = x2;
+			y1 = y2;
+			pos.add(new Position((int) x1, (int)y1));
+		}
+
+		while(true) {
+			vision.drawPath(pos);
+		}
+	}
+
 	public void setTeamYellow(boolean team) {
 		teamYellow = team;
 	}
@@ -682,5 +872,13 @@ public class Runner extends Thread {
 
 	public void setStopFlag(boolean flag) {
 		stopFlag = flag;
+	}
+
+	public void setIsMainPitch(boolean pitch) {
+		isMainPitch = pitch;
+	}
+
+	public void setCurrentCamera(int camera) {
+		currentCamera = camera;
 	}
 }

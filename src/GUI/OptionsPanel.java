@@ -1,22 +1,22 @@
 package GUI;
 import java.awt.GridLayout;
 import javax.swing.ButtonGroup;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
+@SuppressWarnings("serial")
 public class OptionsPanel extends JPanel {
 
 	// Components to be added to the control panel
 	// Option labels
-	JLabel robotColour = new JLabel("Robot Colour:");
-	JLabel attackGoal = new JLabel("Goal to attack:");
-	JLabel mode = new JLabel("Mode:");
-	JLabel pitchChoice = new JLabel("Pitch Choice:");
-	
-	// Milestone 3 options
-	JLabel milestoneOptionsLbl = new JLabel("Milestone 3 Mode:");
-	
+	private JLabel robotColour = new JLabel("Robot Colour:");
+	private JLabel attackGoal = new JLabel("Goal to attack:");
+	private JLabel mode = new JLabel("Mode:");
+	private JLabel pitchChoice = new JLabel("Pitch Choice:");
+	private JLabel cameraChoice = new JLabel("Camera Choice:");
+		
 	// Radio buttons
 	public JRadioButton yellowRobotButton;
 	public JRadioButton blueRobotButton;
@@ -27,22 +27,23 @@ public class OptionsPanel extends JPanel {
 	public JRadioButton normal;
 	public JRadioButton pitchMain;
 	public JRadioButton pitchSide;
-	// Milestone 3 options
-	public JRadioButton modeScore;
-	public JRadioButton modeAvoid;
+	public JRadioButton cameraZero;
+	public JRadioButton cameraOne;
+	public JRadioButton cameraTwo;
+	
+	public JCheckBox bypassRobot;
 	
 	// Button Groups
-	ButtonGroup colourGroup;
-	ButtonGroup attackGroup;
-	ButtonGroup modeGroup;
-	ButtonGroup pitchChoiceGroup;
-	// Milestone 3 options
-	ButtonGroup milestoneGroup;
+	private ButtonGroup colourGroup;
+	private ButtonGroup attackGroup;
+	private ButtonGroup modeGroup;
+	private ButtonGroup pitchChoiceGroup;
+	private ButtonGroup cameraChoiceGroup;
 
 	/** Constructor */
 	public OptionsPanel() {
 
-		setLayout(new GridLayout(5,4));
+		setLayout(new GridLayout(7,4));
 
 		// robot colour
 		yellowRobotButton = new JRadioButton("Yellow");
@@ -88,15 +89,21 @@ public class OptionsPanel extends JPanel {
 		
 		pitchMain.setSelected(true);
 		
-		// Milestone shite
-		modeScore = new JRadioButton("Mode Score");
-		modeAvoid = new JRadioButton("Mode Avoid");
+		// Camera Choice
+		cameraZero = new JRadioButton("0 (side pitch)");
+		cameraOne = new JRadioButton("1 (upper main)");
+		cameraTwo = new JRadioButton("2 (lower main)");
+		cameraZero.setSelected(true);
+		
 		// Group together
-		milestoneGroup = new ButtonGroup();
-		milestoneGroup.add(modeAvoid);
-		milestoneGroup.add(modeScore);
+		cameraChoiceGroup = new ButtonGroup();
+		cameraChoiceGroup.add(cameraZero);
+		cameraChoiceGroup.add(cameraOne);
+		cameraChoiceGroup.add(cameraTwo);
 		
-		
+		// Bypass Robot Connection
+		bypassRobot = new JCheckBox("Bypass Connection");
+				
 		// Add all components
 		add(robotColour);
 		add(yellowRobotButton);
@@ -114,12 +121,15 @@ public class OptionsPanel extends JPanel {
 		add(pitchMain);
 		add(pitchSide);
 		add(new JLabel(""));
-		add(milestoneOptionsLbl);
-		add(modeScore);
-		add(modeAvoid);
-		
-		modeAvoid.setSelected(true);
+		add(cameraChoice);
+		add(cameraZero);
+		add(cameraOne);
+		add(cameraTwo);
+		// Blank Line
+		add(new JLabel(""));
+		add(new JLabel(""));
+		add(new JLabel(""));
+		add(new JLabel(""));
+		add(bypassRobot);
 	}
 }
-
-

@@ -1,6 +1,4 @@
 package JavaVision;
-import java.awt.Point;
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 /**
@@ -58,6 +56,14 @@ public class Position {
 	 * @param y 	The value to set as the y-coordinate.
 	 */
 	public void setY(int y) {
+		this.y = y;
+	}
+	
+	/**
+	 * set both coordinates
+	 */
+	public void setCoors(int x, int y) {
+		this.x = x;
 		this.y = y;
 	}
 	
@@ -144,34 +150,34 @@ public class Position {
     
     public static ArrayList<Position> removeOutliers(ArrayList<Integer> xs, ArrayList<Integer> ys, Position centroid){
     	ArrayList<Position> goodPoints = new ArrayList<Position>();
-	if (xs.size() > 0) {
-    		
-	    	int stdev = 0;
-	    	
-	    	/* Standard deviation */
-	    	for (int i = 0; i < xs.size(); i++) {
-	    		int x = xs.get(i);
-	    		int y = ys.get(i);
-	    		
-	    		stdev += Math.pow(Math.sqrt(sqrdEuclidDist(x, y, (int) centroid.getX(), (int)centroid.getY())), 2);
-	    	}
-	    	stdev  = (int) Math.sqrt(stdev / xs.size());
-	    		    	
-	    	/* Remove points further than standard deviation */
-	    	for (int i = 0; i < xs.size(); i++) {
-	    		int x = xs.get(i);
-	    		int y = ys.get(i);
-	    		if (Math.abs(x - centroid.getX()) < stdev*1 && Math.abs(y - centroid.getY()) < stdev*1) {
-	    			Position p = new Position(x, y);
-	    			goodPoints.add(p);
-	    		}
-	    	}
-	    	
-    	}
-    	
-		return goodPoints;
-    	
-    }
+    	if (xs.size() > 0) {
+        		
+    	    	int stdev = 0;
+    	    	
+    	    	/* Standard deviation */
+    	    	for (int i = 0; i < xs.size(); i++) {
+    	    		int x = xs.get(i);
+    	    		int y = ys.get(i);
+    	    		
+    	    		stdev += Math.pow(Math.sqrt(sqrdEuclidDist(x, y, (int) centroid.getX(), (int)centroid.getY())), 2);
+    	    	}
+    	    	stdev  = (int) Math.sqrt(stdev / xs.size());
+    	    		    	
+    	    	/* Remove points further than standard deviation */
+    	    	for (int i = 0; i < xs.size(); i++) {
+    	    		int x = xs.get(i);
+    	    		int y = ys.get(i);
+    	    		if (Math.abs(x - centroid.getX()) < stdev*1 && Math.abs(y - centroid.getY()) < stdev*1) {
+    	    			Position p = new Position(x, y);
+    	    			goodPoints.add(p);
+    	    		}
+    	    	}
+    	    	
+        	}
+        	
+    		return goodPoints;
+        	
+        }
     
     /**
      * Calculates the squared euclidean distance between two 2D points.

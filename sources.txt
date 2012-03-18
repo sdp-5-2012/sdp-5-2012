@@ -8,6 +8,8 @@
 ./src/JavaVision/PitchConstants.java
 ./src/JavaVision/RangeSlider.java
 ./src/JavaVision/RunVision.java
+./src/JavaVision/BarrelDistortionCorrection.java
+./src/JavaVision/RotateImage.java
 ./src/Planning/GraphPointComparator.java
 ./src/Planning/Ball.java
 ./src/Planning/ObjectDetails.java
@@ -16,11 +18,12 @@
 ./src/Planning/Runner.java
 ./src/Planning/GraphPoint.java
 ./src/Planning/PathPlanner.java
-./src/Planning/Intercept.java
 ./src/Planning/Line.java
+./src/Planning/Intercept.java
+./src/Planning/Arcsdfsdf.java
 ./src/Planning/Arc.java
-./src/Communications/BluetoothCommunication.java
 ./src/Communications/CommunicationInterface.java
+./src/Communications/BluetoothCommunication.java
 ./src/NXT/NXT_class.java
 ./src/PC/ControlGUI.java
 ./src/GUI/MainGui.java

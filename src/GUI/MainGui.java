@@ -12,40 +12,37 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import JavaVision.Position;
-import Planning.Intercept;
 import Planning.Runner;
 
+@SuppressWarnings("serial")
 public class MainGui extends JFrame {
-	public GuiLog log;
-	JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-	public OptionsPanel options;
-	String fileDir = new String("");
-	JFileChooser chooser;
-	File constantsFile;
+	private GuiLog log;
+	private JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+	private  OptionsPanel options;
+	private File constantsFile;
 	//	volatile boolean applyClicked = false;
 	//	volatile boolean isYellow = true;
-	Intercept runner;
+	private Runner runner;
 
 	// values Runner needs
-	boolean attackLeft = true;
-	boolean isYellow = true;
+	private boolean attackLeft = true;
+	private boolean isYellow = true;
 	//int currentMode = 0;	// 0: Normal, 1: Penalty Defend, 2: Penalty Attack
-	boolean isPenaltyAttack = false;
-	boolean isPenaltyDefend = false;
-	String constantsLocation;
-	boolean isMainPitch = false;
-	boolean isModeAvoid = true;
+	private boolean isPenaltyAttack = false;
+	private boolean isPenaltyDefend = false;
+	private String constantsLocation;
+	private boolean isMainPitch = false;
+	private int currentCamera = 0;
 
-
-	public MainGui(Intercept runner) {
+	public MainGui(Runner runner) {
 		this.runner = runner;
-	
+
 		// default constants is pitch0
 		constantsLocation = getClass().getClassLoader().getResource(".").getPath();
 		String src = constantsLocation.substring(0, constantsLocation.length()-4);
-		src = src + "src/JavaVision/constants/pitch0";
+		src = src + "constants/pitch0";
 		constantsLocation = src;
-		
+
 		getContentPane().setLayout(new BorderLayout());
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		addMenu();
@@ -61,8 +58,6 @@ public class MainGui extends JFrame {
 
 		addListeners();
 		log.setCurrentPitchConstants("pitch0");
-		
-		pack();
 	}
 
 	private void addMenu() {
@@ -88,21 +83,22 @@ public class MainGui extends JFrame {
 				// Create a file chooser and default to constants folder
 				constantsLocation = getClass().getClassLoader().getResource(".").getPath();
 				String src = constantsLocation.substring(0, constantsLocation.length()-4);
-				src = src + "src/JavaVision/constants";
+				src = src + "constants";
 				constantsLocation = src;
 
 				JFileChooser fc = new JFileChooser(new File(src));
 				// Create the actions				
 				fc.showOpenDialog(frame);
 				constantsFile = fc.getSelectedFile();
-				constantsLocation += "/" + constantsFile.getName();
+				if(constantsFile != null) {
+					constantsLocation += "/" + constantsFile.getName();
+					log.setCurrentPitchConstants(constantsFile.getName());
+				} else {
+					constantsLocation = src + "/pitch0";
+				}
 
-//				int pitchNumber = (constantsFile.getName() == "pitch0") ? 0 : 1;
-//				controls.setNewConstants(constantsLocation, pitchNumber);
-				
-				log.setCurrentPitchConstants(constantsFile.getName());
 			}
-		});        
+		});   
 	}
 
 	public void addListeners() {
@@ -116,21 +112,31 @@ public class MainGui extends JFrame {
 				} else {
 					runner.setTeamYellow(false);
 				}
-				
+
 				runner.setRobotColour();
+				setCamera();
+
+				runner.setCurrentCamera(currentCamera);
 
 				// Repeatedly try and make connection
-				while (!Intercept.nxt.startCommunications()) {
-					log.setIsConnected(false);
+				if(!options.bypassRobot.isSelected()) {
+					while (!Runner.nxt.startCommunications()) {
+						log.setIsConnected(false);
+					}
 				}
 
 				log.setIsConnected(true);
+
+				// Case for pitch
+				if(options.pitchMain.isSelected()) {
+					runner.setIsMainPitch(true);
+				} else {
+					runner.setIsMainPitch(false);
+				}
 				// Start vision
 				runner.startVision();
 				log.startStop.setEnabled(true);
 				log.connect.setEnabled(false);
-				log.apply.setEnabled(true);
-
 			}
 		});
 
@@ -148,20 +154,8 @@ public class MainGui extends JFrame {
 					}
 				} else if(log.startStop.getText() == "Stop") {
 					runner.setStopFlag(true);
-					log.apply.setEnabled(false);
 					log.startStop.setText("Start");
-					Runner.nxt.stop();
 				}
-			}
-		});
-
-
-		log.apply.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				runner.setStopFlag(true);
-				runner.applyChanges();
 			}
 		});
 	}
@@ -192,35 +186,27 @@ public class MainGui extends JFrame {
 		if(options.penaltyAttack.isSelected()) {
 			log.setCurrentMode("Penalty Attack");
 			isPenaltyAttack = true;
+			isPenaltyDefend = false;
 		} else if(options.penaltyDefend.isSelected()) {
 			log.setCurrentMode("Penalty Defend");
 			isPenaltyDefend = true;
+			isPenaltyAttack = false;
 		} else if (options.normal.isSelected()) {
 			log.setCurrentMode("Normal");
 			isPenaltyAttack = false;
 			isPenaltyDefend = false;
 		}
 
-		// Case for pitch
-		if(options.pitchMain.isSelected()) {
-			isMainPitch = true;
-		} else {
-			isMainPitch = false;
-		}
-		
-		if(options.modeAvoid.isSelected()) {
-			isModeAvoid = true;
-		} else {
-			isModeAvoid = false;
-		}
-		System.out.println("modeAvoid " + isModeAvoid);
+		//		// Case for pitch
+		//		if(options.pitchMain.isSelected()) {
+		//			isMainPitch = true;
+		//		} else {
+		//			isMainPitch = false;
+		//		}
+
 	}
 
 	// Getters
-	//	public boolean getApplyClicked() {
-	//		return applyClicked;
-	//	}
-
 	public boolean getTeam() {
 		return isYellow;
 	}
@@ -244,14 +230,28 @@ public class MainGui extends JFrame {
 	public String getConstantsFileLocation() {
 		return constantsLocation;
 	}
-	
-	public boolean isModeAvoid() {
-		return isModeAvoid;
+
+	public int getCurrentCamera() {
+		return currentCamera;
 	}
-	
+
 	public void setCoordinateLabels(Position ourRobot, Position enemyRobot, Position ball) {
 		log.setOurCoors(ourRobot);
 		log.setEnemyCoors(enemyRobot);
 		log.setBallCoors(ball);
+	}
+
+	public void setCamera() {
+		// Case for camera
+		if(options.cameraZero.isSelected()) {
+			log.setCurrentCamera(0);
+			currentCamera = 0;			
+		} else if(options.cameraOne.isSelected()) {
+			log.setCurrentCamera(1);
+			currentCamera = 1;
+		} else if(options.cameraTwo.isSelected()) {
+			log.setCurrentCamera(2);
+			currentCamera = 2;
+		}
 	}
 }
