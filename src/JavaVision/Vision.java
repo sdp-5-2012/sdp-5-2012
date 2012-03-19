@@ -47,18 +47,11 @@ public class Vision extends WindowAdapter {
 	private PitchConstants pitchConstants;
 	private int camera = 2;
 	BufferedImage frameImage;
-<<<<<<< HEAD
 	private final static double robotH = 18;
 	private final static double roomH = 230;
 	private double middleX;
 	private double middleY;
 	private boolean isMainPitch;
-=======
-	private final static double robotH = 12;
-	private final static double roomH = 200;
-	private double middleX;
-	private double middleY;
->>>>>>> branch 'Planning' of ssh://git@github.com/sdp-5-2012/sdp-5-2012.git
 
 	// private int[] xDistortion;
 	// private int[] yDistortion;
@@ -97,12 +90,8 @@ public class Vision extends WindowAdapter {
 		this.pitchConstants = pitchConstants;
 		this.middleX = width/2;
 		this.middleY = height/2;
-<<<<<<< HEAD
 		this.camera = camera;
 		isMainPitch = mainPitch;
-=======
-		
->>>>>>> branch 'Planning' of ssh://git@github.com/sdp-5-2012/sdp-5-2012.git
 
 		/* Initialise the GUI that displays the video feed. */
 		initFrameGrabber(videoDevice, width, height, channel, videoStandard,
@@ -300,11 +289,7 @@ public class Vision extends WindowAdapter {
 		int bottomBuffer = pitchConstants.bottomBuffer;
 		int leftBuffer = pitchConstants.leftBuffer;
 		int rightBuffer = pitchConstants.rightBuffer;
-<<<<<<< HEAD
 
-=======
-		
->>>>>>> branch 'Planning' of ssh://git@github.com/sdp-5-2012/sdp-5-2012.git
 		image.getGraphics().drawLine(leftBuffer, topBuffer, image.getWidth()-rightBuffer, topBuffer);
 		image.getGraphics().drawLine(leftBuffer, image.getHeight()-bottomBuffer, image.getWidth()-rightBuffer, image.getHeight()-bottomBuffer);
 		image.getGraphics().drawLine(leftBuffer, topBuffer, leftBuffer, image.getHeight()-bottomBuffer);
@@ -444,26 +429,19 @@ public class Vision extends WindowAdapter {
 			int gY = greenYPoints.get(i);
 			if (Position.sqrdEuclidDist(gX, gY, yellowX, yellowY) > Position
 					.sqrdEuclidDist(gX, gY, blueX, blueY)) {
-<<<<<<< HEAD
 				//				if (Position.sqrdEuclidDist(gX, gY, blueX, blueY) < 1000) {
 				bluePX.add(gX);
 				bluePY.add(gY);
 				//	}
-=======
+
 //				if (Position.sqrdEuclidDist(gX, gY, blueX, blueY) < 1000) {
 					bluePX.add(gX);
 					bluePY.add(gY);
 			//	}
->>>>>>> branch 'Planning' of ssh://git@github.com/sdp-5-2012/sdp-5-2012.git
 			} else {
 
 				yellowPX.add(gX);
 				yellowPY.add(gY);
-<<<<<<< HEAD
-
-=======
-				
->>>>>>> branch 'Planning' of ssh://git@github.com/sdp-5-2012/sdp-5-2012.git
 			}
 		}
 
@@ -506,7 +484,6 @@ public class Vision extends WindowAdapter {
 		ballY = ballCentroid.getY();
 		ball = new Position(ballX, ballY);
 		ball.fixValues(worldState.getBallX(), worldState.getBallY());
-<<<<<<< HEAD
 		if(isMainPitch) {
 			Position centroidy = calcCentroid(yellowPX, yellowPY);
 
@@ -516,8 +493,6 @@ public class Vision extends WindowAdapter {
 			try {
 				Position[] extremeties = findFurthest(centroidy, yellowPX,
 						yellowPY, 100, 900);
-=======
->>>>>>> branch 'Planning' of ssh://git@github.com/sdp-5-2012/sdp-5-2012.git
 
 				Position second = extremeties[2];
 				extremeties[2] = extremeties[1];
@@ -558,21 +533,13 @@ public class Vision extends WindowAdapter {
 			//		}
 
 
-<<<<<<< HEAD
 			Position centroidb = calcCentroid(bluePX, bluePY);
 			ArrayList<Integer> newblueX = new ArrayList<Integer>();
 			ArrayList<Integer> newblueY = new ArrayList<Integer>();
-=======
 //		for(int i=0; i<yellowXPoints.size(); i++){
 //			image.getGraphics().drawOval(yellowXPoints.get(i), yellowYPoints.get(i), 3, 3);
 //		}
 		
-		
-		Position centroidb = calcCentroid(bluePX, bluePY);
-		ArrayList<Integer> newblueX = new ArrayList<Integer>();
-		ArrayList<Integer> newblueY = new ArrayList<Integer>();
->>>>>>> branch 'Planning' of ssh://git@github.com/sdp-5-2012/sdp-5-2012.git
-
 			try {
 				Position[] extremeties = findFurthest(centroidb, bluePX, bluePY,
 						100, 900);
@@ -688,26 +655,12 @@ public class Vision extends WindowAdapter {
 
 	private ArrayList<Integer> correctParallax(ArrayList<Integer> points, double middle){
 		ArrayList<Integer> correctPoints = new ArrayList<Integer>();
-<<<<<<< HEAD
-
-=======
-		
->>>>>>> branch 'Planning' of ssh://git@github.com/sdp-5-2012/sdp-5-2012.git
 		for(int i=0; i<points.size(); i++ ){
 			int correctX = (int) (robotH * (middle - points.get(i))/roomH + points.get(i));
 			correctPoints.add(correctX);
 		}
-<<<<<<< HEAD
-
-
 		return correctPoints;
 
-=======
-		
-		
-		return correctPoints;
-		
->>>>>>> branch 'Planning' of ssh://git@github.com/sdp-5-2012/sdp-5-2012.git
 	}
 	
 	private Position calcCentroid(ArrayList<Integer> xPoints,
@@ -960,11 +913,7 @@ public class Vision extends WindowAdapter {
 		//im.setColor(Color.BLACK);
 		im.drawLine(p1.getX(), p1.getY(), p2.getX(), p2.getY());
 		im.drawLine(p3.getX(), p3.getY(), p4.getX(), p4.getY());
-<<<<<<< HEAD
 
-=======
-		
->>>>>>> branch 'Planning' of ssh://git@github.com/sdp-5-2012/sdp-5-2012.git
 		// image.getGraphics().drawOval(centroid.getX(), centroid.getY(), 3, 3);
 
 		double m1 = (p1.getY() - p2.getY()) / ((p1.getX() - p2.getX()) * 1.0);
