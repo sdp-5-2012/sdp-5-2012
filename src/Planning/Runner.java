@@ -262,6 +262,7 @@ public class Runner extends Thread {
 		//		}
 
 		while(!stopFlag) {
+			getPitchInfo(false);
 			motion(arc.calculateArc(new Point2D.Double(nxt.getCoors().getX(),nxt.getCoors().getY()), 
 					new Point2D.Double(ball.getCoors().getX(),ball.getCoors().getY()), 
 					new Point2D.Double(ball.getCoors().getX()-100,ball.getCoors().getY()),nxt.getAngle()));
