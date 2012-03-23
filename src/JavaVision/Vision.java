@@ -362,35 +362,20 @@ public class Vision extends WindowAdapter {
 					}
 				}
 
-				if (isMainPitch) {
-					if (justR > 80) {
 
-						ballX += column;
-						ballY += row;
-						numBallPos++;
+				if (isBall(c, hsbvals)){
+					ballX += column;
+					ballY += row;
+					numBallPos++;
 
-						ballXPoints.add(column);
-						ballYPoints.add(row);
+					ballXPoints.add(column);
+					ballYPoints.add(row);
 
-						if (thresholdsState.isBall_debug()) {
-							image.setRGB(column, row, 0xFF000000);
-						}
+					if (thresholdsState.isBall_debug()) {
+						image.setRGB(column, row, 0xFF000000);
 					}
 				}
-				else{
-					if (isBall(c, hsbvals)){
-						ballX += column;
-						ballY += row;
-						numBallPos++;
-
-						ballXPoints.add(column);
-						ballYPoints.add(row);
-
-						if (thresholdsState.isBall_debug()) {
-							image.setRGB(column, row, 0xFF000000);
-						}
-					}
-				}
+				
 			}
 		}
 
