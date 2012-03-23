@@ -62,6 +62,9 @@ public class Runner extends Thread {
      * from the buffer values in the constants files
      */
     
+    private Position leftGoal = null;
+    private Position rightGoal = null;
+    
     private int topY = 0;
     private int lowY = 0;
     private int leftX = 0;
@@ -168,12 +171,13 @@ public class Runner extends Thread {
      * direction - POSSIBLY RENDERED COMPLETELY VOID
      */
     private void setPositionInformation() {
-        /*
+        
         // addednewsplit
         // Having this here is kind of pointless now if topY, etc are set later?
         // Also pointless if topY, etc are automatically going to be correct and don't
         // have to be specifically set based on pitch choice
         
+    	/*
         if (isMainPitch) {
             pitchCentre = centreMain;
             topY = mainTopY;
@@ -187,6 +191,7 @@ public class Runner extends Thread {
             leftX = sideLeftX;
             rightX = sideRightX;
         }
+        
         
         if (attackLeft) {
             if (isMainPitch) {
@@ -206,6 +211,15 @@ public class Runner extends Thread {
             }
         }
         */
+    	
+    	if (attackLeft) {
+    		ourGoal = rightGoal;
+    		theirGoal = leftGoal;
+    	} else {
+    		ourGoal = leftGoal;
+    		theirGoal = rightGoal;
+    	}
+        
     }
     
      
@@ -275,6 +289,10 @@ public class Runner extends Thread {
         cornerBottomRightY = lowY - 70;
         cornerTopRightX    = rightX - 90;
         cornerBottomRightX = rightX - 90;
+        
+        pitchCentre = new Position((int) (leftX + ((rightX - leftX) * 0.5)), (int) (topY + ((lowY - topY) * 0.5)));
+        leftGoal = new Position(leftX, (int) (topY + (topY - lowY) * 0.5));
+        rightGoal = new Position(rightX, (int) (topY + (topY - lowY) * 0.5));
         
         // endofadd
         

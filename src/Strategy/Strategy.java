@@ -198,5 +198,16 @@ public class Strategy extends Thread {
 		return obstruction;
 
 	}
+	
+	public boolean areWeCloser(Robot ourRobot, Robot theirRobot, Ball ball) {
+		boolean closer = false;
+		double distToBallUs = 0;
+		double distToBallThem = 0;
+		
+		closer = Position.sqrdEuclidDist(ourRobot.getCoors().getX(), ourRobot.getCoors().getY(), theirRobot.getCoors().getX(), theirRobot.getCoors().getY()) < 
+					Position.sqrdEuclidDist(theirRobot.getCoors().getX(), theirRobot.getCoors().getY(), ourRobot.getCoors().getX(), ourRobot.getCoors().getY());
+		
+		return closer;
+	}
 
 }
