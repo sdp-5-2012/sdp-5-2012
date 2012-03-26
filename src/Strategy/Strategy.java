@@ -14,6 +14,8 @@ public class Strategy extends Thread {
 	 * 4 - attack hard
 	 * 5 - avoid other robot and get to ball
 	 * 6 - kicker up and move back (we may be hiding the ball)
+	 * 
+	 * 8 - Find path to correct side of the ball
 	 *
 	 */
 	Runner instance;
@@ -29,7 +31,7 @@ public class Strategy extends Thread {
 
 			instance.getPitchInfo(false);
 			currentMode = whatToDo(instance.getOurRobot(), instance.getTheirRobot(), instance.getBall(),
-					instance.getOurGoal(), instance.getTheirGoal(), instance.getPitchCentre());
+					instance.getOurGoal(), instance.getTheirGoal(), instance.getPitchCentre(), instance.getAttackLeft());
 			//System.out.println("Current mode :" + currentMode);
 		}
 
@@ -44,8 +46,21 @@ public class Strategy extends Thread {
 		return currentMode;
 	}
 
+	public int whatToDo(Robot ourRobot, Robot theirRobot, Ball ball, Position ourGoal, Position theirGoal, Position pitchCentre, boolean attackLeft) {
+
+		int mode = 0;
+
+		if (!correctSideOfBall(ourRobot, ball)) {
+			mode = 8;
+		} else {
+			
+		}
+
+		return mode;
+	}
 
 
+	/*
 	public int whatToDo(Robot ourRobot, Robot theirRobot, Ball ball, Position ourGoal, Position theirGoal, Position pitchCentre) {
 
 		int mode = 0;
@@ -102,6 +117,7 @@ public class Strategy extends Thread {
 
 		return mode;
 	}
+	 */
 
 	// Returns true if our robot has possession of the ball
 	public static boolean doWeHaveTheBall(Robot ourRobot, Ball ball) {
@@ -131,6 +147,13 @@ public class Strategy extends Thread {
 		Position.sqrdEuclidDist(theirRobot.getCoors().getX(), theirRobot.getCoors().getY(), theirGoal.getX(), theirGoal.getY());
 
 		return themCloserToOurGoal;
+	}
+
+	public static boolean isBallInOurHalf(Ball ball, Position ourGoal, Position theirGoal) {
+		boolean ballInOurHalf = Position.sqrdEuclidDist(ball.getCoors().getX(), ball.getCoors().getY(), ourGoal.getX(), ourGoal.getY()) <
+		Position.sqrdEuclidDist(ball.getCoors().getX(), ball.getCoors().getY(), theirGoal.getX(), theirGoal.getY());
+
+		return ballInOurHalf;
 	}
 
 	// Returns true if there is a robot between us, and the goal, in a straight line
@@ -198,16 +221,22 @@ public class Strategy extends Thread {
 		return obstruction;
 
 	}
-	
+
 	public boolean areWeCloser(Robot ourRobot, Robot theirRobot, Ball ball) {
 		boolean closer = false;
-		double distToBallUs = 0;
-		double distToBallThem = 0;
-		
-		closer = Position.sqrdEuclidDist(ourRobot.getCoors().getX(), ourRobot.getCoors().getY(), theirRobot.getCoors().getX(), theirRobot.getCoors().getY()) < 
-					Position.sqrdEuclidDist(theirRobot.getCoors().getX(), theirRobot.getCoors().getY(), ourRobot.getCoors().getX(), ourRobot.getCoors().getY());
-		
+
+		closer = Position.sqrdEuclidDist(ourRobot.getCoors().getX(), ourRobot.getCoors().getY(), theirRobot.getCoors().getX(), theirRobot.getCoors().getY()) <= 
+			Position.sqrdEuclidDist(theirRobot.getCoors().getX(), theirRobot.getCoors().getY(), ourRobot.getCoors().getX(), ourRobot.getCoors().getY());
+
 		return closer;
+	}
+	
+	public boolean correctSideOfBall(Robot ourRobot, Ball ball) {
+		if (instance.attackLeft) {
+			return (ourRobot.getCoors().getX() > ball.getCoors().getX());
+		} else {
+			return (ourRobot.getCoors().getX() < ball.getCoors().getX());
+		}
 	}
 
 }
