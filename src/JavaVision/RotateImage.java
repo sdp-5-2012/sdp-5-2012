@@ -11,11 +11,8 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 
 /**
- * Simple program that loads, rotates and displays an image. Uses the file
- * Duke_Blocks.gif, which should be in the same directory.
- * 
- * @author MAG
- * @version 20Feb2009
+example of using the AffineTransform to rotate an image
+	http://beginwithjava.blogspot.co.uk/2009/02/rotating-image-with-java.html
  */
 
 public class RotateImage extends JPanel {
