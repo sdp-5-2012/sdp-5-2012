@@ -61,7 +61,7 @@ public class Robot extends ObjectDetails {
 				// send data when necessary
 				while (keepConnected) {
 					if (commandList.isEmpty()) {
-						//sendToRobot(DO_NOTHING);
+						sendToRobot(DO_NOTHING);
 					} else {
 						//sendToRobot(commandList.remove);
 

@@ -150,12 +150,7 @@ public class Runner extends Thread {
 
 		//nxt.steer(50, Move.getAngleToPosition(nxt, ball.getCoors()));
 
-		try {
-			mainLoop();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		chaseBall();
 	}
 
 	/**
@@ -289,56 +284,59 @@ public class Runner extends Thread {
 		//        Thread strategy = new Thread(s);
 		//        strategy.start();
 
-		modeStart();
-
+		//modeStart();
+	
 		while (true) {
 			if (!stopFlag) {
-				if (isPenaltyAttack) {
-					penaltyAttack();
-				} else if (isPenaltyDefend) {
-					penaltyDefend();
-				} else {
-					while(true) {
-						modeZero();
-					}
-				}
-				//                switch (s.getCurrentMode()) {
-				//                    case (0):
-				//                        modeZero();
-				//                        break;
-				//                    case (1):
-				//                        modeOne();
-				//                        break;
-				//                    case (2):
-				//                        modeTwo();
-				//                        break;
-				//                    case (3):
-				//                        try {
-				//                            modeThree();
-				//                        } catch (InterruptedException e) {
-				//                            e.printStackTrace();
-				//                        }
-				//                        break;
-				//                    case (4):
-				//                        modeFour();
-				//                        break;
-				//                    case (5):
-				//                        modeFive();
-				//                        break;
-				//                    case (6):
-				//                        modeSix();
-				//                        break;
-				//                    default:
-				//                        modeZero();
-				//                        break;
-				//                        
-				//                }
-				Thread.sleep(1000);
-			} else {
-				nxt.stop();
-				waitForNewInput();
+						if (isPenaltyAttack) {
+							penaltyAttack();
+						} else if (isPenaltyDefend) {
+							penaltyDefend();
+						} else {
+							while(true) {
+								chaseBall();
+							}
+						}
 			}
 		}
+
+		//				//                switch (s.getCurrentMode()) {
+		//				//                    case (0):
+		//				//                        modeZero();
+		//				//                        break;
+		//				//                    case (1):
+		//				//                        modeOne();
+		//				//                        break;
+		//				//                    case (2):
+		//				//                        modeTwo();
+		//				//                        break;
+		//				//                    case (3):
+		//				//                        try {
+		//				//                            modeThree();
+		//				//                        } catch (InterruptedException e) {
+		//				//                            e.printStackTrace();
+		//				//                        }
+		//				//                        break;
+		//				//                    case (4):
+		//				//                        modeFour();
+		//				//                        break;
+		//				//                    case (5):
+		//				//                        modeFive();
+		//				//                        break;
+		//				//                    case (6):
+		//				//                        modeSix();
+		//				//                        break;
+		//				//                    default:
+		//				//                        modeZero();
+		//				//                        break;
+		//				//                        
+		//				//                }
+		//				Thread.sleep(1000);
+		//			} else {
+		//				nxt.stop();
+		//				waitForNewInput();
+		//			}
+		//		}
 	}
 
 	/**
@@ -1147,12 +1145,8 @@ public class Runner extends Thread {
 		if (findPath) {
 			test = planner.getOptimalPath(nxt.getCoors(), ball.getCoors(),
 					otherRobot.getCoors());
+			System.out.println(test.size());
 
-			for (int s = 0; s < test.size(); s++) {
-				int distBetweenWaypoint = Move.getDist(nxt, test.get(s));
-				if (distBetweenWaypoint < 40)
-					test.remove(s);
-			}
 			bla.setCoors(test.get(0).getX(), test.get(0).getY());
 			gotoBall.setCoors(test.get(0).getX(), test.get(0).getY());
 		}
@@ -1263,200 +1257,317 @@ public class Runner extends Thread {
 
 
 	}
-
-	public void chaseBall(Robot nxt, Position intersection) {
-
-		//Test and delete in needed===
-		Position intersectionReal = new Position(intersection.getX(), intersection.getY());
-		//=========================
-
-
-
-		int dist11 = Move.getDist(nxt, intersectionReal);
-
-		while(dist11 > 30) { // dist in pixels
-			//System.out.println("intersection point: " + intersectionReal.getX() + " " + intersectionReal.getY());           
-
-
-
-
+	
+	public void chaseBall() {
+		while(true){
 
 			getPitchInfo(false);
-			dist11 = Move.getDist(nxt, intersectionReal);
-			intersection.setX(intersectionReal.getX());
-			intersection.setY(intersectionReal.getY());
-			int n = Move.getAngleToPosition(nxt, intersection);
-
-			//                System.out.println("SPEEDLEFT " + left_wheel_speed);
-			//                System.out.println("SPEEDRIGHT " + right_wheel_speed);
-
-			getPitchInfo(false);
-
-
-			nxt.each_wheel_speed(500, 500);
+			Position oldNXT = nxt.getCoors();
 			try {
-				Thread.sleep(280);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-			if(n >= 20 && n < 130) {
-				while(n >= 20 && n < 40) {
-					getPitchInfo(false);
-					n = Move.getAngleToPosition(nxt, intersection);
-					nxt.each_wheel_speed(300, 500);
-					try {
-						Thread.sleep(280);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-				}
-
-				while(n >= 40 && n < 60) {
-					getPitchInfo(false);
-					n = Move.getAngleToPosition(nxt, intersection);
-					nxt.each_wheel_speed(270,500);
-					try {
-						Thread.sleep(250);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-				}
-
-				while(n >= 60 && n < 80) {
-					getPitchInfo(false);
-					n = Move.getAngleToPosition(nxt, intersection);
-					nxt.each_wheel_speed(240, 500);
-					try {
-						Thread.sleep(220);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-				}
-
-				while(n >= 80 && n < 100) {
-					getPitchInfo(false);
-					n = Move.getAngleToPosition(nxt, intersection);
-					nxt.each_wheel_speed(210, 500);
-					try {
-						Thread.sleep(190);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-				}
-
-				while(n >= 100 && n < 130) {
-					getPitchInfo(false);
-					n = Move.getAngleToPosition(nxt, intersection);
-					nxt.each_wheel_speed(190, 500);
-					try {
-						Thread.sleep(160);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-				}
-				nxt.each_wheel_speed(500, 500);
-				try {
-					Thread.sleep(280);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
-
-			if(n <= -20 && n > -130) {
-				while(n >= -40 && n < -20) {
-					getPitchInfo(false);
-					n = Move.getAngleToPosition(nxt, intersection);
-					nxt.each_wheel_speed(500, 300);
-					try {
-						Thread.sleep(280);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-				}
-
-				while(n >= -60 && n < -40) {
-					getPitchInfo(false);
-					n = Move.getAngleToPosition(nxt, intersection);
-					nxt.each_wheel_speed(500,270);
-					try {
-						Thread.sleep(250);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-				}
-
-				while(n >= -80 && n < -60) {
-					getPitchInfo(false);
-					n = Move.getAngleToPosition(nxt, intersection);
-					nxt.each_wheel_speed(500, 240);
-					try {
-						Thread.sleep(220);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-				}
-
-				while(n >= -100 && n < -80) {
-					getPitchInfo(false);
-					n = Move.getAngleToPosition(nxt, intersection);
-					nxt.each_wheel_speed(500, 210);
-					try {
-						Thread.sleep(190);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-				}
-
-				while(n >= -130 && n < -100) {
-					getPitchInfo(false);
-					n = Move.getAngleToPosition(nxt, intersection);
-					nxt.each_wheel_speed(500, 190);
-					try {
-						Thread.sleep(160);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-				}
-				nxt.each_wheel_speed(500, 500);
-
-			} 
-			if(n >= 160  || n < -160) {
-				getPitchInfo(false);
-				nxt.stop();
-				nxt.rotateRobot(90);
-				try {
-					Thread.sleep(280);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-				continue;
-			}
-
-
-			if(n > -20 && n <20  ) {
-				getPitchInfo(false);
-				n = Move.getAngleToPosition(nxt, intersection);
-				// Comment this out for first two 
-				if(Move.getDist(nxt, intersection) < 25) {
-					nxt.kick();
-				}
-				// -----
-				continue;
-
+				Thread.sleep(2000);
+			} catch (InterruptedException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
 			}
 			getPitchInfo(false);
-			if((n <= 160 && n >= 130) || n >= -160 && n <= -130) {
-				nxt.each_wheel_speed(-500, -500);
-
+			
+			if((Math.abs(nxt.getCoors().getX() - oldNXT.getX()) <15) && (Math.abs(nxt.getCoors().getY() - oldNXT.getY()) <15)){
+				nxt.each_wheel_speed(-100, -100);
 				try {
 					Thread.sleep(500);
 				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
+			
+			getPitchInfo(false);
+			int distqq = Move.getDist(nxt,new Position(ball.getCoors().getX(),ball.getCoors().getY()));
+			int nqq = Move.getAngleToPosition(nxt,new Position(ball.getCoors().getX(),ball.getCoors().getY()) );
+			while(distqq > 20) { // dist in pixels
+
+
+				getPitchInfo(false);
+
+				nqq = Move.getAngleToPosition(nxt,new Position(ball.getCoors().getX(),ball.getCoors().getY()) );
+				distqq = Move.getDist(nxt, new Position(ball.getCoors().getX(),ball.getCoors().getY()));
+
+
+				getPitchInfo(false);
+				nqq = Move.getAngleToPosition(nxt,new Position(ball.getCoors().getX(),ball.getCoors().getY()) );
+				nxt.clearAllCommands();
+
+				if((nqq<10) && (nqq>-10) ){
+					while((nqq<10) && (nqq>-10)){
+						getPitchInfo(false);
+						nqq = Move.getAngleToPosition(nxt,new Position(ball.getCoors().getX(),ball.getCoors().getY()) );
+						distqq = Move.getDist(nxt, new Position(ball.getCoors().getX(),ball.getCoors().getY()));
+
+						nxt.clearAllCommands();
+						nxt.each_wheel_speed(600, 600);
+
+						if(distqq<50){
+							nxt.kick();
+						}
+					}
+				}
+				//between 20 and 60
+				getPitchInfo(false);
+				nqq = Move.getAngleToPosition(nxt,new Position(ball.getCoors().getX(),ball.getCoors().getY()) );
+				if(nqq>=10 && nqq<60){
+					while(nqq>=10 && nqq<60){
+						System.out.println(nqq);
+						getPitchInfo(false);
+						distqq = Move.getDist(nxt, new Position(ball.getCoors().getX(),ball.getCoors().getY()));
+						nqq = Move.getAngleToPosition(nxt,new Position(ball.getCoors().getX(),ball.getCoors().getY()) );
+
+						nxt.clearAllCommands();
+
+						nxt.each_wheel_speed(250, 400);
+
+						try {
+							Thread.sleep(50);
+						} catch (InterruptedException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+
+					}
+
+					nxt.clearAllCommands();
+					nxt.each_wheel_speed(600, 600);
+					continue;
+				}
+				getPitchInfo(false);
+				nqq = Move.getAngleToPosition(nxt,new Position(ball.getCoors().getX(),ball.getCoors().getY()) );
+				if(nqq>-60 && nqq<=-10){
+					while(nqq>-60 && nqq<=-10){
+						getPitchInfo(false);
+						distqq = Move.getDist(nxt, new Position(ball.getCoors().getX(),ball.getCoors().getY()));
+						nqq = Move.getAngleToPosition(nxt,new Position(ball.getCoors().getX(),ball.getCoors().getY()) );
+						nxt.clearAllCommands();
+						nxt.each_wheel_speed(400, 250);
+						try {
+							Thread.sleep(50);
+						} catch (InterruptedException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+
+					nxt.clearAllCommands();
+					nxt.each_wheel_speed(600, 600);
+					continue;
+				}
+
+				//between 60 and 90
+				getPitchInfo(false);
+				nqq = Move.getAngleToPosition(nxt,new Position(ball.getCoors().getX(),ball.getCoors().getY()) );
+				if(nqq>=60 && nqq<90){
+					while(nqq>=60 && nqq<90){
+						getPitchInfo(false);
+						distqq = Move.getDist(nxt, new Position(ball.getCoors().getX(),ball.getCoors().getY()));
+						nqq = Move.getAngleToPosition(nxt,new Position(ball.getCoors().getX(),ball.getCoors().getY()) );
+
+
+						nxt.clearAllCommands();
+						nxt.each_wheel_speed(250, 400);
+
+						try {
+							Thread.sleep(50);
+						} catch (InterruptedException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+
+					}
+
+					nxt.clearAllCommands();
+					nxt.each_wheel_speed(600, 600);
+					continue;
+				}
+				getPitchInfo(false);
+				distqq = Move.getDist(nxt, new Position(ball.getCoors().getX(),ball.getCoors().getY()));
+				nqq = Move.getAngleToPosition(nxt,new Position(ball.getCoors().getX(),ball.getCoors().getY()) );
+				if(nqq>-90 && nqq<=-60){
+					while(nqq>-90 && nqq<=-60){
+						getPitchInfo(false);
+						distqq = Move.getDist(nxt, new Position(ball.getCoors().getX(),ball.getCoors().getY()));
+						nqq = Move.getAngleToPosition(nxt,new Position(ball.getCoors().getX(),ball.getCoors().getY()) );
+
+
+						nxt.clearAllCommands();
+						nxt.each_wheel_speed(400, 250);
+						try {
+							Thread.sleep(50);
+						} catch (InterruptedException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+
+					nxt.clearAllCommands();
+					nxt.each_wheel_speed(400, 400);
+					continue;
+				}
+
+				//else
+				getPitchInfo(false);
+				nqq = Move.getAngleToPosition(nxt,new Position(ball.getCoors().getX(),ball.getCoors().getY()) );
+				if(((nqq>=-180) && (nqq<=-90))||(nqq>=90 && nqq<=180)){
+
+					while(((nqq>=-180) && (nqq<=-90))||(nqq>=90 && nqq<=180)){
+						getPitchInfo(false);
+						distqq = Move.getDist(nxt, new Position(ball.getCoors().getX(),ball.getCoors().getY()));
+						nqq = Move.getAngleToPosition(nxt,new Position(ball.getCoors().getX(),ball.getCoors().getY()) );
+
+
+						nxt.clearAllCommands();
+
+						nxt.stop();
+						//nxt.backwardsSlightly();
+						nxt.rotateRobot(nqq);
+
+						try {
+							Thread.sleep(50);
+						} catch (InterruptedException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+
+					nxt.clearAllCommands();
+					nxt.each_wheel_speed(400, 400);
+					continue;
+				}
+			}	
+
 		}
-		nxt.each_wheel_speed(0,0);
+
+
 	}
+
+	//	public void chaseBall() {
+	//		getPitchInfo(false);
+	//		ArrayList<Position> pathchase = planner.getOptimalPath(nxt.getCoors(), ball.getCoors(), otherRobot.getCoors());
+	//
+	//		for(int i = 0 ; i<pathchase.size(); i++){
+	//			Position pointchase = pathchase.get(i);
+	//			int distchase = Move.getDist(nxt, pointchase);
+	//			int anglechase = Move.getAngleToPosition(nxt, pointchase);
+	//			System.out.println(distchase);
+	//			nxt.rotateRobot(anglechase);
+	//			while(distchase>20){
+	//				getPitchInfo(false);
+	//				distchase = Move.getDist(nxt, pointchase);
+	//				anglechase = Move.getAngleToPosition(nxt, pointchase);
+	//				while(anglechase>10&&distchase>50){
+	//					getPitchInfo(false);
+	//					distchase = Move.getDist(nxt, pointchase);
+	//					anglechase = Move.getAngleToPosition(nxt, pointchase);
+	//					nxt.each_wheel_speed(250, 500);
+	//
+	//					try {
+	//						Thread.sleep(50);
+	//					} catch (InterruptedException e) {
+	//						// TODO Auto-generated catch block
+	//						e.printStackTrace();
+	//					}
+	//				}
+	//				while(anglechase<-10&&distchase>50){
+	//					getPitchInfo(false);
+	//					distchase = Move.getDist(nxt, pointchase);
+	//					anglechase = Move.getAngleToPosition(nxt, pointchase);
+	//					nxt.each_wheel_speed(500, 250);
+	//					try {
+	//						Thread.sleep(50);
+	//					} catch (InterruptedException e) {
+	//						// TODO Auto-generated catch block
+	//						e.printStackTrace();
+	//					}
+	//				}
+	//				System.out.println(distchase);
+	//				nxt.each_wheel_speed(500, 500);
+	//			}
+	//			nxt.stop();
+	//		}
+	//	}
+
+
+	//	/**
+	//	 * Mode Start - Used at beginning of game
+	//	 */
+	//	public void modeStart() {
+	//		System.out.println("MODE START");
+	//		getPitchInfo(false);
+	//
+	//		if (attackLeft) {
+	//			getPitchInfo(false);
+	//
+	//			Position NearBallPosition = new Position(0,0);
+	//			Position NearBallPositionReal = new Position(0,0);
+	//			Position OnWall = new Position(0,0);
+	//
+	//			//get the robot to go right of ball
+	//			int positionNearBallX = (ball.getCoors().getX()) + 50;
+	//			int positionNearBallY = (ball.getCoors().getY()) - 50;
+	//
+	//			int positionNearBallRealX = (ball.getCoors().getX()) + 50;
+	//			int positionNearBallRealY = (ball.getCoors().getY()) - 50;
+	//
+	//			NearBallPosition.setCoors(positionNearBallX, positionNearBallY);
+	//			NearBallPositionReal.setCoors(positionNearBallRealX, positionNearBallRealY);
+	//
+	//			System.out.println("NearBallRealOriginal " + positionNearBallRealX + " " + positionNearBallRealY);
+	//			//calculate angle to position and rotate
+	//			int angleToNearBall = Move.getAngleToPosition(nxt,
+	//					NearBallPosition);
+	//
+	//			nxt.rotateRobot(angleToNearBall);
+	//
+	//			//while distance is big move to position
+	//			while (Move.getDist(nxt, NearBallPositionReal) > 140) {
+	//				getPitchInfo(false);
+	//				System.out.println("Distance to Position " + Move.getDist(nxt, NearBallPositionReal));
+	//				nxt.each_wheel_speed(500, 500);
+	//			}
+	//			nxt.stop();
+	//		}
+	//
+	//		else {
+	//			getPitchInfo(false);
+	//
+	//			Position NearBallPosition = new Position(0,0);
+	//			Position NearBallPositionReal = new Position(0,0);
+	//			Position OnWall = new Position(0,0);
+	//
+	//			//get the robot to go right of ball
+	//			int positionNearBallX = (ball.getCoors().getX()) - 50;
+	//			int positionNearBallY = (ball.getCoors().getY()) + 50;
+	//
+	//			int positionNearBallRealX = (ball.getCoors().getX()) - 50;
+	//			int positionNearBallRealY = (ball.getCoors().getY()) + 50;
+	//
+	//			NearBallPosition.setCoors(positionNearBallX, positionNearBallY);
+	//			NearBallPositionReal.setCoors(positionNearBallRealX, positionNearBallRealY);
+	//
+	//			System.out.println("NearBallRealOriginal " + positionNearBallRealX + " " + positionNearBallRealY);
+	//			//calculate angle to position and rotate
+	//			int angleToNearBall = Move.getAngleToPosition(nxt,
+	//					NearBallPosition);
+	//
+	//			nxt.rotateRobot(angleToNearBall);
+	//
+	//			//while distance is big move to position
+	//			while (Move.getDist(nxt, NearBallPositionReal) > 150) {
+	//				getPitchInfo(false);
+	//				System.out.println("Distance to Position " + Move.getDist(nxt, NearBallPositionReal));
+	//				nxt.each_wheel_speed(600, 600);
+	//			}
+	//			nxt.stop();
+	//		}
+	//
+	//	}
 
 	public boolean getAttackLeft() {
 		return attackLeft;

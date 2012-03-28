@@ -203,8 +203,8 @@ public class Vision extends WindowAdapter {
 				frame.recycle();
 				if (counter > 10) {
 					//					frameImage = RotateImage.correctRotation(frameImage);
-					frameImage = BarrelDistortionCorrection
-					.correctPic(frameImage, isMainPitch);
+//					frameImage = BarrelDistortionCorrection
+//					.correctPic(frameImage, isMainPitch);
 
 					processAndUpdateImage(frameImage, before, counter);
 				}

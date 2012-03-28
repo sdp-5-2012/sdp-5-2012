@@ -26,7 +26,7 @@ public class MainGui extends JFrame {
 
 	// values Runner needs
 	private boolean attackLeft = true;
-	private boolean isYellow = true;
+	private boolean isYellow = false;
 	//int currentMode = 0;	// 0: Normal, 1: Penalty Defend, 2: Penalty Attack
 	private boolean isPenaltyAttack = false;
 	private boolean isPenaltyDefend = false;

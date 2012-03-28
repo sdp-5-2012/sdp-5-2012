@@ -16,7 +16,7 @@ public class Move {
 		int robotY = robot.getCoors().getY();
 		int ballX = p.getX();
 		int ballY = p.getY();
-
+		
 		int x = (int) Math.abs(robotX - ballX);
 		int y = (int) Math.abs(robotY - ballY);
 
@@ -43,9 +43,10 @@ public class Move {
 		int x = p.getX();
 		int y = p.getY();
 		float angle = robot.getAngle(); // in radians
-		pos.setCoors(((int) (Math.cos(angle) * x - Math.sin(angle) * y)),
+		Position modifyCoors = new Position(0,0);
+		modifyCoors.setCoors(((int) (Math.cos(angle) * x - Math.sin(angle) * y)),
 				((int) (Math.sin(angle) * x + Math.cos(angle) * y)));
-		return pos;
+		return modifyCoors;
 	}
 
 	public static Position translatePoint(Robot robot, Position p) {
@@ -55,8 +56,9 @@ public class Move {
 															// convert into
 															// normal cordinate
 															// system
-		p.setCoors(x, y);
-		return p;
+		Position translatePoint = new Position(0,0);
+		translatePoint.setCoors(x, y);
+		return translatePoint;
 	}
 
 	public static int getBallPosition(Position ball) {
