@@ -26,7 +26,7 @@ public class GuiLog extends JPanel {
 	private String currentColour ="Yellow";
 	private String currentAttackGoal ="Right";
 	private String currentMode = "Normal";
-	private int currentCamera;
+	private int currentCamera = 1;
 
 	private boolean isConnected = false;
 

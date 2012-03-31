@@ -7,6 +7,7 @@ import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -1398,11 +1399,19 @@ public class Vision extends WindowAdapter {
 		return worldState;
 	}
 
-	public void plotPosition(Position position) {
+	public void plotPosition(Position position, Color c) {
 		Graphics g = frameImage.getGraphics();
-		g.setColor(Color.MAGENTA);
-		g.fillOval(position.getX(), position.getY(), 10, 10);
+		g.setColor(c);
+		g.fillOval(position.getX(), position.getY(), 5, 5);
 	}
+	
+	public void drawLine(Point2D.Double position1, Point2D.Double position2, Color c) {
+		Graphics g = frameImage.getGraphics();
+		g.setColor(c);
+		g.drawLine((int) position1.getX(),(int)  position1.getY(), (int) position2.getX(),(int)  position2.getY());
+	}
+	
+	
 
 	/* Doesn't work */
 	/*

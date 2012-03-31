@@ -66,8 +66,7 @@ public class ControlGUI extends JFrame{
 //					e1.printStackTrace();
 //				}
 				//r.moveBackward(20);
-			   r.rotateRobot(90);
-			   r.each_wheel_speed(100, 100);
+			   r.moveForward(55);
 				//r.each_wheel_speed(50, 100);
 				//r.moveForwardByDistance(-60, 40);
 //			    r.accelerateRobot(50);

@@ -32,7 +32,7 @@ public class MainGui extends JFrame {
 	private boolean isPenaltyDefend = false;
 	private String constantsLocation;
 	private boolean isMainPitch = false;
-	private int currentCamera = 0;
+	private int currentCamera = 1;
 
 	public MainGui(Runner runner) {
 		this.runner = runner;
@@ -40,7 +40,7 @@ public class MainGui extends JFrame {
 		// default constants is pitch0
 		constantsLocation = getClass().getClassLoader().getResource(".").getPath();
 		String src = constantsLocation.substring(0, constantsLocation.length()-4);
-		src = src + "constants/pitch0";
+		src = src + "constants/pitch1";
 		constantsLocation = src;
 
 		getContentPane().setLayout(new BorderLayout());
@@ -57,7 +57,7 @@ public class MainGui extends JFrame {
 		splitPane.setDividerLocation(200);
 
 		addListeners();
-		log.setCurrentPitchConstants("pitch0");
+		log.setCurrentPitchConstants("pitch1");
 	}
 
 	private void addMenu() {
@@ -147,13 +147,12 @@ public class MainGui extends JFrame {
 				if (log.startStop.getText() == "Start") {
 					log.startStop.setText("Stop");
 					updateButtons();
-					runner.setStopFlag(false);
 					// Wake runner
 					synchronized (runner) {
 						runner.notify();
 					}
 				} else if(log.startStop.getText() == "Stop") {
-					runner.setStopFlag(true);
+					runner.interrupt();
 					log.startStop.setText("Start");
 				}
 			}
@@ -197,12 +196,12 @@ public class MainGui extends JFrame {
 			isPenaltyDefend = false;
 		}
 
-		//		// Case for pitch
-		//		if(options.pitchMain.isSelected()) {
-		//			isMainPitch = true;
-		//		} else {
-		//			isMainPitch = false;
-		//		}
+		// Case for pitch
+		if(options.pitchMain.isSelected()) {
+			isMainPitch = true;
+		} else {
+			isMainPitch = false;
+		}
 
 	}
 

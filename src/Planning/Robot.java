@@ -1,5 +1,4 @@
 package Planning;
-import JavaVision.*;
 import java.io.IOException;
 import java.util.LinkedList;
 import lejos.pc.comm.NXTCommFactory;
@@ -15,22 +14,22 @@ public class Robot extends ObjectDetails {
 
 	public boolean moving = true;
 
-	private final static int DO_NOTHING = 0X00;
-	private final static int FORWARDS = 0X01;
-	private final static int BACKWARDS=0x02;
-	private final static int STOP = 0X03;
-	private final static int KICK = 0X04;
-	private final static int QUIT = 0X05;
-	private final static int FORWARDS_TRAVEL=0X06;
-	private final static int TRAVEL_BACKWARDS_SLIGHRLY=0X07;
-	private final static int TRAVEL_ARC=0X08;
-	private final static int ACCELERATE=0X09;
+	private final static int DO_NOTHING = 0x00;
+	private final static int FORWARDS = 0x10;
+	private final static int BACKWARDS=0x20;
+	private final static int STOP = 0x30;
+	private final static int KICK = 0x40;
+	private final static int QUIT = 0x50;
+	private final static int FORWARDS_TRAVEL=0x60;
+	private final static int TRAVEL_BACKWARDS_SLIGHTLY=0x70;
+	private final static int TRAVEL_ARC=0x80;
+	private final static int ARC=0x90;
+	private final static int ROTATE = 0xA0;
+	private final static int SET_WHEEL_SPEED=0xB0;
+	private final static int STEER =0xC0;
+	private final static int EACH_WHEEL_SPEED = 0xD0;
 
-	private final static int ROTATE = 0X0A;
-	private final static int EACH_WHEEL_SPEED=0X0B;
-	private final static int STEER =0X0C;
-
-	private LinkedList<Integer> commandList = new LinkedList<Integer>();
+	private LinkedList<byte[]> commandList = new LinkedList<byte[]>();
 	private BluetoothCommunication comms;
 	private lejos.pc.comm.NXTComm nxtComm;
 	private NXTInfo info = new NXTInfo(NXTCommFactory.BLUETOOTH, "NXT",
@@ -61,7 +60,7 @@ public class Robot extends ObjectDetails {
 				// send data when necessary
 				while (keepConnected) {
 					if (commandList.isEmpty()) {
-						sendToRobot(DO_NOTHING);
+						//sendToRobot(DO_NOTHING);
 					} else {
 						//sendToRobot(commandList.remove);
 
@@ -106,10 +105,11 @@ public class Robot extends ObjectDetails {
 	/**
 	 * Add a command to the queue to be sent to the robot
 	 */
-	public void addCommand(int command) {
+	public void addCommand(byte[] command) {
 
 		while (commandList.size() > 3) {
 			commandList.remove();
+			System.out.println("<");
 		}
 		commandList.offer(command);
 		sendToRobot(command);
@@ -125,7 +125,7 @@ public class Robot extends ObjectDetails {
 	/**
 	 * Sends a command to the robot
 	 */
-	public void sendToRobot(int command) {
+	public void sendToRobot(byte[] command) {
 		//		System.out.println("SENT "+command+" TO ROBOT");
 		comms.sendToRobot(command);
 	}
@@ -156,35 +156,79 @@ public class Robot extends ObjectDetails {
 	 */
 	public void moveForward(int speed) {
 		moving = true;
-		int command = FORWARDS |(speed << 8);
+		byte[] command = {(byte)FORWARDS,0x00,(byte)(speed >> 8),(byte)speed};
 		addCommand(command);
 		//	System.out.println("move forward");
 	}
-
-	public void accelerateRobot(int acceleration) {
-		moving = true;
-		int command = ACCELERATE | (acceleration <<16 );
-		addCommand(command);
-		System.out.println("accerelate");
-	}
-
 
 	/**
 	 * Commands the robot to move  backward
 	 */
 	public void moveBackward(int speed) {
 		moving = true;
-		int command = BACKWARDS |(speed << 8);
+		byte[] command = {(byte)BACKWARDS,0x00,(byte)(speed >> 8),(byte)speed};
 		addCommand(command);
 		System.out.println("move backward");
+	}
+
+	/**
+	 * Commands the robot to stop where it is
+	 */
+	public void stop() {
+		moving = false;
+		byte[] command = {(byte)STOP,0x00,0x00,0x00};
+		addCommand(command);
+	}
+
+	/**
+	 * Commands the robot to kick
+	 */
+	public void kick() {
+		System.out.println("kick");
+		byte[] command = {(byte)KICK,0x00,0x00,0x00};
+		addCommand(command);
+	}
+
+	/**
+	 * Commands the robot to travel a certain distance
+	 */
+	public void travel(int distance) {
+		moving = true;
+		byte[] command = {(byte)FORWARDS_TRAVEL,0x00,(byte)(distance >> 8),(byte)distance};
+		addCommand(command);
+		System.out.println("travel forwards" + distance);
 	}
 
 	/**
 	 * Commands the robot to move backward slightly
 	 */
 	public void backwardsSlightly(){
-		addCommand(TRAVEL_BACKWARDS_SLIGHRLY);
+		byte[] command = {(byte)TRAVEL_BACKWARDS_SLIGHTLY,0x00,0x00,0x00};
+		addCommand(command);
 		System.out.println("move backward a little bit");
+	}
+
+	/**
+	 * Commands the robot to travel along an arc
+	 */
+	public void travelArcRobot(int radius, int distance) {
+		moving = true;
+			// add 4 top bits from radius to the opcode
+		byte opcodeWithParam = (byte)(TRAVEL_ARC | (byte)((((byte)(radius >> 8) << 4) & 0xFF) >>> 4));
+		byte[] command = {opcodeWithParam,(byte)radius,(byte)(distance >> 8),(byte)distance};
+		addCommand(command);
+		System.out.println("travel along arc");
+	}
+	
+	/**
+	 * Commands the robot travel an arc
+	 */
+	public void arc(int radius, int angle) {
+		moving = true;
+		byte opcodeWithParam = (byte)(ARC | (byte)((((byte)(radius >> 8) << 4) & 0xFF) >>> 4));
+		byte[] command = {opcodeWithParam,(byte)radius,(byte)(angle >> 8),(byte)angle};
+		addCommand(command);
+		System.out.println("arc to angle");
 	}
 
 	/**
@@ -192,8 +236,7 @@ public class Robot extends ObjectDetails {
 	 */
 	public void rotateRobot(int angle) {
 		moving = true;
-		int command = ROTATE |(angle << 8);
-
+		byte[] command = {(byte)ROTATE,0x00,(byte)(angle >> 8),(byte)angle};
 		addCommand(command);
 		System.out.println("rotate");
 
@@ -211,58 +254,31 @@ public class Robot extends ObjectDetails {
 	}
 
 	/**
-	 * Commands the robot to travel along an arc
+	 * Set the travel speed of the robot
 	 */
-	public void travelArcRobot(int radius, int distance) {
-		moving = true;
-		int command = TRAVEL_ARC | (radius << 8) | (distance << 8);
-		addCommand(command);
-		System.out.println("travel along arc");
-
-	}
-
-	public void each_wheel_speed(int left_wheel_speed,
-			int right_wheel_speed){
-		//System.out.println("Different wheel speed");
-		int command = EACH_WHEEL_SPEED |(int)Math.abs((left_wheel_speed <<8))
-		|(int)Math.abs((right_wheel_speed <<20));
-		// set the sign bit for the left wheel
-		if (left_wheel_speed < 0) {
-			command = command | (1 << 19);
-		}
-
-		// set the sign bit for the right wheel
-		if (right_wheel_speed < 0) {
-			command = command | (1 << 31);
-		}
+	public void set_wheel_speed(int speed){
+		System.out.println("set wheel speed");
+		byte[] command = {(byte)SET_WHEEL_SPEED,0x00,(byte)(speed >> 8),(byte)speed};
 		addCommand(command);
 	}
-
-
 
 	public void steer(int turnRate, int angle){
-		int command = STEER|(turnRate << 8)
-		| (turnRate << 8);
+		moving = true;
+		byte opcodeWithParam = (byte)(STEER | (byte)((((byte)(turnRate >> 8) << 4) & 0xFF) >>> 4));
+		byte[] command = {opcodeWithParam,(byte)turnRate,(byte)(angle >> 8),(byte)angle};
+		addCommand(command);
 		System.out.println("start steer");
 		addCommand(command);
-
-	}
-
-
-	/**
-	 * Commands the robot to stop where it is
-	 */
-	public void stop() {
-		moving = false;
-		addCommand(STOP);
 	}
 
 	/**
-	 * Commands the robot to kick
+	 * Set the motor speed of each wheel
 	 */
-	public void kick() {
-		System.out.println("kick");
-		addCommand(KICK);
+	public void each_wheel_speed(int speedL, int speedR){
+		moving = true;
+		byte opcodeWithParam = (byte)(EACH_WHEEL_SPEED | (byte)((((byte)(speedL >> 8) << 4) & 0xFF) >>> 4));
+		byte[] command = {opcodeWithParam,(byte)speedL,(byte)(speedR >> 8),(byte)speedR};
+		addCommand(command);
 	}
 
 	public void setConnected(boolean isConnected) {
