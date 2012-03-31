@@ -5,9 +5,16 @@ import java.awt.Graphics;
 import java.awt.List;
 import java.awt.Point;
 import java.awt.Polygon;
+import java.awt.Transparency;
+import java.awt.color.ColorSpace;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
+import java.awt.image.ComponentColorModel;
+import java.awt.image.DataBuffer;
+import java.awt.image.Raster;
+import java.awt.image.WritableRaster;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -41,7 +48,6 @@ public class Vision extends WindowAdapter {
 	private FrameGrabber frameGrabber;
 	private Thread captureThread;
 	private boolean stop;
-	private int width, height;
 	private WorldState worldState;
 	private ThresholdsState thresholdsState;
 	private PitchConstants pitchConstants;
@@ -52,6 +58,10 @@ public class Vision extends WindowAdapter {
 	private double middleX;
 	private double middleY;
 	private boolean isMainPitch;
+	private static int width = 0;
+	private static int height = 0;
+	private static double ax = -0.016;
+	private static double ay = -0.06;
 
 	// private int[] xDistortion;
 	// private int[] yDistortion;
@@ -203,9 +213,9 @@ public class Vision extends WindowAdapter {
 				frameImage = frame.getBufferedImage();
 				frame.recycle();
 				if (counter > 10) {
-					// frameImage = RotateImage.correctRotation(frameImage);
-					frameImage = BarrelDistortionCorrection.correctPic(
-							frameImage, isMainPitch);
+//				    frameImage = RotateImage.correctRotation(frameImage);
+//					frameImage = BarrelDistortionCorrection.correctPic(
+//							frameImage, isMainPitch);
 
 					processAndUpdateImage(frameImage, before, counter);
 				}
@@ -291,6 +301,119 @@ public class Vision extends WindowAdapter {
 		int leftBuffer = pitchConstants.leftBuffer;
 		int rightBuffer = pitchConstants.rightBuffer;
 
+		width = image.getWidth();
+		height = image.getHeight();
+
+		if (isMainPitch) {
+			ax = -0.016;
+			ay = -0.06;
+		} else {
+			ax = -0.02;
+			ay = -0.12;
+		}
+		Raster data = image.getData();
+		ColorSpace cs = ColorSpace.getInstance(ColorSpace.CS_sRGB);
+		ColorModel cm = new ComponentColorModel(cs, false, false,
+				Transparency.OPAQUE, DataBuffer.TYPE_BYTE);
+		WritableRaster wraster = data.createCompatibleWritableRaster();
+
+		for (int column = 0; column < image.getWidth(); column++) {
+			for (int row = 0; row < image.getHeight(); row++) {
+
+				int column1 = column;
+				int row1 = row;
+
+				int[] out = convertPixel(column, row);
+				int[] src = new int[3];
+				if (out[0] >= 0 && out[0] < width && out[1] >= 0
+						&& out[1] < height) {
+					//data.getPixel(column, row, src);
+					wraster.setPixel(out[0], out[1], src);
+					column = out[0];
+					row = out[1];
+				}
+
+				if (column >= leftBuffer
+						&& column < image.getWidth() - rightBuffer
+						&& row >= topBuffer
+						&& row < image.getHeight() - bottomBuffer) {
+
+					Color c = new Color(image.getRGB(column, row));
+
+					float hsbvals[] = new float[3];
+					Color.RGBtoHSB(c.getRed(), c.getBlue(), c.getGreen(),
+							hsbvals);
+					int red = c.getRed();
+					int green = c.getGreen();
+					int blue = c.getBlue();
+					double justB = blue - red / 2 - green / 2;
+					double justG = green - red / 2 - blue / 2;
+					
+					if (thresholdsState.isGrey_debug() && isGrey(c, hsbvals)) {
+						image.setRGB(column, row, 0xFFFF0099);
+					}
+
+					if (thresholdsState.isGreen_debug() && isGreen(c, hsbvals)) {
+						image.setRGB(column, row, 0xFFFF0099);
+					}
+
+					if (justB > 35) {
+
+						blueX += column;
+						blueY += row;
+						numBluePos++;
+
+						blueXPoints.add(column);
+						blueYPoints.add(row);
+
+						if (thresholdsState.isBlue_debug()) {
+							image.setRGB(column, row, 0xFFFF0099);
+						}
+
+					}
+
+					if (justG > 95) {
+
+						greenXPoints.add(column);
+						greenYPoints.add(row);
+
+					}
+
+					if (isYellow(c, hsbvals)) {
+
+						yellowX += column;
+						yellowY += row;
+						numYellowPos++;
+
+						yellowXPoints.add(column);
+						yellowYPoints.add(row);
+
+						if (thresholdsState.isYellow_debug()) {
+							image.setRGB(column, row, 0xFFFF0099);
+						}
+					}
+
+					if (isBall(c, hsbvals)) {
+						ballX += column;
+						ballY += row;
+						numBallPos++;
+
+						ballXPoints.add(column);
+						ballYPoints.add(row);
+
+						if (thresholdsState.isBall_debug()) {
+							image.setRGB(column, row, 0xFF000000);
+						}
+					}
+
+				}
+				row = row1;
+				column = column1;
+			}
+
+		}
+
+		image = new BufferedImage(cm, wraster, false, null);
 		image.getGraphics().drawLine(leftBuffer, topBuffer,
 				image.getWidth() - rightBuffer, topBuffer);
 		image.getGraphics().drawLine(leftBuffer,
@@ -302,87 +425,9 @@ public class Vision extends WindowAdapter {
 		image.getGraphics().drawLine(image.getWidth() - rightBuffer, topBuffer,
 				image.getWidth() - rightBuffer,
 				image.getHeight() - bottomBuffer);
-		for (int row = topBuffer; row < image.getHeight() - bottomBuffer; row++) {
-
-			for (int column = leftBuffer; column < image.getWidth()
-					- rightBuffer; column++) {
-
-				Color c = new Color(image.getRGB(column, row));
-
-				float hsbvals[] = new float[3];
-				Color.RGBtoHSB(c.getRed(), c.getBlue(), c.getGreen(), hsbvals);
-				int red = c.getRed();
-				int green = c.getGreen();
-				int blue = c.getBlue();
-				double justB = blue - red / 2 - green / 2;
-				double justG = green - red / 2 - blue / 2;
-				double justR = red - green / 2 - blue / 2;
-
-				if (thresholdsState.isGrey_debug() && isGrey(c, hsbvals)) {
-					image.setRGB(column, row, 0xFFFF0099);
-				}
-
-				if (thresholdsState.isGreen_debug() && isGreen(c, hsbvals)) {
-					image.setRGB(column, row, 0xFFFF0099);
-				}
-
-				if (justB > 35) {
-
-					blueX += column;
-					blueY += row;
-					numBluePos++;
-
-					blueXPoints.add(column);
-					blueYPoints.add(row);
-
-					if (thresholdsState.isBlue_debug()) {
-						image.setRGB(column, row, 0xFFFF0099);
-					}
-
-				}
-
-				if (justG > 95) {
-
-					greenXPoints.add(column);
-					greenYPoints.add(row);
-
-				}
-
-				if (isYellow(c, hsbvals)) {
-
-					yellowX += column;
-					yellowY += row;
-					numYellowPos++;
-
-					yellowXPoints.add(column);
-					yellowYPoints.add(row);
-
-					if (thresholdsState.isYellow_debug()) {
-						image.setRGB(column, row, 0xFFFF0099);
-					}
-				}
-
-
-				if (isBall(c, hsbvals)){
-					ballX += column;
-					ballY += row;
-					numBallPos++;
-
-					ballXPoints.add(column);
-					ballYPoints.add(row);
-
-					if (thresholdsState.isBall_debug()) {
-						image.setRGB(column, row, 0xFF000000);
-					}
-				}
-				
-			}
-		}
-
 		Position ball;
 		Position blue;
 		Position yellow;
-
 
 		blueXPoints = correctParallax(blueXPoints, middleX);
 		blueYPoints = correctParallax(blueYPoints, middleY);
@@ -492,7 +537,7 @@ public class Vision extends WindowAdapter {
 						extremeties[3].getY() };
 
 				Graphics img = image.getGraphics();
-				img.setColor(Color.BLUE);
+				img.setColor(Color.GREEN);
 				Polygon poly = new Polygon(xpoints1, ypoints1, 4);
 				img.drawPolygon(poly);
 
@@ -538,7 +583,7 @@ public class Vision extends WindowAdapter {
 						extremeties[3].getY() };
 
 				Graphics img = image.getGraphics();
-				img.setColor(Color.BLUE);
+				img.setColor(Color.GREEN);
 				Polygon poly = new Polygon(xpoints1, ypoints1, 4);
 				img.drawPolygon(poly);
 
@@ -565,6 +610,7 @@ public class Vision extends WindowAdapter {
 			float blueOrientation = findOrient(image, blue, blueXPoints,
 					blueYPoints, 120, 500);
 
+						
 			float diff = Math.abs(blueOrientation
 					- worldState.getBlueOrientation());
 			if (diff > 0.1) {
@@ -581,7 +627,6 @@ public class Vision extends WindowAdapter {
 			float yellowOrientation = findOrient(image, yellow, yellowXPoints,
 					yellowYPoints, 120, 400);
 
-			// System.out.println(Math.toDegrees(yellowOrientation));
 			float diff = Math.abs(yellowOrientation
 					- worldState.getYellowOrientation());
 			if (yellowOrientation != 0 && diff > 0.1) {
@@ -897,6 +942,7 @@ public class Vision extends WindowAdapter {
 		// im.setColor(Color.BLACK);
 		im.drawLine(p1.getX(), p1.getY(), p2.getX(), p2.getY());
 		im.drawLine(p3.getX(), p3.getY(), p4.getX(), p4.getY());
+		
 
 		// image.getGraphics().drawOval(centroid.getX(), centroid.getY(), 3, 3);
 
@@ -914,8 +960,9 @@ public class Vision extends WindowAdapter {
 
 		finalPoint.setX(interX);
 		finalPoint.setY(interY);
-		image.getGraphics().setColor(Color.RED);
+		
 		image.getGraphics().drawOval(interX, interY, 3, 3);
+		image.getGraphics().drawLine(centroid.getX(), centroid.getY(), finalPoint.getX(), finalPoint.getY());
 		double length = Position.sqrdEuclidDist(centroid.getX(),
 				centroid.getY(), finalPoint.getX(), finalPoint.getY());
 		length = Math.sqrt(length);
@@ -1404,6 +1451,27 @@ public class Vision extends WindowAdapter {
 		g.fillOval(position.getX(), position.getY(), 10, 10);
 	}
 
+	public static int[] convertPixel(int x, int y) {
+		// System.out.println("Pixel: (" + x + ", " + y + ")");
+		// first normalise pixel
+		double px = (2 * x - width) / (double) width;
+		double py = (2 * y - height) / (double) height;
+
+		// System.out.println("Norm Pixel: (" + px + ", " + py + ")");
+		// then compute the radius of the pixel you are working with
+		double rad = px * px + py * py;
+
+		// then compute new pixel'
+		double px1 = px * (1 - ax * rad);
+		double py1 = py * (1 - ay * rad);
+
+		// then convert back
+		int pixi = (int) ((px1 + 1) * width / 2);
+		int pixj = (int) ((py1 + 1) * height / 2);
+		// System.out.println("New Pixel: (" + pixi + ", " + pixj + ")");
+
+		return new int[] { pixi, pixj };
+	}
 	/* Doesn't work */
 	/*
 	 * private void calculateDistortion() { this.xDistortion = new int[640];
