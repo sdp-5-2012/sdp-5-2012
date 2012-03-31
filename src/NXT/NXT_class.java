@@ -28,20 +28,20 @@ public class NXT_class implements Runnable{
 	private static final float WHEEL_DIAMETER = (float) 8.0;
 
 	// NXT Opcodes
-	private final static int DO_NOTHING = 0X00;
-	private final static int FORWARDS = 0X01;
-	private final static int BACKWARDS= 0x02;
-	private final static int STOP = 0X03;
-	private final static int KICK = 0X04;
-	private final static int QUIT = 0X05;
-	private final static int FORWARDS_TRAVEL = 0X06;
-	private final static int TRAVEL_BACKWARDS_SLIGHTLY = 0X07;
-	private final static int TRAVEL_ARC = 0X08;
-	private final static int ARC = 0X09;
-	private final static int ROTATE = 0X0A;
-	private final static int SET_WHEEL_SPEED = 0X0B;
-	private final static int STEER = 0X0C;
-	private final static int EACH_WHEEL_SPEED = 0X0D;
+	private final static byte DO_NOTHING = 0x0;
+	private final static byte FORWARDS = 0x1;
+	private final static byte BACKWARDS= 0x2;
+	private final static byte STOP = 0x3;
+	private final static byte KICK = 0x4;
+	private final static byte QUIT = 0x5;
+	private final static byte FORWARDS_TRAVEL = 0x6;
+	private final static byte TRAVEL_BACKWARDS_SLIGHTLY = 0x7;
+	private final static byte TRAVEL_ARC = 0x8;
+	private final static byte ARC = 0x9;
+	private final static byte ROTATE = 0xA;
+	private final static byte SET_WHEEL_SPEED = 0xB;
+	private final static byte STEER = 0xC;
+	private final static byte EACH_WHEEL_SPEED = 0xD;
 
 	public static void main(String[] args) throws Exception {
 
@@ -78,10 +78,12 @@ public class NXT_class implements Runnable{
 					// get the next command from the inputstream
 					byte[] byteBuffer = new byte[4];
 					is.read(byteBuffer);
-
-					int opcode = byteBuffer[0];
-					int param0 = byteBuffer[1];
-					short param1 = bytesToShort(byteBuffer[2],byteBuffer[3]);
+						// opcode is first nybble (half byte) from input stream
+					byte opcode = (byte)((byteBuffer[0] & 0xFF) >>> 4);
+						// second nybble is added to the first command parameter
+					byte param0Part = (byte)((byte)(byteBuffer[0] << 4) >> 4);
+					int param0 = (int)bytesToShort(param0Part, byteBuffer[1]);
+					int param1 = (int)bytesToShort(byteBuffer[2],byteBuffer[3]);
 
 					if (blocking) {
 						os.write('o');
@@ -93,7 +95,7 @@ public class NXT_class implements Runnable{
 					switch (opcode) {
 
 					case FORWARDS:
-						int speedForward = param0;
+						int speedForward = param1;
 						LCD.clear();
 						LCD.drawString("move forwards", 0, 2);
 						LCD.refresh();
@@ -101,23 +103,8 @@ public class NXT_class implements Runnable{
 						pilot.forward();
 						break;
 
-					case FORWARDS_TRAVEL:
-						int travelDistance= param1;
-						LCD.clear();
-						LCD.drawString("move forwards whith speed", 0, 2);
-						LCD.refresh();
-						pilot.travel(travelDistance, true);
-						break;
-
-					case TRAVEL_BACKWARDS_SLIGHTLY:	
-						LCD.clear();
-						LCD.drawString("travel back a little bit", 0, 2);
-						LCD.refresh();
-						pilot.travel(-10);
-						break;
-
 					case BACKWARDS:
-						int speedBackward = param0;
+						int speedBackward = param1;
 						LCD.clear();
 						LCD.drawString("move backwards", 0, 2);
 						LCD.refresh();
@@ -125,79 +112,13 @@ public class NXT_class implements Runnable{
 						pilot.setTravelSpeed(speedBackward);
 						break;
 
-					case ROTATE:	
-						short rotateAngle = param1;
-
-						LCD.clear();
-						LCD.drawString("start rotate", 0, 2);
-						LCD.drawString("angle = " + rotateAngle, 0, 3);
-
-						pilot.setRotateSpeed(pilot.getRotateMaxSpeed()/5);
-						pilot.rotate(rotateAngle, true);
-						while(true) {
-							if(pilot.isMoving() == false) {
-								os.write('f');
-								os.flush();
-								break;
-							}
-						}
-						break;
-
-					case SET_WHEEL_SPEED:
-						int speed = param0;
-						pilot.setTravelSpeed(speed);
-						break;
-
-					case STEER:
-						int turnRate = param0;
-						int angle = param1;
-						if(angle >360){
-							angle = -(angle-360);
-						}
-						pilot.steer(turnRate, angle);
-						break;
-
-					case TRAVEL_ARC:
-						int radius = param0;
-						short distance = param1;
-						pilot.travelArc(radius, distance, true);
-						break;
-
-					case ARC:
-						int arcradius = param0;
-						short arcangle = param1;
-						pilot.arc(arcradius, arcangle, true);
-						break;
-					
-					case EACH_WHEEL_SPEED:
-						LCD.drawString("each wheel speed", 0, 2);
-						int leftspeed = param0;
-						int rightspeed = (int)param1;
-						
-						Motor.B.setSpeed(Math.abs(leftspeed));
-						Motor.C.setSpeed(Math.abs(rightspeed));
-
-						if (leftspeed >=0){
-							Motor.B.forward();
-						}else{
-							Motor.B.backward();
-						}
-
-						if (rightspeed >=0){
-							Motor.C.forward();
-						}else{
-							Motor.C.backward();
-						}
-						break;
-
-
 					case STOP:
 						LCD.clear();
 						LCD.drawString("stop", 0, 2);
 						LCD.refresh();
 						pilot.stop();
 						break;
-
+						
 					case KICK:
 						LCD.clear();
 						LCD.drawString("kick!!!", 0, 2);
@@ -215,7 +136,6 @@ public class NXT_class implements Runnable{
 								} catch (InterruptedException e) {
 								}
 								kicking = false;
-
 							}
 						};
 						if (!kicking) {
@@ -223,9 +143,87 @@ public class NXT_class implements Runnable{
 							Kick_thread.start();
 						}
 						break;
-
+						
 					case QUIT: // close connection
 						// Sound.twoBeeps();
+						break;
+
+					case FORWARDS_TRAVEL:
+						int travelDistance= param1;
+						LCD.clear();
+						LCD.drawString("move forwards to distance", 0, 2);
+						LCD.refresh();
+						pilot.travel(travelDistance, true);
+						break;
+
+					case TRAVEL_BACKWARDS_SLIGHTLY:	
+						LCD.clear();
+						LCD.drawString("travel back a little bit", 0, 2);
+						LCD.refresh();
+						pilot.travel(-10);
+						break;
+
+					case TRAVEL_ARC:
+						int radius = param0;
+						int distance = param1;
+						pilot.travelArc(radius, distance, true);
+						break;
+
+					case ARC:
+						int arcradius = param0;
+						int arcangle = param1;
+						pilot.arc(arcradius, arcangle, true);
+						break;
+
+					case ROTATE:	
+						int rotateAngle = param1;
+						LCD.clear();
+						LCD.drawString("start rotate", 0, 2);
+						LCD.drawString("angle = " + rotateAngle, 0, 3);
+						pilot.setRotateSpeed(pilot.getRotateMaxSpeed()/5);
+						pilot.rotate(rotateAngle, true);
+						while(true) {
+							if(pilot.isMoving() == false) {
+								os.write('f');
+								os.flush();
+								break;
+							}
+						}
+						break;
+
+					case SET_WHEEL_SPEED:
+						int speed = param1;
+						pilot.setTravelSpeed(speed);
+						break;
+
+					case STEER:
+						int turnRate = param0;
+						int angle = param1;
+						if(angle >360){
+							angle = -(angle-360);
+						}
+						pilot.steer(turnRate, angle);
+						break;
+
+					case EACH_WHEEL_SPEED:
+						LCD.drawString("each wheel speed", 0, 2);
+						int leftspeed = param0;
+						int rightspeed = param1;
+						
+						Motor.B.setSpeed(Math.abs(leftspeed));
+						Motor.C.setSpeed(Math.abs(rightspeed));
+
+						if (leftspeed >=0){
+							Motor.B.forward();
+						}else{
+							Motor.B.backward();
+						}
+
+						if (rightspeed >=0){
+							Motor.C.forward();
+						}else{
+							Motor.C.backward();
+						}
 						break;
 
 					}

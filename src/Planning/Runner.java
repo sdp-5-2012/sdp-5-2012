@@ -234,28 +234,33 @@ public class Runner extends Thread {
 		// Thread strategy = new Thread(s);
 
 		// strategy.start();
-		
-		nxt.rotateRobot(150);
-		try{
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {}
-		
-		nxt.travel(10);
+
 		try{
 			Thread.sleep(5000);
 		} catch (InterruptedException e) {}
 		
-		nxt.travel(50);
+		nxt.rotateRobot(90);
 		try{
 			Thread.sleep(5000);
 		} catch (InterruptedException e) {}
 		
-		nxt.travelArcRobot(20, 120);
+		nxt.rotateRobot(-90);
 		try{
 			Thread.sleep(5000);
 		} catch (InterruptedException e) {}
+
+		nxt.set_wheel_speed(30);
+
+		nxt.travelArcRobot(20, 125);
+		try{
+			Thread.sleep(6000);
+		} catch (InterruptedException e) {}
 		
-		nxt.travel(100);
+		nxt.travelArcRobot(-20, 125);
+		try{
+			Thread.sleep(6000);
+		} catch (InterruptedException e) {}
+		nxt.stop();
 		try{
 			Thread.sleep(5000);
 		} catch (InterruptedException e) {}

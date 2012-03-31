@@ -7,12 +7,13 @@ import java.nio.ByteBuffer;
 
 import java.net.*;
 
-public class TcpipCommunication implements CommunicationInterface {
+public class TcpipCommunication implements CommunicationInterface{
 
 	private OutputStream os;
     private InputStream is;
-    DatagramSocket clientSocket = new DatagramSocket();
-	InetAddress IPAddress = InetAddress.getByName("localhost"); 
+    
+    //DatagramSocket clientSocket = new DatagramSocket();
+	//InetAddress IPAddress = InetAddress.getByName("localhost"); 
 
 	public int recieveFromRobot() {
 		try {
@@ -37,14 +38,14 @@ public class TcpipCommunication implements CommunicationInterface {
 	
 	public void openConnection() throws IOException{
 		
-        try {
-
-		} catch (NXTCommException e) {
-			throw new IOException("Failed to connect " + e.toString());
-		}
-
-        os = nxtComm.getOutputStream();
-        is = nxtComm.getInputStream();
+//         try {
+// 
+// 		} catch (NXTCommException e) {
+// 			throw new IOException("Failed to connect " + e.toString());
+// 		}
+// 
+//         os = nxtComm.getOutputStream();
+//         is = nxtComm.getInputStream();
 	}
 	
 	public void closeConnection()
