@@ -1,8 +1,6 @@
 package Planning;
-import java.awt.Color;
-import java.awt.geom.Point2D;
 
-import JavaVision.Position;
+import java.awt.geom.Point2D;
 
 public class Arc {
 	public static final int MOTION_ROTATE = 0;
@@ -35,7 +33,7 @@ public class Arc {
 		Point2D.Double robotHelperPoint = new Point2D.Double(xPoint, yPoint);
 		
 		intersectionPoint = findIntersectionPoint(robot, robotHelperPoint, ball, target);
-		
+				
 		if (intersectionPoint == null) {
 			//we are parallel
 			//must rotate by 5 degrees
@@ -62,19 +60,19 @@ public class Arc {
 		Point2D.Double pointBall = new Point2D.Double();
 		
 		if ( distanceIntersectionBall > distanceIntersectionRobot) {
-			System.out.println("Ball distance greater");
+//			System.out.println("Ball distance greater");
 			pointRobot = robot;
 			pointBall.x = (Math.sin(findRelativeAngle(ball, intersectionPoint)) * distanceIntersectionRobot) + ball.x;
 			pointBall.y = (Math.cos(findRelativeAngle(ball, intersectionPoint)) * distanceIntersectionRobot) + ball.y;
 			
 		} else if ( distanceIntersectionRobot > distanceIntersectionBall){
-			System.out.println("Robot distance greater");
+//			System.out.println("Robot distance greater");
 			pointBall = ball;
 			pointRobot.x = (Math.sin(findRelativeAngle(robot, intersectionPoint))* distanceIntersectionBall) + robot.x;
 			pointRobot.y = (Math.cos(findRelativeAngle(robot, intersectionPoint))* distanceIntersectionBall) + robot.y;
 			
 		} else {
-			System.out.println("Distances equal");
+//			System.out.println("Distances equal");
 			pointBall = ball;
 			pointRobot = robot;
 		}
@@ -93,7 +91,6 @@ public class Arc {
 		
 		Point2D.Double orthogonalIntersectionPoint = findIntersectionPoint(pointBall, orthogonalBallPoint, pointRobot, orthogonalRobotPoint);
 		
-		
 		//travel to point
 		double distancePointRobotToIntersection = Math.sqrt(Math.pow(pointRobot.x - intersectionPoint.x, 2) + Math.pow(pointRobot.y - intersectionPoint.y,2));
 		System.out.println("Distance to Robot: " + distanceIntersectionRobot);
@@ -107,7 +104,12 @@ public class Arc {
 		arcAngle = findAngleFromThreePoints(orthogonalIntersectionPoint, pointBall, pointRobot);
 		
 		//radius of circle
-		arcRadius = Math.sqrt(Math.pow(pointBall.x - orthogonalIntersectionPoint.x,2) + Math.pow(pointBall.y-orthogonalIntersectionPoint.y, 2) );
+		
+		if(orthogonalIntersectionPoint.y < pointBall.y) {
+			arcRadius = Math.sqrt(Math.pow(pointBall.x - orthogonalIntersectionPoint.x,2) + Math.pow(pointBall.y-orthogonalIntersectionPoint.y, 2) );	
+		} else {
+			arcRadius = -1*Math.sqrt(Math.pow(pointBall.x - orthogonalIntersectionPoint.x,2) + Math.pow(pointBall.y-orthogonalIntersectionPoint.y, 2) );
+		}
 		
 		return MOTION_ARC;	
 				

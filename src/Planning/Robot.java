@@ -28,6 +28,7 @@ public class Robot extends ObjectDetails {
 	private final static int SET_WHEEL_SPEED=0xB0;
 	private final static int STEER =0xC0;
 	private final static int EACH_WHEEL_SPEED = 0xD0;
+	private final static int ROTATE_INTERUPTABLE = 0x0E;
 
 	private LinkedList<byte[]> commandList = new LinkedList<byte[]>();
 	private BluetoothCommunication comms;
@@ -109,7 +110,6 @@ public class Robot extends ObjectDetails {
 
 		while (commandList.size() > 3) {
 			commandList.remove();
-			System.out.println("<");
 		}
 		commandList.offer(command);
 		sendToRobot(command);
@@ -143,7 +143,7 @@ public class Robot extends ObjectDetails {
 			//			 System.out.println("STACK CLEARED");
 		} else if (response == 'f') {
 			// Robot has finished moving
-			System.out.println("RESPONSE: FINISHED ROTATION!");
+//			System.out.println("RESPONSE: FINISHED ROTATION!");
 			moving = false;
 		}
 
@@ -217,7 +217,7 @@ public class Robot extends ObjectDetails {
 		byte opcodeWithParam = (byte)(TRAVEL_ARC | (byte)((((byte)(radius >> 8) << 4) & 0xFF) >>> 4));
 		byte[] command = {opcodeWithParam,(byte)radius,(byte)(distance >> 8),(byte)distance};
 		addCommand(command);
-		System.out.println("travel along arc");
+//		System.out.println("travel along arc");
 	}
 	
 	/**
@@ -228,7 +228,7 @@ public class Robot extends ObjectDetails {
 		byte opcodeWithParam = (byte)(ARC | (byte)((((byte)(radius >> 8) << 4) & 0xFF) >>> 4));
 		byte[] command = {opcodeWithParam,(byte)radius,(byte)(angle >> 8),(byte)angle};
 		addCommand(command);
-		System.out.println("arc to angle");
+//		System.out.println("arc to angle");
 	}
 
 	/**
@@ -248,6 +248,25 @@ public class Robot extends ObjectDetails {
 			}
 			if (moving == false) {
 				System.out.println("IS MOVING (ROBOT) " + moving);
+				break;
+			}
+		}
+	}
+	
+	void rotateRobotInteruptible(int angle) {
+		moving = true;
+		byte[] command = {(byte)ROTATE,0x00,(byte)(angle >> 8),(byte)angle};
+		addCommand(command);
+//		System.out.println("rotateI");
+
+		while(true) {
+			try {
+				Thread.sleep(1);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			if (moving == false) {
+//				System.out.println("IS MOVING (ROBOT) " + moving);
 				break;
 			}
 		}

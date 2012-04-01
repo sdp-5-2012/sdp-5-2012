@@ -146,7 +146,15 @@ public class Move {
 		}
 		}
 		return (int) Math.toDegrees(angle);
-
+	}
+	
+	/**
+	 * Transform distances from pixels to cm.
+	 * @param distanceInPixels The pixel distance
+	 * @return the cm distance.
+	 */
+	public static double PixelToCM(double distanceInPixels){
+		return (distanceInPixels*(2438.4/640))/10;
 	}
 
 }

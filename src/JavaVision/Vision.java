@@ -562,7 +562,7 @@ public class Vision extends WindowAdapter {
 
 			float blueOrientation = findOrient(image, blue, blueXPoints,
 					blueYPoints, 120, 500);
-
+			
 			float diff = Math.abs(blueOrientation
 					- worldState.getBlueOrientation());
 			if (diff > 0.1) {
@@ -1399,10 +1399,10 @@ public class Vision extends WindowAdapter {
 		return worldState;
 	}
 
-	public void plotPosition(Position position, Color c) {
+	public void drawPosition(Position position, Color c) {
 		Graphics g = frameImage.getGraphics();
 		g.setColor(c);
-		g.fillOval(position.getX(), position.getY(), 5, 5);
+		g.fillOval(position.getX(), position.getY(), 10, 10);
 	}
 	
 	public void drawLine(Point2D.Double position1, Point2D.Double position2, Color c) {

@@ -1,7 +1,9 @@
 package Planning;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Toolkit;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import au.edu.jcu.v4l4j.V4L4JConstants;
 import au.edu.jcu.v4l4j.exceptions.V4L4JException;
@@ -39,6 +41,7 @@ public class Runner extends Thread {
 	 * start the planning thread
 	 */
 	public Runner() {
+		setName("Runner");
 		start();
 	}
 
@@ -89,6 +92,7 @@ public class Runner extends Thread {
 		.build();
 
 		Thread p = new Thread(planning);
+		p.setName("Planning Thread");
 		p.start();
 
 		while(true) {
@@ -97,25 +101,27 @@ public class Runner extends Thread {
 				try {
 					instance.wait();
 				} catch (InterruptedException e) {
+
 					// Tell planning to stop
 					planning.setStopFlag(true);
+					
 					// Wait for thread to terminate
 					try {
 						p.join();
 					} catch (InterruptedException e1) {
 						e1.printStackTrace();
 					}
-
+					
 					// Wait for start button to be pressed again
 					try {
 						instance.wait();
 					} catch (InterruptedException e2) {
 						e.printStackTrace();
 					}
-
+			
 					// Update game information and initiate a new Planning object
 					updateInput();
-
+					
 					planning = Planning.createBuilder()
 					.setRunnerInstance(instance)
 					.setAttackLeft(attackLeft)
@@ -128,10 +134,13 @@ public class Runner extends Thread {
 					.setTeamYellow(teamYellow)
 					.build();
 					
+					planning.setStopFlag(false);
+
 					// Make new thread and begin
 					p = new Thread(planning);
+				    p.setName("Planning");
 					p.start();
-
+					
 					continue;
 				}
 			}
@@ -166,7 +175,7 @@ public class Runner extends Thread {
 		// Set the the control gui
 		gui = new MainGui(instance);
 		gui.setSize(650, 400);
-		gui.setLocation((int) (dim.getWidth()- 650), 500);
+		gui.setLocation((int) (dim.getWidth()- 650), 525);
 		gui.setTitle("N.U.K.E Control Panel");
 		gui.setResizable(false);
 		gui.setVisible(true);
@@ -255,8 +264,6 @@ public class Runner extends Thread {
 			fieldPositions.setTheirGoal(rightGoal);
 		}
 
-		// endofadd
-
 		control = new ControlGUI(thresholdsState, worldState, pitchConstants);
 		control.initGUI();
 
@@ -278,7 +285,7 @@ public class Runner extends Thread {
 			e.printStackTrace();
 		} catch (Exception e) {
 			e.printStackTrace();
-		}
+		}		
 	}
 
 	/**
@@ -313,7 +320,6 @@ public class Runner extends Thread {
 	public void setIsMainPitch(boolean pitch) {
 		isMainPitch = pitch;
 	}
-
 
 	public WorldState getWorldState() {
 		return state;
