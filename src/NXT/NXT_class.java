@@ -24,7 +24,7 @@ public class NXT_class implements Runnable{
 	private static volatile boolean kicking = false;
 
 	// constants for the pilot class
-	private static final float TRACK_WIDTH = (float) 12.0; // Secondary table
+	private static final float TRACK_WIDTH = (float) 10.0; // Secondary table
 	private static final float WHEEL_DIAMETER = (float) 8.0;
 
 	// NXT Opcodes
@@ -42,6 +42,7 @@ public class NXT_class implements Runnable{
 	private final static byte SET_WHEEL_SPEED = 0xB;
 	private final static byte STEER = 0xC;
 	private final static byte EACH_WHEEL_SPEED = 0xD;
+	private final static byte ROTATE_INTERUPTABLE = 0X0E;
 
 	public static void main(String[] args) throws Exception {
 
@@ -189,6 +190,16 @@ public class NXT_class implements Runnable{
 								break;
 							}
 						}
+						break;
+						
+					case ROTATE_INTERUPTABLE:
+						
+						int rotateAngleI = param1;
+						LCD.clear();
+						LCD.drawString("start rotate", 0, 2);
+						LCD.drawString("angle = " + rotateAngleI, 0, 3);
+						pilot.setRotateSpeed(pilot.getRotateMaxSpeed()/5);
+						pilot.rotate(rotateAngleI, true);
 						break;
 
 					case SET_WHEEL_SPEED:
