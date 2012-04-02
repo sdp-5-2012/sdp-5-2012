@@ -226,17 +226,23 @@ public class Planning extends Thread {
 		getPitchInfo(false);
 		int distanceToBall = Move.getDist(nxt, ball.getCoors());
 		int angleToBall = Move.getAngleToPosition(nxt, ball.getCoors());
-		nxt.each_wheel_speed(300, 300);
+		nxt.each_wheel_speed(900, 900);
 		while(Move.PixelToCM(distanceToBall) > 36) {
 			getPitchInfo(false);
 			distanceToBall = Move.getDist(nxt, ball.getCoors());
 			angleToBall = Move.getAngleToPosition(nxt, ball.getCoors());
 			System.out.println(angleToBall);
-//			while(Move.getAngleToPosition(nxt, ball.getCoors()) > 0 || Move.getAngleToPosition(nxt, ball.getCoors()) < 0) {
-//				getPitchInfo(false);
-//				System.out.println("GO LEFT");
-//				nxt.each_wheel_speed(500, 200);
-//			}
+			
+			if(angleToBall > 8) {
+				getPitchInfo(false);
+				System.out.println("GO LEFT");
+				nxt.each_wheel_speed(850, 900);
+			}else if(angleToBall < -8) {
+				getPitchInfo(false);
+				System.out.println("GO RIGHT");
+				nxt.each_wheel_speed(900, 850);
+			}
+
 		}
 		nxt.kick();
 		nxt.stop();
