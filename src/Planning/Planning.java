@@ -2,6 +2,7 @@ package Planning;
 
 import java.awt.Color;
 import java.awt.geom.Point2D;
+import java.awt.geom.Point2D.Double;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 import JavaVision.Position;
@@ -27,6 +28,16 @@ public class Planning extends Thread {
 	public Position gotoBall = new Position(0, 0);
 	public ArrayList<Position> test = new ArrayList<Position>();
 	Position ballOffsetPosition = new Position(0,0);
+	/*
+	 * For arcing and scoring (ONLY USED ONCE)
+	 */
+	Arc arc = new Arc();
+	Defend defend = new Defend();
+	Point2D.Double target;
+	Point2D.Double goalUpper;
+	Point2D.Double goalLower;
+	Point2D.Double robotPoint2d;
+	Point2D.Double ballPoint2d;
 
 	// used for move_forward method
 	public static final int DEFAULT_SPEED = 10; 
@@ -121,7 +132,8 @@ public class Planning extends Thread {
 
 	public void run() {
 
-		modeStart();
+		//modeStart();
+		mainLoop();
 		//		planner = new PathPlanner(attackLeft);
 		//
 		//		while (!stopFlag.get()) {
@@ -147,29 +159,52 @@ public class Planning extends Thread {
 	 */
 	public void mainLoop() {
 
-		Point2D.Double target;
+		
 		if(attackLeft) {
 			target = new Point2D.Double(40, -250);
+			goalUpper = new Point2D.Double(40, -200);
+			goalLower = new Point2D.Double(40, -300);
 		} else {
 			target = new Point2D.Double(608, -242);
+			goalUpper = new Point2D.Double(608, -200);
+			goalLower = new Point2D.Double(608, -300);
+			
 		}
-		Arc arc = new Arc();
-
+		
+		
 		double robotOrientation;
 
 		while(!stopFlag.get()) {
 			System.out.println(stopFlag.get());
 			getPitchInfo(false);
 
-			Point2D.Double robotPoint2d = new Point2D.Double(nxt.getCoors().getX(), nxt.getCoors().getY() * -1);
-			Point2D.Double ballPoint2d = new Point2D.Double(ball.getCoors().getX(), ball.getCoors().getY() * -1);
+			
+			
+			robotPoint2d = new Point2D.Double(nxt.getCoors().getX(), nxt.getCoors().getY() * -1);
+			ballPoint2d = new Point2D.Double(ball.getCoors().getX(), ball.getCoors().getY() * -1);
 
 			if(teamYellow) {
 				robotOrientation = state.getYellowOrientation();
 			} else {
 				robotOrientation = state.getBlueOrientation();
 			}
-
+			
+			/*
+			 * if our robot is facing the goal, then go forward
+			 */
+			if (defend.isFacingGoal(robotPoint2d, ballPoint2d, goalUpper, goalLower, robotOrientation)) {
+				
+				if (Math.sqrt(Math.pow(robotPoint2d.x - ballPoint2d.x,2) + Math.pow(robotPoint2d.y-ballPoint2d.y, 2) ) <= 50 ) {
+					System.out.println("KICK!");
+					nxt.kick();
+				} else {
+					System.out.println("CHARGE!");
+					nxt.moveForward(DEFAULT_SPEED);
+				}
+				continue;
+			}
+			
+			
 			int arcState = arc.calculateArc(robotPoint2d, ballPoint2d, target, robotOrientation);
 			//			System.out.println("yellow orietation " + state.getYellowOrientation());
 			//			System.out.println("blue orietation " + state.getBlueOrientation());
@@ -211,9 +246,17 @@ public class Planning extends Thread {
 			arcRadius = Move.PixelToCM(arcRadius);
 			arcLength = (int) Math.abs(Move.PixelToCM(arcLength));
 			System.out.println("MOTION ARC\tRadius" + arcRadius  + "\t" + "angle " + arcAngle);
+			System.out.println("LENGTH OF ARC: " + arcLength);
 
 			nxt.travelArcRobot((int) arcRadius, arcLength);
 			break;
+			
+			}
+			
+			try {
+				Thread.sleep(50);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
 			}
 		}
 	}
@@ -223,25 +266,27 @@ public class Planning extends Thread {
 	 */
 	public void modeStart() {
 
+		long startTime = System.currentTimeMillis();		
+		
 		getPitchInfo(false);
 		int distanceToBall = Move.getDist(nxt, ball.getCoors());
 		int angleToBall = Move.getAngleToPosition(nxt, ball.getCoors());
-		nxt.each_wheel_speed(900, 900);
-		while(Move.PixelToCM(distanceToBall) > 36) {
+		nxt.each_wheel_speed(650, 650);
+		while(Move.PixelToCM(distanceToBall) > 36 && System.currentTimeMillis() - startTime < 5000) {
 			getPitchInfo(false);
 			distanceToBall = Move.getDist(nxt, ball.getCoors());
 			angleToBall = Move.getAngleToPosition(nxt, ball.getCoors());
 			System.out.println(angleToBall);
-			
-			if(angleToBall > 8) {
-				getPitchInfo(false);
-				System.out.println("GO LEFT");
-				nxt.each_wheel_speed(850, 900);
-			}else if(angleToBall < -8) {
-				getPitchInfo(false);
-				System.out.println("GO RIGHT");
-				nxt.each_wheel_speed(900, 850);
-			}
+//			
+//			if(angleToBall > 8) {
+//				getPitchInfo(false);
+//				System.out.println("GO LEFT");
+//				nxt.each_wheel_speed(850, 900);
+//			}else if(angleToBall < -8) {
+//				getPitchInfo(false);
+//				System.out.println("GO RIGHT");
+//				nxt.each_wheel_speed(900, 800);
+//			}
 
 		}
 		nxt.kick();
