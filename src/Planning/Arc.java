@@ -1,6 +1,10 @@
 package Planning;
 
+import java.awt.Color;
 import java.awt.geom.Point2D;
+import java.awt.geom.Point2D.Double;
+
+import JavaVision.Position;
 
 public class Arc {
 	public static final int MOTION_ROTATE = 0;
@@ -11,6 +15,7 @@ public class Arc {
 	private double arcRadius;
 	private double arcAngle;
 	private double distanceToTravel;
+	
 	
 	public Point2D.Double intersectionPoint;
 	
@@ -38,11 +43,49 @@ public class Arc {
 			//we are parallel
 			//must rotate by 5 degrees
 			angleToRotateBy = (2*Math.PI /360) * 5;
+			if (angleToRotateBy > Math.PI) {
+				angleToRotateBy = (2* Math.PI) - angleToRotateBy * -1;
+			} 
+			System.out.println("parallel");
 			return MOTION_ROTATE;			
 		}
-		
+		/*
+		 * not clear
+		 */
 		if (intersectsBehindTarget(intersectionPoint, ball, target)) {
-			angleToRotateBy = findAngleFromThreePoints(intersectionPoint, ball, robot) + (((2*Math.PI/360)*5)%(2*Math.PI));
+			if (robot.y > ball.y) {
+				angleToRotateBy = -1 * (findAngleFromThreePoints(intersectionPoint, robot, ball) + (((2*Math.PI/360)*5)%(2*Math.PI)));
+			} else if (robot.y < ball.y) {
+				angleToRotateBy = findAngleFromThreePoints(intersectionPoint, ball, robot) + (((2*Math.PI/360)*5)%(2*Math.PI));
+			}
+			
+			if (angleToRotateBy > Math.PI) {
+				angleToRotateBy = (((2* Math.PI) - angleToRotateBy) * -1) % (2*Math.PI);
+			} 
+			System.out.println("Intersection behind target");
+			return MOTION_ROTATE;
+		}
+		
+		double tmpPointX = (Math.sin(Math.PI * 2) * 10 ) + robot.x;
+		double tmpPointY = (Math.cos(Math.PI * 2) * 10) + robot.y;
+		
+		Point2D.Double tmpPoint = new Point2D.Double(tmpPointX, tmpPointY);
+		
+	
+		
+		
+
+		double projectedOrientation = findAngleFromThreePoints(robot, tmpPoint , intersectionPoint);
+		System.out.println("projected, actual: " + projectedOrientation + ", " + orientation);
+		
+		
+		if (Math.abs(projectedOrientation-orientation) > (Math.PI) ) {
+			angleToRotateBy = (Math.PI - findAngleFromThreePoints(intersectionPoint, ball, robot)) + ((2*Math.PI/360)%(2*Math.PI));
+			if (angleToRotateBy > Math.PI) {
+				angleToRotateBy = (2* Math.PI) - angleToRotateBy * -1;
+			} 
+			System.out.println(intersectionPoint.x + ", " + robot.x);
+			System.out.println("facing wrong direction " + angleToRotateBy);
 			return MOTION_ROTATE;
 		}
 		
@@ -61,32 +104,40 @@ public class Arc {
 		
 		if ( distanceIntersectionBall > distanceIntersectionRobot) {
 			pointRobot = robot;
-			pointBall.x = (Math.sin(findRelativeAngle(ball, intersectionPoint)) * distanceIntersectionRobot) + ball.x;
-			pointBall.y = (Math.cos(findRelativeAngle(ball, intersectionPoint)) * distanceIntersectionRobot) + ball.y;
+			pointBall.x = (Math.sin(findRelativeAngle(ball, intersectionPoint)) * distanceIntersectionRobot) + intersectionPoint.x;
+			pointBall.y = (Math.cos(findRelativeAngle(ball, intersectionPoint)) * distanceIntersectionRobot) + intersectionPoint.y;
 			
 		} else if ( distanceIntersectionRobot > distanceIntersectionBall){
 			pointBall = ball;
-			pointRobot.x = (Math.sin(findRelativeAngle(robot, intersectionPoint))* distanceIntersectionBall) + robot.x;
-			pointRobot.y = (Math.cos(findRelativeAngle(robot, intersectionPoint))* distanceIntersectionBall) + robot.y;
+			pointRobot.x = (Math.sin(findRelativeAngle(robot, intersectionPoint))* distanceIntersectionBall) + intersectionPoint.x;
+			pointRobot.y = (Math.cos(findRelativeAngle(robot, intersectionPoint))* distanceIntersectionBall) + intersectionPoint.y;
 			
 		} else {
 			pointBall = ball;
 			pointRobot = robot;
 		}
 		
-		double angleRobotIntersection = findRelativeAngle(pointRobot, intersectionPoint);
-		double angleBallIntersection = findRelativeAngle(pointBall, intersectionPoint);
+		double angleRobotIntersection = findRelativeAngle(intersectionPoint, pointRobot);
+		double angleBallIntersection = findRelativeAngle(intersectionPoint, pointBall);
 		
-		double xOrthogonalBallPoint = (Math.sin(angleBallIntersection+(Math.PI/2)) * 100) + pointBall.x;
-		double yOrthogonalBallPoint = (Math.cos(angleBallIntersection+(Math.PI/2)) * 100) + pointBall.y;
+		System.out.println("robot angle ball angle:" + angleRobotIntersection + ", " + angleBallIntersection);
 		
-		double xOrthogonalRobotPoint = (Math.sin(angleRobotIntersection+(Math.PI/2)) * 100) + pointRobot.x;
-		double yOrthogonalRobotPoint = (Math.cos(angleRobotIntersection+(Math.PI/2)) * 100) + pointRobot.y;
+		double xOrthogonalBallPoint = ((Math.sin(angleBallIntersection+(Math.PI/2)) % (2*Math.PI) ) * 5) + pointBall.x;
+		double yOrthogonalBallPoint = ((Math.cos(angleBallIntersection+(Math.PI/2)) % (2*Math.PI) ) * 5) + pointBall.y;
+		
+		double xOrthogonalRobotPoint = ((Math.sin(angleRobotIntersection+(Math.PI/2)) % (2*Math.PI) ) * 5) + pointRobot.x;
+		double yOrthogonalRobotPoint = ((Math.cos(angleRobotIntersection+(Math.PI/2)) % (2*Math.PI) ) * 5) + pointRobot.y;
 		
 		Point2D.Double orthogonalBallPoint = new Point2D.Double(xOrthogonalBallPoint, yOrthogonalBallPoint);
 		Point2D.Double orthogonalRobotPoint = new Point2D.Double(xOrthogonalRobotPoint, yOrthogonalRobotPoint);
 		
 		Point2D.Double orthogonalIntersectionPoint = findIntersectionPoint(pointBall, orthogonalBallPoint, pointRobot, orthogonalRobotPoint);
+		
+		System.out.println("circle point: " + orthogonalIntersectionPoint.x + ", " + orthogonalIntersectionPoint.y);
+		System.out.println("Ball: " + ball.x + ", " + ball.y);
+		System.out.println("displaced ball: " + pointBall.x + ", " + pointBall.y);
+		System.out.println("robot: " + robot.x + ", " + robot.y);
+		System.out.println("displaced robot: "+ pointRobot.x + ", " + pointRobot.y);
 		
 		//travel to point
 		double distancePointRobotToIntersection = Math.sqrt(Math.pow(pointRobot.x - intersectionPoint.x, 2) + Math.pow(pointRobot.y - intersectionPoint.y,2));
@@ -98,13 +149,17 @@ public class Arc {
 			return MOTION_FORWARD;
 		}
 		
+		
 		arcAngle = findAngleFromThreePoints(orthogonalIntersectionPoint, pointBall, pointRobot);
+		
+		if (arcAngle > Math.PI)
+			arcAngle = (2*Math.PI) - arcAngle;
 		
 		//radius of circle
 		
-		arcRadius = Math.sqrt(Math.pow(pointBall.x - orthogonalIntersectionPoint.x,2) + Math.pow(pointBall.y-orthogonalIntersectionPoint.y, 2) );
+		arcRadius = Math.sqrt(Math.pow(pointRobot.x - orthogonalIntersectionPoint.x,2) + Math.pow(pointRobot.y-orthogonalIntersectionPoint.y, 2) );
 		
-		if(orthogonalIntersectionPoint.y < pointBall.y) {
+		if(orthogonalIntersectionPoint.y > pointBall.y) {
 			arcRadius = arcRadius * -1;	
 		} 
 		
@@ -116,7 +171,10 @@ public class Arc {
 	
 	public double getRotation() {
 		//changed to negative angle
-		return -angleToRotateBy;
+		
+			return -angleToRotateBy;
+		
+		
 	}
 	
 	public double getDistance() {
@@ -138,7 +196,11 @@ public class Arc {
 		double a = Math.sqrt(Math.pow((intersectionPoint.x-ball.x),2) + Math.pow((intersectionPoint.y-ball.y), 2));
 		double b = Math.sqrt(Math.pow((intersectionPoint.x-robot.x),2) + Math.pow((intersectionPoint.y-robot.y), 2));
 		
+		if (robot.x < intersectionPoint.x ) {
+			return (2*Math.PI) - Math.acos((a*a + b*b - c*c)/(2*a*b));	
+		}
 		return Math.acos((a*a + b*b - c*c)/(2*a*b));
+		
 		
 	}
 	private static boolean intersectsBehindTarget(Point2D.Double intersectPoint, Point2D.Double ball, Point2D.Double target) {
@@ -163,7 +225,17 @@ public class Arc {
 	}
 	
 	private static double findRelativeAngle(Point2D.Double point, Point2D.Double origin) {
-		return (Math.atan2(point.y -origin.y, point.x-origin.x)+(Math.PI*2))%(2*Math.PI);
+		
+		double pointValueX = (Math.sin(2*Math.PI) * 10) + origin.x;
+		double pointValueY = (Math.cos(2*Math.PI) * 10) + origin.y;
+		Point2D.Double pointValue = new Point2D.Double(pointValueX, pointValueY);
+		double tempAngle = findAngleFromThreePoints(origin, pointValue, point);
+		
+//		if (tempAngle > Math.PI) {
+//			return (2*Math.PI - tempAngle);
+//		}
+		return tempAngle;
+		
 	}
 	
 	private static Point2D.Double findIntersectionPoint(Point2D.Double l1p1, Point2D.Double l1p2, Point2D.Double l2p1, Point2D.Double l2p2) {

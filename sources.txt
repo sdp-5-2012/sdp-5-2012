@@ -22,6 +22,7 @@
 ./src/Planning/Planning.java
 ./src/Planning/ArcTest.java
 ./src/Planning/Defend.java
+./src/Planning/Test.java
 ./src/Communications/CommunicationInterface.java
 ./src/Communications/BluetoothCommunication.java
 ./src/NXT/NXT_class.java

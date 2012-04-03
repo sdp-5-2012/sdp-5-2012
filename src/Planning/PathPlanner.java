@@ -6,20 +6,18 @@ import JavaVision.*;
 public class PathPlanner {
 	public static boolean shootingLeft = false;
 	// SET PITCH INFO
-	public static int pitchXX = 500;
-	public static int pitchYY = 360;
-
-	public static int pitchX = 562;//501;// 500
-	public static int pitchY = 293;//264;// 245
+	public int pitchX;// 500
+	public int pitchY;// 245
+	
 	// Displacement for the side pitch
-	public int displacementX = 50;
-	public int displacementY = 95;
+	public int displacementX = 55; // 9;
+	public int displacementY = 94;// 119;
 	public static int gridSize = 10;// size of a square on the map
-	public static int gridX = (int) Math.ceil(pitchX / gridSize);
-	public static int gridY = (int) Math.ceil(pitchY / gridSize);
+	public int gridX;
+	public int gridY;
 	int correction = 60;
 	public static ArrayList<GraphPoint> path;
-	public static ArrayList<GraphPoint> occupied = new ArrayList<GraphPoint>();
+	public static ArrayList<GraphPoint> occupied; 
 	public static ArrayList<GraphPoint> checked;
 	public static Position ourPositionCoor;
 	public static Position goalPositionCoor;
@@ -27,64 +25,62 @@ public class PathPlanner {
 	public static GraphPoint oppPositionGrid;
 	public static GraphPoint goalPositionGrid;
 	public static GraphPoint ourPositionGrid;
+	
 	// ADDITIONAL
 	public static GraphPoint newGoalGrid;
 	private static GraphPointComparator comparator = new GraphPointComparator();
 
-
-	public PathPlanner(boolean attackLeft) {
+	public PathPlanner(boolean attackLeft, int pitchX, int pitchY) {
 		shootingLeft = attackLeft;
+		this.pitchX = pitchX;
+		this.pitchY = pitchY;
+		
+		gridX = (int) Math.ceil(pitchX / gridSize);
+		gridY = (int) Math.ceil(pitchY / gridSize);
+		
+		System.out.println(pitchX + " + a" + pitchY);
 	}
-
+	
 	public ArrayList<Position> getOptimalPath(Position ourPosition,
 			Position goalPosition, Position oppPosition) {
+		System.out.println(gridX + " + " + gridY);
+		
 		// Gets occupied grids on the map
-
+		occupied = new ArrayList<GraphPoint>();
 		path = new ArrayList<GraphPoint>();
 		checked = new ArrayList<GraphPoint>();
 		ourPositionCoor = new Position(ourPosition.getX() - displacementX, ourPosition.getY() - displacementY);
 		oppPositionCoor = new Position(oppPosition.getX() - displacementX, oppPosition.getY() - displacementY);
-		goalPositionCoor = new Position(goalPosition.getX() - displacementX, goalPosition.getY() - displacementY);
+		//set position behind ball given goal to shoot at
+		int checkIf = 0;
+		if(shootingLeft){
+			if((goalPosition.getX()+20 - displacementX)<pitchX){
+				goalPositionCoor = new Position(goalPosition.getX()+20 - displacementX, goalPosition.getY() - displacementY);
+				checkIf = 1;
+			}
+		}
+		if(!shootingLeft){
+			if((goalPosition.getX()-20 - displacementX)>0){
+				goalPositionCoor = new Position(goalPosition.getX()-20 - displacementX, goalPosition.getY() - displacementY);
+				checkIf = 1;
+			}
+		}
+		if(checkIf == 0){
+			goalPositionCoor = new Position(goalPosition.getX() - displacementX, goalPosition.getY() - displacementY);
 
+		}
+		//===========
 
-		//UNCOMMENT WHEN POSITIONING TO SHOOT
-		//		if(shootingLeft) {
-		//			goalPositionCoor.setX(goalPositionCoor.getX() + 60);
-		//
-		//			int dev = 122 -goalPositionCoor.getY();
-		//			if(dev<0&&((goalPositionCoor.getY()-dev/2)<pitchY)){
-		//				goalPositionCoor.setY(goalPositionCoor.getY()-dev/3);
-		//			}
-		//			if(dev>0&&(goalPositionCoor.getY()-dev/2>0)){
-		//				goalPositionCoor.setY(goalPositionCoor.getY()-dev/3);
-		//			}
-		//
-		//		}else{
-		//			goalPositionCoor.setX(goalPositionCoor.getX() - 60);
-		//
-		//			int dev = 122 -goalPositionCoor.getY();
-		//			if(dev<0&&((goalPositionCoor.getY()-dev/2)<pitchY)){
-		//				goalPositionCoor.setY(goalPositionCoor.getY()-dev/3);
-		//			}
-		//			if(dev>0&&(goalPositionCoor.getY()-dev/2>0)){
-		//				goalPositionCoor.setY(goalPositionCoor.getY()-dev/3);
-		//			}
-		//		}
-		// THIS WAS
-		// CHANGED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!^
 		ourPositionGrid = coordinatesToGrid(ourPositionCoor);
 		goalPositionGrid = coordinatesToGrid(goalPositionCoor);
-		System.out.println("GOAL" +goalPositionGrid);
 		oppPositionGrid = coordinatesToGrid(oppPositionCoor);
-		// System.out.println(occupied);
+		
+		System.out.println(" goal" + goalPositionGrid.y);
+		System.out.println(" our" + ourPositionGrid.y);
+		System.out.println(" opp" + oppPositionGrid.y);
+
 		occupied.add(ourPositionGrid);
 		occupied.add(oppPositionGrid);
-
-
-		// path = new ArrayList<GraphPoint>();
-		// checked = new ArrayList<GraphPoint>();
-		// occupied = new ArrayList<GraphPoint>();
-
 		checked.add(ourPositionGrid);
 
 		search(ourPositionGrid, goalPositionGrid);
@@ -99,11 +95,7 @@ public class PathPlanner {
 		// System.out.println(wayPositions.get(0));
 		// System.out.println(wayPositions.size());
 		System.out.println(wayPositions);
-		int a = goalPositionCoor.getX()+displacementX;
-		int b = goalPositionCoor.getY()+displacementY;
-		goalPositionCoor.setX(a);
-		goalPositionCoor.setY(b);
-		wayPositions.add(goalPositionCoor);
+
 		return wayPositions;
 	}
 
@@ -120,7 +112,6 @@ public class PathPlanner {
 		int y = a.y * gridSize;
 		a.x = x + displacementX;
 		a.y = y + displacementY;
-
 		return new Position(a.x, a.y);
 	}
 
@@ -134,11 +125,11 @@ public class PathPlanner {
 			return 500;
 		}
 
-		//		if ((Math.abs(gridX - newPosition.x) < 3)
-		//				|| (Math.abs(gridY - newPosition.y)) < 3) {
-		//			// Discourage going too close to walls
-		//			return 100;
-		//		}
+		// if ((Math.abs(gridX - newPosition.x) < 3)
+		// || (Math.abs(gridY - newPosition.y)) < 3) {
+		// // Discourage going too close to walls
+		// return 100;
+		// }
 		if (!shootingLeft) {
 			if (Math.abs(newPosition.y - goalPositionGrid.y) < 6
 					&& newPosition.x >= goalPositionGrid.x)
@@ -185,36 +176,25 @@ public class PathPlanner {
 				.abs(endPosition.y - currentPosition.y));
 	}
 
-	public static void search(GraphPoint currentPosition, GraphPoint endPosition) {
-		//System.out.println("Search");
+	public void search(GraphPoint currentPosition, GraphPoint endPosition) {
 		// going through a few Positions around the current position
 		for (int x = currentPosition.x - 1; x < currentPosition.x + 2; x++) {
 			for (int y = currentPosition.y - 1; y < currentPosition.y + 2; y++) {
 				GraphPoint pt = new GraphPoint(x, y);
-				//System.out.println(goalPositionGrid.y);
-				if(pt.y == goalPositionGrid.y)
-					System.out.println(y);
-				//System.out.println("SearchForLoop");
 				// check whether grid is on the "blacklist"
 				// System.out.println(occupied);
 				if (!occupied.contains(pt)) {
-					//System.out.println("Search1");
 					// check in range of grids
 					if (x > 0 && y > 0 && x <= gridX && y <= gridY) {
-						//System.out.println("Search2");
-
 						// if it's not already on check list, add it
 						if (!checked.contains(pt)) {
-							//System.out.println("Search3");
-
 							checked.add(pt); // checked means it's a valid Position
 							// in which we can travel
 							pt.setParent(currentPosition);
 							if ((pt.x == goalPositionGrid.x)
 									&& (pt.y == goalPositionGrid.y)) {
-
-								System.out.println("ReachedGoal");
 								goalPositionGrid.setParent(currentPosition);
+								System.out.println(x + " " + y);
 							}
 							// the distance to reach the parent + the distance
 							// from the parent to the current Position
@@ -273,7 +253,7 @@ public class PathPlanner {
 	}
 
 	private static void tracePath(GraphPoint startPosition, GraphPoint endPosition) {
-		System.out.println("IT REACHED TRACEPATH");
+		// System.out.println("IT REACHED TRACEPATH");
 		path.add(0, endPosition);
 		if (endPosition.getParent() != null) {
 			tracePath(startPosition, endPosition.getParent());
@@ -284,7 +264,7 @@ public class PathPlanner {
 
 		ArrayList<GraphPoint> newPath = path;
 		for (int i = 0; i < newPath.size() - 1; i++) {
-			// remove Positions that are too close to each other
+			// remove points that are too close to each other
 			if (newPath.get(i).distance(newPath.get(i + 1)) < 3) {
 				newPath.remove(i + 1);
 			}
@@ -293,7 +273,7 @@ public class PathPlanner {
 		// optimise angles repeatedly 3 times
 		for (int j = 0; j < 3; j++) {
 			for (int i = 0; i < newPath.size() - 2; i++) {
-				// remove Positions that hardly change in gradient
+				// remove points that hardly change in gradient
 				if (Math.abs((getAngle(newPath.get(i), newPath.get(i + 1)))
 						- (getAngle(newPath.get(i + 1), newPath.get(i + 2)))) < 30)
 					newPath.remove(i + 2);

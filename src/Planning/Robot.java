@@ -142,6 +142,7 @@ public class Robot extends ObjectDetails {
 			//			 clearAllCommands();
 			//			 System.out.println("STACK CLEARED");
 		} else if (response == 'f') {
+			System.out.println("Finished");
 			// Robot has finished moving
 //			System.out.println("RESPONSE: FINISHED ROTATION!");
 			moving = false;

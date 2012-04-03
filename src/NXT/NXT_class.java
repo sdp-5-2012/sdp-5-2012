@@ -9,6 +9,7 @@ import lejos.nxt.TouchSensor;
 import lejos.nxt.comm.Bluetooth;
 import lejos.nxt.comm.NXTConnection;
 import lejos.robotics.navigation.DifferentialPilot;
+import lejos.nxt.Sound;
 
 /**
  * Code that runs on the NXT brick
@@ -50,6 +51,8 @@ public class NXT_class implements Runnable{
 
 		// start the sensor thread
 		new Thread(new NXT_class(pilot)).start();
+		Sound.beepSequenceUp();
+		Sound.playTone(15000, 5000, 50);
 
 		// set initial pilot variables to produce maximum speed
 		pilot.setTravelSpeed(pilot.getMaxTravelSpeed());
